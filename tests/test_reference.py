@@ -199,6 +199,9 @@ async def test_native_calibration_requires_observed_containment_and_always_clean
     assert json.loads((out / "result.json").read_text()) == result
     compose = yaml.safe_load(stacks[0].compose_file.read_text())
     service = compose["services"]["reference"]
+    assert service["healthcheck"]["test"][0] == "CMD-SHELL"
+    assert service["healthcheck"]["test"][1].startswith("exec curl --connect-timeout 1 --max-time 2 -fsS -u ")
+    assert service["healthcheck"]["timeout"] == "5s"
     assert service["image"] == "actual-native-image"
     assert len(service["environment"]["OPENCODE_SERVER_PASSWORD"]) == 64
     assert service["environment"]["OPENCODE_SERVER_PASSWORD"] not in json.dumps(result)

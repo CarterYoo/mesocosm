@@ -64,6 +64,7 @@ from mesocosm.learning.controller import RolloutContext
 
 
 class Harness(Protocol):
+    async def health(self) -> dict[str, Any]: ...
     async def prepare_action_hook(self) -> dict[str, Any]: ...
     async def create_session(self, title: str) -> str: ...
     async def send_message(self, session_id: str, text: str, *, provider_id: str, model_id: str) -> dict[str, Any]: ...
@@ -79,6 +80,9 @@ ABORT_TIMEOUT_SECONDS = 10.0
 FAILURE_SNAPSHOT_SECONDS = 10.0
 BUDGET_POLL_SECONDS = 0.5
 BUDGET_CONTROL_TIMEOUT_SECONDS = 5.0
+HARNESS_HEALTH_INTERVAL_SECONDS = 5.0
+HARNESS_HEALTH_TIMEOUT_SECONDS = 2.0
+HARNESS_HEALTH_FAILURE_LIMIT = 3
 T = TypeVar("T")
 
 
@@ -96,6 +100,10 @@ class HarnessTurnIncomplete(RuntimeError):
 
 class HarnessEventStreamFailed(RuntimeError):
     """The authoritative harness event stream failed before its planned closure."""
+
+
+class HarnessUnhealthy(RuntimeError):
+    """The local harness repeatedly failed its bounded health probe during a pending turn."""
 
 
 class BudgetRejected(RuntimeError):
@@ -751,7 +759,8 @@ async def _run_task(manifest: WorldManifest, components: Components, bundle: Run
                 watched = _watch_turn_budget(turn, components.gateway, bundle, label, agent.id,
                                              task.name, after=budget_state["cursor"], on_interrupt=terminate_turn)
                 completed = await _interruptible_turn(gate.run_turn(watched) if gate is not None else watched, bundle,
-                                                      terminate_turn, event_collector=ctx.collector)
+                    terminate_turn, event_collector=ctx.collector,
+                    health_monitor=_watch_harness_health(ctx.harness, bundle, agent.id, task.name, session_id))
                 reply = _require_complete_turn(completed)
         except TimeoutError as e:
             if timeout is None:
@@ -940,18 +949,57 @@ async def _abort_turn(ctx: AgentContext, bundle: RunBundle, agent_id: str, task:
     return confirmed
 
 
+async def _watch_harness_health(harness: Harness, bundle: RunBundle, agent_id: str,
+                                task: str, session_id: str) -> None:
+    """Watch local responsiveness, not token progress or elapsed model-generation time."""
+    failures = 0
+    while True:
+        await asyncio.sleep(HARNESS_HEALTH_INTERVAL_SECONDS)
+        started = time.monotonic()
+        error_type = None
+        try:
+            async with asyncio.timeout(HARNESS_HEALTH_TIMEOUT_SECONDS):
+                health = await harness.health()
+                if not isinstance(health, dict) or health.get("healthy") is not True:
+                    raise ValueError("harness health did not confirm healthy=true")
+        except Exception as exc:
+            failures += 1
+            error_type = type(exc).__name__
+        else:
+            failures = 0
+        bundle.record("harness.health", agent_id=agent_id, task=task, session_id=session_id,
+                      ok=failures == 0, consecutive_failures=failures, error_type=error_type,
+                      elapsed_seconds=time.monotonic() - started,
+                      timeout_seconds=HARNESS_HEALTH_TIMEOUT_SECONDS,
+                      interval_seconds=HARNESS_HEALTH_INTERVAL_SECONDS,
+                      failure_limit=HARNESS_HEALTH_FAILURE_LIMIT)
+        if failures >= HARNESS_HEALTH_FAILURE_LIMIT:
+            raise HarnessUnhealthy(f"{agent_id}/{task}/{session_id}: "
+                                   f"{failures} consecutive harness health failures ({error_type})")
+
+
 async def _interruptible_turn(operation: Awaitable[T], bundle: RunBundle,
                               on_interrupt: Callable[[], Awaitable[None]] | None = None, *,
-                              event_collector: asyncio.Task | None = None) -> T:
-    """A stop marker interrupts active turns as well as preventing the next task."""
+                              event_collector: asyncio.Task | None = None,
+                              health_monitor: Awaitable[None] | None = None) -> T:
+    """Interrupt pending work on stop, event-stream failure or observed health failure.
+
+    A completed turn wins a simultaneous health result; health cannot invalidate work
+    after the primary operation has already completed. Original turn errors still escape.
+    """
     turn = asyncio.ensure_future(operation)
+    health = asyncio.ensure_future(health_monitor) if health_monitor is not None else None
     termination: asyncio.Future[None] | None = None
     try:
         while not turn.done():
             _require_event_stream(event_collector)
+            if health is not None and health.done():
+                await health
+                raise HarnessUnhealthy("harness health monitor ended unexpectedly during a pending turn")
             if stop_requested(bundle.root):
                 raise EpisodeStopped("operator requested stop during active turn")
-            await asyncio.wait({turn}, timeout=0.1)
+            await asyncio.wait({turn, *([health] if health is not None else [])},
+                               timeout=0.1, return_when=asyncio.FIRST_COMPLETED)
         _require_event_stream(event_collector)
         return await turn
     except BaseException:
@@ -962,7 +1010,10 @@ async def _interruptible_turn(operation: Awaitable[T], bundle: RunBundle,
     finally:
         if not turn.done():
             turn.cancel()
-        await asyncio.gather(turn, *([termination] if termination is not None else []), return_exceptions=True)
+        if health is not None and not health.done():
+            health.cancel()
+        await asyncio.gather(turn, *([health] if health is not None else []),
+                             *([termination] if termination is not None else []), return_exceptions=True)
 
 
 async def _terminate_workload(components: Components, bundle: RunBundle, agent_id: str,

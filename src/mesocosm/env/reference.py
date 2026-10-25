@@ -216,7 +216,8 @@ async def calibrate_native(task_path: pathlib.Path, out: pathlib.Path, *, expect
             "cap_drop": ["NET_ADMIN", "NET_RAW"], "security_opt": ["no-new-privileges:true"],
             "volumes": [f"{out / 'workspaces'}:/work", f"{config_path}:/root/.config/opencode/opencode.json:ro"],
             "environment": {"OPENCODE_SERVER_USERNAME": "opencode", "OPENCODE_SERVER_PASSWORD": secrets.token_hex(32)},
-            "healthcheck": {"test": ["CMD-SHELL", 'curl -fsS -u "$$OPENCODE_SERVER_USERNAME:'
+            "healthcheck": {"test": ["CMD-SHELL", 'exec curl --connect-timeout 1 --max-time 2 -fsS -u '
+                                                   '"$$OPENCODE_SERVER_USERNAME:'
                                                    '$$OPENCODE_SERVER_PASSWORD" http://127.0.0.1:4096/global/health'],
                             "interval": "2s", "timeout": "5s", "retries": 60}}},
         "networks": {"sandbox": {"internal": True}}}

@@ -377,7 +377,7 @@ def render_compose(manifest: WorldManifest, *, repo_root: pathlib.Path, run_labe
             + (["shared:/shared"] if "shared_dir" in channels else []),
             "depends_on": depends,
             # `up --wait` returns only once the OpenCode server answers; the run manager connects right after
-            "healthcheck": {"test": ["CMD-SHELL", 'curl -fsS -u '
+            "healthcheck": {"test": ["CMD-SHELL", 'exec curl --connect-timeout 1 --max-time 2 -fsS -u '
                                      '"$${OPENCODE_SERVER_USERNAME}:$${OPENCODE_SERVER_PASSWORD}" '
                                      'http://127.0.0.1:4096/global/health'],
                             "interval": "3s", "timeout": "3s", "retries": 40, "start_period": "10s"},
