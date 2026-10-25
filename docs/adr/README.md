@@ -60,3 +60,4 @@ One file per decision, numbered. Status is `proposed`, `accepted`, `superseded b
 | [0054](0054-remove-agent-visualization.md) | Remove agent visualization and its demos; retain runtime evidence and CLI analysis | accepted |
 | [0055](0055-installed-integration-contracts.md) | Installed task sources and whole-world execution backends, portable identity locks and provider-owned enforcement/recovery | accepted |
 | [0056](0056-measured-interaction-conditions.md) | Bounded observable history, explicit feedback, compositional incentives, measured reputation, reviewer/work assignment and artifact publication | accepted |
+| [0059](0059-cohort-task-start.md) | Optional native comparison preparation barrier before the first task prompt | accepted |

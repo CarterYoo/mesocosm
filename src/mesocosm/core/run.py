@@ -562,9 +562,58 @@ def _side_task_agents(manifest: WorldManifest, task: Task) -> list[str] | None:
     return spec.side_task if spec else None
 
 
+class CohortStartAborted(RuntimeError):
+    """A participant failed or stopped before the comparison cohort could start."""
+
+
+class CohortStart:
+    """An opt-in preparation barrier, independent of episode rewards and agent behavior."""
+
+    def __init__(self, agent_ids: list[str], bundle: RunBundle):
+        self.agent_ids, self.bundle = agent_ids, bundle
+        self.arrivals: dict[str, dict[str, tuple[str, str, asyncio.Task | None]]] = {}
+        self.released: dict[str, asyncio.Event] = {}
+        self.failure: str | None = None
+
+    def abort(self, agent_id: str, reason: str) -> None:
+        # Synchronous release also handles a participant's CancelledError, which a TaskGroup
+        # alone does not treat as a failure requiring sibling cancellation.
+        if self.failure is None:
+            self.failure = f"{agent_id}: {reason}"
+            self.bundle.record("task.cohort_aborted", agent_id=agent_id, reason=reason)
+            for released in self.released.values():
+                released.set()
+
+    async def wait(self, agent_id: str, task: str, session_id: str, session_event_id: str,
+                   collector: asyncio.Task | None) -> None:
+        if self.failure is not None:
+            raise CohortStartAborted(self.failure)
+        arrivals = self.arrivals.setdefault(task, {})
+        released = self.released.setdefault(task, asyncio.Event())
+        if agent_id not in self.agent_ids or agent_id in arrivals:
+            raise ValueError("invalid or duplicate cohort participant")
+        ready = self.bundle.record("task.cohort_ready", agent_id=agent_id, task=task, session_id=session_id,
+            links=[EventLink(event_id=session_event_id, relation="observed",
+                             evidence="prepared native harness session")])
+        arrivals[agent_id] = (session_id, str(ready.event_id), collector)
+        if len(arrivals) == len(self.agent_ids):
+            for _, _, stream in arrivals.values():
+                _require_event_stream(stream)
+            self.bundle.record("task.cohort_released", task=task, participants=list(self.agent_ids),
+                sessions={agent: arrivals[agent][0] for agent in self.agent_ids},
+                links=[EventLink(event_id=arrivals[agent][1], relation="observed",
+                                 evidence="all configured participants prepared before the first task prompt")
+                       for agent in self.agent_ids])
+            released.set()
+        await released.wait()
+        if self.failure is not None:
+            raise CohortStartAborted(self.failure)
+
+
 async def _run_task(manifest: WorldManifest, components: Components, bundle: RunBundle, agent: AgentSpec,
                     task: Task, ctx: AgentContext, marks: dict[str, Any],
-                    sync: EpisodeSync | RewardEpisodes | None = None) -> float | None:
+                    sync: EpisodeSync | RewardEpisodes | None = None,
+                    cohort: CohortStart | None = None) -> float | None:
     """One task for one agent: memory policy, planted files, harness turn, native log, verifier, state check;
     under peer review also the episode's opening, scoring and feedback; with a side task its delivery and
     its own verifier (ADR-0030)."""
@@ -623,6 +672,9 @@ async def _run_task(manifest: WorldManifest, components: Components, bundle: Run
             lambda: _terminate_workload(components, bundle, agent.id, task.name, "stagger_interrupted"))
     session_event = bundle.record("harness.session", agent_id=agent.id, step=bundle.next_step(agent.id),
                   session_id=ctx.session_id, task=task.name)
+    if cohort is not None:
+        await _interruptible_turn(cohort.wait(agent.id, task.name, ctx.session_id, str(session_event.event_id),
+                                            ctx.collector), bundle, event_collector=ctx.collector)
     side_agents = _side_task_agents(manifest, task)
     rounds = task.round_prompts(agent.id, side_agents)
     side_given = task.side_instruction is not None and (side_agents is None or agent.id in side_agents)
@@ -989,7 +1041,8 @@ async def _close_agent(ctx: AgentContext) -> None:
 
 async def _run_agent(manifest: WorldManifest, components: Components, bundle: RunBundle, agent: AgentSpec,
                      tasks: list[Task],
-                     sync: EpisodeSync | RewardEpisodes | None = None) -> dict[str, float | None]:
+                     sync: EpisodeSync | RewardEpisodes | None = None,
+                     cohort: CohortStart | None = None) -> dict[str, float | None]:
     """Comparison mode: one agent through every task, in order. Agents run concurrently."""
     rewards: dict[str, float | None] = {}
     marks = adaptation(mode=manifest.mode, memory=manifest.memory,
@@ -1001,11 +1054,15 @@ async def _run_agent(manifest: WorldManifest, components: Components, bundle: Ru
             # Active turns also observe this marker; do not start another task.
             if stop_requested(bundle.root):
                 bundle.record("run.stopped", agent_id=agent.id, before_task=task.name)
+                if cohort is not None:
+                    cohort.abort(agent.id, "operator requested stop before task")
                 break
             rewards[f"{agent.id}/{task.name}"] = await _run_task(manifest, components, bundle, agent, task, ctx, marks,
-                                                                 sync)
+                                                                 sync, cohort)
         return rewards
-    except BaseException:
+    except BaseException as exc:
+        if cohort is not None:
+            cohort.abort(agent.id, repr(exc))
         await _terminate_workload(components, bundle, agent.id, "agent_cleanup", "agent_execution_failed")
         raise
     finally:
@@ -1149,6 +1206,8 @@ async def _run_agent_persistent(manifest: WorldManifest, components: Components,
 
 async def _run(manifest: WorldManifest, manifest_path: pathlib.Path, components: Components,
                bundle: RunBundle) -> RunResult:
+    if manifest.task_start == "cohort" and components.task_runtime is None:
+        raise ValueError("rejected_unsupported: cohort task start requires the native task runtime")
     run_label = manifest.gateway.run_label or bundle.run_id
     rewards: dict[str, float | None] = {}
     tasks = [task for spec in manifest.tasks for task in _load_spec_tasks(spec, manifest_path)]
@@ -1317,8 +1376,11 @@ async def _run(manifest: WorldManifest, manifest_path: pathlib.Path, components:
                 raise ValueError("selective task assignment requires reward episodes")
             rewards.update(await _run_assigned(manifest, components, bundle, tasks, sync))
         else:
-            for agent_rewards in await _run_together([_run_agent(manifest, components, bundle, agent, tasks, sync)
-                                                      for agent in manifest.agents]):
+            cohort = (CohortStart([agent.id for agent in manifest.agents], bundle)
+                      if manifest.task_start == "cohort" else None)
+            runners = [_run_agent(manifest, components, bundle, agent, tasks, sync, cohort)
+                       for agent in manifest.agents]
+            for agent_rewards in await _run_together(runners):
                 rewards.update(agent_rewards)
 
     usage = await components.gateway.usage()

@@ -470,6 +470,8 @@ class WorldManifest(ManifestModel):
     task_services: Literal["isolated", "shared"] = Field(default="isolated",
         description="Native sidecars per agent, or shared services with one team measurement; workspaces stay separate")
     mode: Literal["comparison", "persistent"] = "comparison"
+    task_start: Literal["as_ready", "cohort"] = Field(default="as_ready",
+        description="Start independently, or wait for every native comparison session before the first task prompt")
     model: ModelSpec
     models: list[ModelSpec] = Field(default_factory=list, description="Further models agents may be given "
                                                                       "(`agents[].model`); `model` is the default")
@@ -507,6 +509,11 @@ class WorldManifest(ManifestModel):
             raise ValueError("\n".join(errors))
         if self.task_services == "shared" and (self.mode != "comparison" or self.memory != "reset"):
             raise ValueError("shared task services require comparison mode and reset memory")
+        if self.task_start == "cohort":
+            if self.mode != "comparison" or self.task_assignment.policy != "all" or self.execution.backend != "docker":
+                raise ValueError("rejected_unsupported: cohort task start requires Docker comparison with all agents")
+            if any(task.stagger_seconds for task in self.tasks):
+                raise ValueError("rejected_unsupported: cohort task start cannot combine with staggered task starts")
         if self.observe.token_logprobs:
             catalog = self.catalog()
             unsupported = [agent.id for agent in self.agents

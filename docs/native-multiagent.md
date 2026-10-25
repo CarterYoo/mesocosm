@@ -232,3 +232,13 @@ stack. For the shell-only smoke verifiers, the explicit image can be `debian:boo
 Their fixed-string or filename rewards are fixture checks, not evidence that the native three-agent
 workload succeeded. See [`examples/README.md`](../examples/README.md)
 for the authored tasks, seeded dialogue and experimental service facades.
+
+## Optional cohort task start
+
+Set `task_start: cohort` to wait until every native agent has prepared its environment and harness
+session before any first prompt for that task. It requires comparison mode, all-agent assignment and
+zero task stagger. The default `as_ready` retains independent starts. This changes scheduling only:
+original prompts, rewards, private workspaces and configured shared channels stay the same. Release
+records link every ready session; failures or cancellation release waiters and fail the run. This
+creates an opportunity for overlapping activity, not evidence of interaction. New real-agent acceptance
+is still required; see [ADR-0059](adr/0059-cohort-task-start.md).
