@@ -94,6 +94,10 @@ class HarnessTurnIncomplete(RuntimeError):
     """A returned harness turn lacks a successful terminal assistant message."""
 
 
+class HarnessEventStreamFailed(RuntimeError):
+    """The authoritative harness event stream failed before its planned closure."""
+
+
 class BudgetRejected(RuntimeError):
     """The gateway refused an actual request against a terminal resource limit."""
 
@@ -176,7 +180,8 @@ class RunResult:
 
 
 async def _collect_events(harness: Harness, bundle: RunBundle, session_to_agent: dict[str, str],
-                          raw_log: RawLog | None = None) -> None:
+                          raw_log: RawLog | None = None, *, agent_id: str | None = None,
+                          session_id: str | None = None, task: str | None = None) -> Exception | None:
     try:
         async for raw in harness.events():
             ev = normalize_event(raw, run_id=bundle.run_id, session_to_agent=session_to_agent)
@@ -188,17 +193,53 @@ async def _collect_events(harness: Harness, bundle: RunBundle, session_to_agent:
                     raw_log.append(part)
                 except OSError as e:
                     bundle.record("workspace.raw_log_rejected", agent_id=ev.agent_id, error=repr(e))
-    except Exception as e:  # noqa: BLE001 - the stream ending is not a run failure; record and move on
-        bundle.record("harness.events_ended", error=repr(e))
+        raise HarnessEventStreamFailed("unexpected clean EOF before planned event-stream closure")
+    except Exception as e:  # noqa: BLE001 - retain the original stream failure for the supervising turn
+        bundle.record("harness.events_ended", agent_id=agent_id, session_id=session_id, task=task,
+                      error=repr(e), planned=False)
+        return e
 
 
-async def _stop_collector(collector: asyncio.Task) -> None:
+async def _stop_collector(collector: asyncio.Task) -> Exception | None:
     await asyncio.sleep(EVENT_GRACE_SECONDS)
     collector.cancel()
     try:
-        await collector
+        error = await collector
     except asyncio.CancelledError:
-        pass
+        current = asyncio.current_task()
+        if current is not None and current.cancelling():
+            raise
+        error = None
+    current = asyncio.current_task()
+    if current is not None and current.cancelling():
+        raise asyncio.CancelledError
+    return error
+
+
+def _require_event_stream(collector: asyncio.Task | None) -> None:
+    if collector is not None and collector.done() and not collector.cancelled():
+        error = collector.result()
+        if error is not None:
+            raise HarnessEventStreamFailed(f"harness event stream failed: {error!r}") from error
+
+
+async def _close_task_collector(ctx: AgentContext, bundle: RunBundle, agent_id: str,
+                                 task: str, transcript_id: str) -> None:
+    """Drain then stop observation while the task server still exists, before grading tears it down."""
+    collector = ctx.collector
+    if collector is None:
+        raise HarnessEventStreamFailed("task event collector is missing before verification")
+    already_ended = collector.done()
+    error = await _stop_collector(collector)
+    ctx.collector = None
+    if error is not None:
+        raise HarnessEventStreamFailed(f"harness event stream failed before planned closure: {error!r}") from error
+    bundle.record("harness.events_closed", agent_id=agent_id, session_id=ctx.session_id, task=task,
+        status="closed", reason="completed_transcript_before_native_verifier", planned=True,
+        collector_already_ended=already_ended, collector_failed=False,
+        drain_seconds=EVENT_GRACE_SECONDS, drain_policy="bounded_grace_then_cancel",
+        links=[EventLink(event_id=transcript_id, relation="observed",
+                        evidence="final session transcript persisted before collector closure and verification")])
 
 
 def _parts_summary(reply: dict[str, Any]) -> list[dict[str, Any]]:
@@ -562,7 +603,8 @@ async def _run_task(manifest: WorldManifest, components: Components, bundle: Run
         ctx.raw_log = RawLog(directory)
     ctx.raw_log.task = task.name
     if ctx.collector is None:
-        ctx.collector = asyncio.create_task(_collect_events(ctx.harness, bundle, ctx.session_to_agent, ctx.raw_log))
+        ctx.collector = asyncio.create_task(_collect_events(ctx.harness, bundle, ctx.session_to_agent, ctx.raw_log,
+            agent_id=agent.id, session_id=ctx.session_id, task=task.name))
     planted, instance = plant_agent_files(task.path, agent.id, ctx.workspace,
                                           index=[a.id for a in manifest.agents].index(agent.id))
     if planted:
@@ -657,7 +699,7 @@ async def _run_task(manifest: WorldManifest, components: Components, bundle: Run
                 watched = _watch_turn_budget(turn, components.gateway, bundle, label, agent.id,
                                              task.name, after=budget_state["cursor"], on_interrupt=terminate_turn)
                 completed = await _interruptible_turn(gate.run_turn(watched) if gate is not None else watched, bundle,
-                                                      terminate_turn)
+                                                      terminate_turn, event_collector=ctx.collector)
                 reply = _require_complete_turn(completed)
         except TimeoutError as e:
             if timeout is None:
@@ -721,6 +763,7 @@ async def _run_task(manifest: WorldManifest, components: Components, bundle: Run
         sha256=hashlib.sha256(_json(messages).encode()).hexdigest(), link_coverage="partial",
         links=[EventLink(event_id=str(session_event.event_id), relation="observed",
                          evidence="harness list_messages for this exact session_id")])
+    await _close_task_collector(ctx, bundle, agent.id, task.name, str(transcript.event_id))
     captured: dict[str, Any] | None = None
 
     def record_capture(snapshot: dict[str, Any]) -> None:
@@ -793,7 +836,6 @@ async def _run_task(manifest: WorldManifest, components: Components, bundle: Run
     if protected:
         bundle.record("judge.state_check", agent_id=agent.id, check="protected_files", task=task.name,
                       files=protected_state(ctx.workspace, protected))
-    await asyncio.sleep(EVENT_GRACE_SECONDS)        # let the collector drain the turn's last tool parts
     bundle.record("raw_log.closed", agent_id=agent.id, task=task.name, **ctx.raw_log.stats(task.name))
     ctx.tasks_done += 1
     if ctx.history is not None:
@@ -847,15 +889,18 @@ async def _abort_turn(ctx: AgentContext, bundle: RunBundle, agent_id: str, task:
 
 
 async def _interruptible_turn(operation: Awaitable[T], bundle: RunBundle,
-                              on_interrupt: Callable[[], Awaitable[None]] | None = None) -> T:
+                              on_interrupt: Callable[[], Awaitable[None]] | None = None, *,
+                              event_collector: asyncio.Task | None = None) -> T:
     """A stop marker interrupts active turns as well as preventing the next task."""
     turn = asyncio.ensure_future(operation)
     termination: asyncio.Future[None] | None = None
     try:
         while not turn.done():
+            _require_event_stream(event_collector)
             if stop_requested(bundle.root):
                 raise EpisodeStopped("operator requested stop during active turn")
             await asyncio.wait({turn}, timeout=0.1)
+        _require_event_stream(event_collector)
         return await turn
     except BaseException:
         if on_interrupt is not None:
@@ -934,9 +979,12 @@ def _measurement_evidence(manifest: WorldManifest, components: Components, bundl
 
 
 async def _close_agent(ctx: AgentContext) -> None:
-    if ctx.collector is not None:
-        await _stop_collector(ctx.collector)
-    await ctx.harness.aclose()
+    try:
+        if ctx.collector is not None:
+            await _stop_collector(ctx.collector)
+            ctx.collector = None
+    finally:
+        await ctx.harness.aclose()
 
 
 async def _run_agent(manifest: WorldManifest, components: Components, bundle: RunBundle, agent: AgentSpec,

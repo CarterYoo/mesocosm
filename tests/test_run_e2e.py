@@ -139,7 +139,18 @@ def world(tmp_path):
     def harness_for(agent):
         oc_app = fake_opencode(gw_for_harness, agent.id, "e2e", workspace=tmp_path / "ws" / agent.id,
                                on_message=hooks["on_message"])
-        return OpenCodeClient(agent.harness_url(), transport=httpx.ASGITransport(app=oc_app))
+        client = OpenCodeClient(agent.harness_url(), transport=httpx.ASGITransport(app=oc_app))
+        finite_events = client.events
+
+        async def persistent_events():
+            # ASGITransport buffers HTTP responses, so the HTTP fixture itself must finish.
+            # The harness lifecycle remains persistent, like the actual OpenCode SSE endpoint.
+            async for event in finite_events():
+                yield event
+            await asyncio.Event().wait()
+
+        client.events = persistent_events
+        return client
 
     services_log = tmp_path / "services.jsonl"
     stale = {"ts": 1.0, "service": "board", "op": "write", "agent": "agent-1", "post_id": 0}      # an earlier run's record
@@ -916,18 +927,26 @@ async def test_native_environment_is_prepared_after_reset_before_session_creatio
 async def test_unsafe_workspace_raw_log_does_not_stop_authoritative_event_collection(tmp_path):
     from mesocosm.core.run import _collect_events
 
+    observed = asyncio.Event()
+
     class Harness:
         async def events(self):
             for index in range(2):
                 yield {"type": "message.part.updated", "properties": {
                     "part": {"type": "tool", "sessionID": "s", "callID": str(index)}}}
+            observed.set()
+            await asyncio.Event().wait()
 
     class UnsafeRawLog:
         def append(self, part):
             raise OSError("unsafe link in workspace")
 
     bundle = RunBundle.create(tmp_path, "run_collection")
-    await _collect_events(Harness(), bundle, {"s": "agent-1"}, UnsafeRawLog())
+    collector = asyncio.create_task(_collect_events(Harness(), bundle, {"s": "agent-1"}, UnsafeRawLog()))
+    await observed.wait()
+    collector.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await collector
     kinds = [e.kind for e in bundle.events()]
     assert kinds.count("opencode.message.part.updated") == 2
     assert kinds.count("workspace.raw_log_rejected") == 2
