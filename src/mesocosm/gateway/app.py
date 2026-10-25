@@ -34,10 +34,12 @@ from pydantic import BaseModel
 from starlette.background import BackgroundTask
 
 from mesocosm.core.receipts import EnforcedAt, Receipt, Verification
+from mesocosm.core.sampling import SamplingSpec
 from mesocosm.gateway.actions import register_action_routes
 from mesocosm.gateway.capture import MAX_BODY_BYTES, MAX_BODY_CHUNKS, BodyCapture, CaptureLimitError, DecodedBody
 from mesocosm.gateway.resources import ResourceExhausted, TeamResources
 from mesocosm.gateway.rollout import register_rollout_routes, sampling_request
+from mesocosm.gateway.sampling import apply_sampling
 from mesocosm.learning.config import PolicyIdentity
 
 HOP_BY_HOP = {"content-length", "transfer-encoding", "connection", "keep-alive", "host"}
@@ -70,6 +72,13 @@ class Settings:
             raise ValueError("top_logprobs must be 0..20 and requires token_logprobs when nonzero")
         if any(type(value) is not int or value < 1 for value in (self.capture_max_bytes, self.capture_max_chunks)):
             raise ValueError("capture byte and chunk limits must be positive integers")
+        for spec in self.upstreams.values():
+            if "sampling" in spec:
+                SamplingSpec.model_validate(spec["sampling"])
+                if spec.get("kind", "vllm") != "vllm":
+                    raise ValueError("model sampling requires a vllm route")
+                if self.require_rollout_binding:
+                    raise ValueError("model sampling cannot combine with rollout-bound training")
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -267,6 +276,7 @@ class Route:
     upstream: str
     key: str | None
     kind: str          # vllm: token ids can be requested; openai: any other OpenAI-compatible API
+    sampling: SamplingSpec | None = None
 
 
 class Gateway:
@@ -408,13 +418,17 @@ class Gateway:
         spec = self.settings.upstreams.get(model or "")
         if spec is None:
             return Route(self.client, self.settings.upstream, self.settings.upstream_key, "vllm")
+        sampling = SamplingSpec.model_validate(spec["sampling"]) if "sampling" in spec else None
+        if sampling is not None and not spec.get("url"):
+            # A sampling-only entry must preserve the existing default server and its key.
+            return Route(self.client, self.settings.upstream, self.settings.upstream_key, "vllm", sampling)
         url = str(spec["url"]).rstrip("/")
         client = self.clients.get(url)
         if client is None:
             client = self.clients[url] = httpx.AsyncClient(base_url=url, timeout=httpx.Timeout(None),
                                                            transport=self._transport)
         key = os.environ.get(spec["key_env"]) if spec.get("key_env") else None
-        return Route(client, url, key or None, str(spec.get("kind") or "vllm"))
+        return Route(client, url, key or None, str(spec.get("kind") or "vllm"), sampling)
 
     def log(self, record: dict[str, Any]) -> None:
         if self._log_file is None:
@@ -758,6 +772,15 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                 base.update({"upstream": route.upstream, "model_kind": route.kind})
             if is_chat:
                 assert body is not None
+                if route.sampling is not None:
+                    base["sampling_contract"] = {"source": "model.sampling", "model": model,
+                        "parameters": route.sampling.model_dump(), "seed_scope": "fixed_per_request"}
+                    if context is not None:
+                        return invalid_request("model sampling cannot combine with rollout-bound training")
+                    try:
+                        body = apply_sampling(body, route.sampling)
+                    except ValueError as exc:
+                        return invalid_request(str(exc))
                 if context is not None:
                     base["rollout"] = copy.deepcopy(context)
                     try:

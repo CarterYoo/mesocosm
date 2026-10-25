@@ -73,6 +73,8 @@ def register_rollout_routes(app: FastAPI, gateway: Gateway) -> None:
             raise HTTPException(409, "unbind the previous rollout before binding another")
         if gateway.route(req.policy.model).kind != "vllm":
             raise HTTPException(422, "training requires a vLLM upstream")
+        if gateway.route(req.policy.model).sampling is not None:
+            raise HTTPException(422, "model sampling cannot combine with rollout-bound training")
         enforced = EnforcedAt(component="gateway")
         context = req.context(enforced.event_id)
         gateway.rollout_bindings[key] = context

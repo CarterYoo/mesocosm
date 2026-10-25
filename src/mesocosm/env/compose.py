@@ -103,10 +103,11 @@ def _with_domain(names: list[str], domain: str | None) -> list[str]:
     return names + [f"{n}.{domain}" for n in names] if domain else names
 
 
-def gateway_upstreams(manifest: WorldManifest) -> dict[str, dict[str, str | None]]:
-    """MESOCOSM_UPSTREAMS: the models the gateway routes elsewhere than its default inference server (ADR-0029)."""
-    return {m.id: {"url": m.upstream, "key_env": m.api_key_env, "kind": m.kind}
-            for m in manifest.catalog().values() if m.upstream}
+def gateway_upstreams(manifest: WorldManifest) -> dict[str, dict]:
+    """Explicit routes and opt-in sampling, including models on the default inference server."""
+    return {m.id: {"url": m.upstream, "key_env": m.api_key_env, "kind": m.kind,
+                   **({"sampling": m.sampling.model_dump()} if m.sampling is not None else {})}
+            for m in manifest.catalog().values() if m.upstream or m.sampling is not None}
 
 
 def agent_files(manifest: WorldManifest, run_label: str, gateway_url: str = GATEWAY_URL,
@@ -211,6 +212,8 @@ def render_compose(manifest: WorldManifest, *, repo_root: pathlib.Path, run_labe
     from mesocosm.integrations.registry import validate_integrations
 
     validate_integrations(manifest, require_backend="docker")
+    if require_rollout_binding and any(model.sampling is not None for model in manifest.catalog().values()):
+        raise ValueError("model sampling cannot combine with rollout-bound training")
     repo = repo_root.resolve()
     spike = str(repo / "spike")
     runs = str((repo / runs_dir).resolve())

@@ -62,3 +62,4 @@ One file per decision, numbered. Status is `proposed`, `accepted`, `superseded b
 | [0056](0056-measured-interaction-conditions.md) | Bounded observable history, explicit feedback, compositional incentives, measured reputation, reviewer/work assignment and artifact publication | accepted |
 | [0059](0059-cohort-task-start.md) | Optional native comparison preparation barrier before the first task prompt | accepted |
 | [0060](0060-prepared-native-image-reuse.md) | Reuse native images only after complete source, recipe, immutable image and operator-proof checks | accepted |
+| [0061](0061-explicit-request-sampling.md) | Opt-in per-model request sampling, exact wire evidence and explicit separation from policy-training sampling | accepted |
