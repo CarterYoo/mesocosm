@@ -26,6 +26,7 @@ from mesocosm.adapters.opencode.action_plugin import render_action_plugin
 from mesocosm.adapters.opencode.client import CONTEXT_CONFIG, render_opencode_config
 from mesocosm.core.manifest import AgentSpec, WorldManifest
 from mesocosm.env.web import WebPolicy, generate_ca, probe_hosts
+from mesocosm.gateway.capture import MAX_BODY_BYTES, MAX_BODY_CHUNKS
 
 GATEWAY_URL = "http://gateway:8080"          # as agents reach it, on every sandbox network
 MCP_URL = "http://mcp/"                       # the world's own MCP server (services.mcp), server name `team`
@@ -240,7 +241,12 @@ def render_compose(manifest: WorldManifest, *, repo_root: pathlib.Path, run_labe
             "environment": {
                 "MESOCOSM_UPSTREAM": f"http://{vllm_host}:{vllm_port}",
                 "MESOCOSM_LOG_DIR": f"/runs/{run_label}",
-                "MESOCOSM_RETURN_TOKEN_IDS": "1" if manifest.observe.activations or require_rollout_binding else "0",
+                "MESOCOSM_RETURN_TOKEN_IDS": "1" if (manifest.observe.activations or manifest.observe.token_logprobs
+                                                     or require_rollout_binding) else "0",
+                "MESOCOSM_TOKEN_LOGPROBS": "1" if manifest.observe.token_logprobs else "0",
+                "MESOCOSM_TOP_LOGPROBS": str(manifest.observe.top_logprobs),
+                "MESOCOSM_CAPTURE_MAX_BYTES": str(MAX_BODY_BYTES),
+                "MESOCOSM_CAPTURE_MAX_CHUNKS": str(MAX_BODY_CHUNKS),
                 "MESOCOSM_REQUIRE_ROLLOUT_BINDING": "1" if require_rollout_binding else "0",
                 "MESOCOSM_GATEWAY_HOST": "0.0.0.0",
                 "MESOCOSM_CONTROL_KEY": manifest.gateway.api_key,

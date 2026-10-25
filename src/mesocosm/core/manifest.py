@@ -218,7 +218,17 @@ class JudgeSpec(ManifestModel):
 
 class ObserveSpec(ManifestModel):
     activations: bool = False      # record token ids at the gateway so activations can be recomputed
+    token_logprobs: bool = Field(default=False,
+                                description="Request chosen-token log probabilities and exact token IDs from vLLM")
+    top_logprobs: int = Field(default=0, ge=0, le=20, strict=True,
+                             description="Number of alternative token probabilities requested; requires token_logprobs")
     capture: CaptureSpec = Field(default_factory=CaptureSpec)
+
+    @model_validator(mode="after")
+    def _logprob_observation(self) -> ObserveSpec:
+        if self.top_logprobs and not self.token_logprobs:
+            raise ValueError("observe.top_logprobs requires observe.token_logprobs=true")
+        return self
 
 
 class StreamSpec(ManifestModel):
@@ -497,6 +507,12 @@ class WorldManifest(ManifestModel):
             raise ValueError("\n".join(errors))
         if self.task_services == "shared" and (self.mode != "comparison" or self.memory != "reset"):
             raise ValueError("shared task services require comparison mode and reset memory")
+        if self.observe.token_logprobs:
+            catalog = self.catalog()
+            unsupported = [agent.id for agent in self.agents
+                           if (model := catalog.get(agent.model or self.model.id)) is not None and model.kind != "vllm"]
+            if unsupported:
+                raise ValueError(f"observe.token_logprobs requires vllm models for every agent: {unsupported}")
         return self
 
     def channel_types(self) -> list[str]:

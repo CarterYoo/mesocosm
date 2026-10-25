@@ -161,7 +161,12 @@ def render_opencode_config(*, gateway_url: str, model_id: str, api_key: str, pro
         **json.loads(CONTEXT_CONFIG),
     }
     if tools:
-        config["tools"] = dict(tools)         # OpenCode's documented `tools` option: built-ins switched off
+        # Use modern permissions only: legacy tools are merged before wildcard allow.
+        permission = {"*": "allow"}
+        for tool, enabled in tools.items():
+            key = "edit" if tool in {"write", "edit", "patch"} else tool
+            permission[key] = "allow" if enabled else "deny"
+        config["permission"] = permission
     config["provider"] = {
         provider_id: {
             "npm": "@ai-sdk/openai-compatible",

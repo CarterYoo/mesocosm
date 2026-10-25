@@ -35,6 +35,7 @@ from starlette.background import BackgroundTask
 
 from mesocosm.core.receipts import EnforcedAt, Receipt, Verification
 from mesocosm.gateway.actions import register_action_routes
+from mesocosm.gateway.capture import MAX_BODY_BYTES, MAX_BODY_CHUNKS, BodyCapture, CaptureLimitError, DecodedBody
 from mesocosm.gateway.resources import ResourceExhausted, TeamResources
 from mesocosm.gateway.rollout import register_rollout_routes, sampling_request
 from mesocosm.learning.config import PolicyIdentity
@@ -50,6 +51,10 @@ class Settings:
     log_dir: pathlib.Path = pathlib.Path("./runs/spike")
     budgets: dict[str, dict[str, int]] = field(default_factory=dict)
     return_token_ids: bool = False
+    token_logprobs: bool = False
+    top_logprobs: int = 0
+    capture_max_bytes: int = MAX_BODY_BYTES
+    capture_max_chunks: int = MAX_BODY_CHUNKS
     require_rollout_binding: bool = False
     max_hold_seconds: float = 600.0   # a paused run's requests wait this long at most, then get 503
     control_key: str = "mesocosm-local"                    # bearer key of the /admin endpoints (the control plane)
@@ -59,6 +64,13 @@ class Settings:
     upstreams: dict[str, dict[str, Any]] = field(default_factory=dict)
     team_resources: dict[str, int | None] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        if type(self.top_logprobs) is not int or not 0 <= self.top_logprobs <= 20 \
+                or (self.top_logprobs and not self.token_logprobs):
+            raise ValueError("top_logprobs must be 0..20 and requires token_logprobs when nonzero")
+        if any(type(value) is not int or value < 1 for value in (self.capture_max_bytes, self.capture_max_chunks)):
+            raise ValueError("capture byte and chunk limits must be positive integers")
+
     @classmethod
     def from_env(cls) -> Settings:
         return cls(
@@ -66,6 +78,10 @@ class Settings:
             log_dir=pathlib.Path(os.environ.get("MESOCOSM_LOG_DIR", str(cls.log_dir))),
             budgets=json.loads(os.environ.get("MESOCOSM_BUDGET_JSON", "{}") or "{}"),
             return_token_ids=os.environ.get("MESOCOSM_RETURN_TOKEN_IDS", "0") == "1",
+            token_logprobs=os.environ.get("MESOCOSM_TOKEN_LOGPROBS", "0") == "1",
+            top_logprobs=int(os.environ.get("MESOCOSM_TOP_LOGPROBS", "0")),
+            capture_max_bytes=int(os.environ.get("MESOCOSM_CAPTURE_MAX_BYTES", str(MAX_BODY_BYTES))),
+            capture_max_chunks=int(os.environ.get("MESOCOSM_CAPTURE_MAX_CHUNKS", str(MAX_BODY_CHUNKS))),
             require_rollout_binding=os.environ.get("MESOCOSM_REQUIRE_ROLLOUT_BINDING", "0") == "1",
             max_hold_seconds=float(os.environ.get("MESOCOSM_MAX_HOLD_SECONDS", "600")),
             control_key=os.environ.get("MESOCOSM_CONTROL_KEY", cls.control_key),
@@ -451,13 +467,15 @@ class Gateway:
                 return key
         return None
 
-    def add_usage(self, agent: str, usage: dict[str, Any] | None) -> None:
+    def add_usage(self, agent: str, usage: dict[str, Any] | None) -> dict[str, Any] | None:
         used = self.usage_for(agent)
-        if usage:
-            used["prompt_tokens"] += int(usage.get("prompt_tokens") or 0)
-            used["completion_tokens"] += int(usage.get("completion_tokens") or 0)
-        else:
+        if not isinstance(usage, dict) or any(type(usage.get(key)) is not int or usage[key] < 0
+                                              for key in ("prompt_tokens", "completion_tokens")):
             self.missing_usage.add(agent)
+            return None
+        used["prompt_tokens"] += usage["prompt_tokens"]
+        used["completion_tokens"] += usage["completion_tokens"]
+        return usage
 
     def set_budget(self, agent: str, budget: dict[str, int], run_id: str | None = None) -> Receipt:
         """Apply a budget and return the receipt. Enforcement is this object's counters."""
@@ -673,7 +691,13 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
         if not is_chat and not is_models:
             gw.log({**base, "event": "endpoint_denied"})
             return JSONResponse(status_code=404, content={"detail": "Not Found"})
-        body_bytes = await request.body()
+        incoming = bytearray()
+        async for part in request.stream():
+            if len(incoming) + len(part) > gw.settings.capture_max_bytes:
+                gw.log({**base, "event": "invalid_request", "reason": "request_byte_limit"})
+                return refusal("invalid")
+            incoming.extend(part)
+        body_bytes = bytes(incoming)
         body: dict[str, Any] | None = None
         if body_bytes:
             try:
@@ -705,6 +729,8 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
         transport_closed = True
         admitted = False
         usage_recorded = False
+        capture: BodyCapture | None = None
+        capture_recorded = False
 
         def release() -> None:
             nonlocal lock_released
@@ -779,6 +805,8 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                     body["stream_options"] = {**options, "include_usage": True}
                 if gw.settings.return_token_ids and route.kind == "vllm":     # only vLLM understands the field
                     body["return_token_ids"] = True
+                if gw.settings.token_logprobs and route.kind == "vllm" and context is None:
+                    body.update(logprobs=True, top_logprobs=gw.settings.top_logprobs, return_token_ids=True)
                 if identified_by == "key" and any(v is not None for v in gw.settings.team_resources.values()):
                     pool = gw.team_resources.setdefault(run, TeamResources(
                         requests=gw.settings.team_resources.get("requests"),
@@ -804,6 +832,9 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                         return invalid_request(str(exc))
                     gw.log({**base, "event": "resource_admitted", "resource": "team_model", **pool.snapshot()})
                 body_bytes = json.dumps(body).encode("utf-8")
+                if len(body_bytes) > gw.settings.capture_max_bytes:
+                    response_usage = {"prompt_tokens": 0, "completion_tokens": 0}  # Nothing was dispatched.
+                    return invalid_request("forwarded_request_byte_limit")
                 # No await between the quota check and admission: an upstream attempt consumes one request.
                 gw.record_admission(base)
                 admitted = True
@@ -816,16 +847,25 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
             headers["x-mesocosm-request-id"] = request_id
             if is_chat:
                 headers["content-length"] = str(len(body_bytes))
+                # Only negotiate encodings whose normalization is incrementally bounded.
+                headers["accept-encoding"] = "gzip, deflate, identity"
 
             # Validate the same listing for HEAD; its public response below has no body.
             upstream_req = route.client.build_request("GET" if is_models else request.method, "/" + path,
                                                       content=b"" if is_models else body_bytes,
                                                       headers=headers, params=request.query_params)
+            if is_chat:
+                capture = BodyCapture(upstream_req.content, max_bytes=gw.settings.capture_max_bytes,
+                                      max_chunks=gw.settings.capture_max_chunks)
             try:
                 upstream = await route.client.send(upstream_req, stream=True)
                 transport_closed = False
             except httpx.HTTPError as e:
-                gw.log({**base, "event": "upstream_error", "error": repr(e), "request": body})
+                if capture is not None:
+                    capture.finish("transport_error", e)
+                gw.log({**base, "event": "upstream_error", "error": repr(e), "request": body,
+                        **({"raw_capture": capture.record()} if capture is not None else {})})
+                capture_recorded = True
                 return refusal("upstream")
 
             if is_models:
@@ -847,27 +887,58 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                         else JSONResponse(public))
 
             resp_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in HOP_BY_HOP}
+            assert capture is not None
+            # Custom transports can return an already buffered/decoded response. Its wire
+            # bytes are unavailable: retain the decoded body and label that boundary honestly.
+            buffered = upstream.is_stream_consumed
+            capture.response(content_type=upstream.headers.get("content-type"),
+                             content_encoding=upstream.headers.get("content-encoding"),
+                             encoded=not buffered)
+            decoded = DecodedBody(None if buffered else upstream.headers.get("content-encoding"),
+                                  gw.settings.capture_max_bytes)
+            if buffered:
+                resp_headers.pop("content-encoding", None)
+
+            async def response_chunks():
+                if buffered:
+                    yield upstream.content
+                else:
+                    async for chunk in upstream.aiter_raw():
+                        yield chunk
 
             if is_chat and body is not None and body.get("stream"):
-                chunks: list[bytes] = []
                 finalized = False
 
                 async def finish_stream():
-                    nonlocal finalized, response_usage, transport_closed, usage_recorded
+                    nonlocal finalized, response_usage, transport_closed, usage_recorded, capture_recorded
                     if finalized:
                         return
                     finalized = True
+                    assert capture is not None
+                    capture.finish("interrupted")
                     # Account and log before an awaited close: disconnect cancellation cannot skip them.
                     try:
-                        raw = b"".join(chunks).decode("utf-8", "replace")
-                        parsed = parse_sse(raw) if upstream.status_code < 400 else {"raw": raw[:4000]}
-                        response_usage = parsed.get("usage")
-                        gw.add_usage(agent, parsed.get("usage"))
+                        raw = decoded.text()
+                        try:
+                            parsed = parse_sse(raw) if upstream.status_code < 400 else {"raw": raw[:4000]}
+                        except (AttributeError, TypeError, ValueError) as exc:
+                            parsed = {"raw": raw[:4000], "normalization_error": type(exc).__name__}
+                        termination = capture.record()["response"]["termination"]
+                        if termination != "eof":
+                            parsed["stream_complete"] = False
+                            reason = ("evidence_capture_limit" if termination == "capture_limit"
+                                      else f"transport_{termination}")
+                            parsed.setdefault("stream_errors", []).append(reason)
+                            response_usage = gw.add_usage(agent, None)
+                        else:
+                            response_usage = gw.add_usage(agent, parsed.get("usage"))
                         usage_recorded = True
                         gw.log({**base, "event": "chat_completion", "stream": True, "status": upstream.status_code,
                                 "latency_ms": round((time.time() - t0) * 1000), "request": body,
                                 "request_summary": request_summary(body), "response": parsed,
+                                "raw_capture": capture.record(),
                                 "usage_total": gw.usage_for(agent), "missing_usage": agent in gw.missing_usage})
+                        capture_recorded = True
                     finally:
                         try:
                             await upstream.aclose()
@@ -876,10 +947,21 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                             release()
 
                 async def stream():
+                    assert capture is not None
                     try:
-                        async for chunk in upstream.aiter_raw():
-                            chunks.append(chunk)
+                        async for chunk in response_chunks():
+                            capture.receive(chunk)
+                            decoded.receive(chunk)
                             yield chunk
+                        decoded.finish()
+                        capture.finish("eof")
+                    except CaptureLimitError as exc:
+                        capture.truncate(exc.reason)
+                        capture.finish("capture_limit", exc)
+                        raise
+                    except BaseException as exc:
+                        capture.finish("cancelled" if isinstance(exc, asyncio.CancelledError) else "stream_error", exc)
+                        raise
                     finally:
                         await finish_stream()
                 streaming = True
@@ -888,36 +970,63 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                                          background=BackgroundTask(finish_stream))
 
             try:
-                content = await upstream.aread()
-            except httpx.HTTPError as exc:
-                gw.log({**base, "event": "upstream_error", "error": repr(exc), "status": upstream.status_code,
-                        "request": body, "response_complete": False})
+                async for chunk in response_chunks():
+                    capture.receive(chunk)
+                    decoded.receive(chunk)
+                decoded.finish()
+                content = bytes(decoded.body)
+                capture.finish("eof")
+            except CaptureLimitError as exc:
+                capture.truncate(exc.reason)
+                capture.finish("capture_limit", exc)
+                gw.log({**base, "event": "upstream_error", "status": upstream.status_code,
+                        "request": body, "response_complete": False, "raw_capture": capture.record()})
+                capture_recorded = True
                 return refusal("upstream")
+            except httpx.HTTPError as exc:
+                capture.finish("transport_error", exc)
+                gw.log({**base, "event": "upstream_error", "error": repr(exc), "status": upstream.status_code,
+                        "request": body, "response_complete": False, "raw_capture": capture.record()})
+                capture_recorded = True
+                return refusal("upstream")
+            except BaseException as exc:
+                capture.finish("cancelled" if isinstance(exc, asyncio.CancelledError) else "stream_error", exc)
+                raise
             finally:
                 await upstream.aclose()
                 transport_closed = True
-            resp_headers.pop("content-encoding", None)  # httpx already decoded the body
+            resp_headers.pop("content-encoding", None)  # The normalizer decoded the body.
             if is_chat:
                 assert body is not None
                 try:
                     data = json.loads(content)
-                except json.JSONDecodeError:
+                except (json.JSONDecodeError, UnicodeDecodeError):
                     data = None
                 if isinstance(data, dict) and "choices" in data:
-                    parsed = summarize_response(data)
+                    try:
+                        parsed = summarize_response(data)
+                    except (AttributeError, TypeError, ValueError) as exc:
+                        parsed = {"raw": content[:2000].decode("utf-8", "replace"),
+                                  "normalization_error": type(exc).__name__}
                 else:
                     parsed = {"raw": content[:2000].decode("utf-8", "replace")}
-                gw.add_usage(agent, data.get("usage") if isinstance(data, dict) else None)
+                response_usage = gw.add_usage(agent, data.get("usage") if isinstance(data, dict) else None)
                 usage_recorded = True
-                response_usage = data.get("usage") if isinstance(data, dict) else None
                 gw.log({**base, "event": "chat_completion", "stream": False, "status": upstream.status_code,
                         "latency_ms": round((time.time() - t0) * 1000), "request": body,
                         "request_summary": request_summary(body), "response": parsed,
+                        "raw_capture": capture.record(),
                         "usage_total": gw.usage_for(agent), "missing_usage": agent in gw.missing_usage})
+                capture_recorded = True
             return Response(content=content, status_code=upstream.status_code, headers=resp_headers,
                             media_type=upstream.headers.get("content-type"))
         finally:
             if not streaming:
+                if capture is not None and not capture_recorded:
+                    capture.finish("interrupted")
+                    gw.log({**base, "event": "upstream_error", "request": body,
+                            "response_complete": capture.record()["response"]["transport_complete"],
+                            "raw_capture": capture.record()})
                 if admitted and not usage_recorded:
                     gw.add_usage(agent, None)
                     gw.log({**base, "event": "request_usage_unknown", "usage_total": gw.usage_for(agent),

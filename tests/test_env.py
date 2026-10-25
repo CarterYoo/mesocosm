@@ -331,7 +331,8 @@ def test_switched_off_harness_tools_reach_the_config():
     assert "tools" not in json.loads(agent_files(manifest, "lbl")["agent-1"]["opencode.json"]), "as shipped by default"
     manifest.agents[0].tools = {"todowrite": False, "question": False}
     cfg = json.loads(agent_files(manifest, "lbl")["agent-1"]["opencode.json"])
-    assert cfg["tools"] == {"todowrite": False, "question": False}
+    assert "tools" not in cfg
+    assert list(cfg["permission"].items()) == [("*", "allow"), ("todowrite", "deny"), ("question", "deny")]
 
 
 def test_each_agent_gets_its_own_model_and_the_gateway_the_catalog_with_keys_passed_through():
