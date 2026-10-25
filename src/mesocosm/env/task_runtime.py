@@ -31,6 +31,12 @@ from mesocosm.core.artifacts import ArtifactSpec, capture_artifacts
 from mesocosm.core.manifest import AgentSpec
 from mesocosm.env.egress import DockerEgressVerifier
 from mesocosm.env.lifecycle import CONTAINER_ID, container_evidence, isolation_evidence
+from mesocosm.env.native_image_cache import (
+    PREFIX,
+    expected_labels,
+    find_prepared_image,
+    load_import_receipt,
+)
 from mesocosm.env.task_stack import (
     TaskComposeError,
     TaskStack,
@@ -63,7 +69,7 @@ def environment_source(task: Task) -> tuple[str | None, pathlib.Path]:
     return None, root
 
 
-def environment_key(task: Task, opencode_version: str) -> str:
+def environment_fingerprint(task: Task, opencode_version: str) -> str:
     image, root = environment_source(task)
     identity = {"image": image, "version": opencode_version, "environment": task.config.get("environment") or {}}
     digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode())
@@ -73,7 +79,11 @@ def environment_key(task: Task, opencode_version: str) -> str:
         for path in sorted(p for p in root.rglob("*") if p.is_file()):
             digest.update(path.relative_to(root).as_posix().encode())
             digest.update(path.read_bytes())
-    return digest.hexdigest()[:24]
+    return digest.hexdigest()
+
+
+def environment_key(task: Task, opencode_version: str) -> str:
+    return environment_fingerprint(task, opencode_version)[:24]
 
 
 def harness_dockerfile(base: str, version: str, user: str) -> str:
@@ -131,6 +141,7 @@ class NativeImage:
     key: str
     compose: dict[str, Any] | None = None
     platform: str | None = None
+    prepared_image: dict[str, Any] | None = None
 
 
 @dataclass
@@ -178,6 +189,10 @@ class DockerTaskRuntime:
         self.compose_file = compose_file.resolve()
         self.state_dir = state_dir.resolve()
         self.opencode_version = opencode_version
+        try:
+            self.imported_images, self.import_receipt_sha256 = load_import_receipt()
+        except (OSError, ValueError) as exc:
+            raise TaskEnvironmentError(f"invalid prepared-image import: {exc}") from exc
         self.verifier_network = verifier_network
         self.allow_unenforced_resources = allow_unenforced_resources or allow_unenforced_storage
         self.limits_available: bool | None = None
@@ -271,7 +286,8 @@ class DockerTaskRuntime:
                 for key, value in variables.items()
             ):
                 raise TaskEnvironmentError("snapshot verifier environment requires explicit scalar values")
-        key = environment_key(task, self.opencode_version)
+        fingerprint = environment_fingerprint(task, self.opencode_version)
+        key = fingerprint[:24]
         async with self.build_lock:
             if self.limits_available is None:
                 info = json.loads((await self.command("docker", "info", "--format", "{{json .}}")).decode())
@@ -304,7 +320,20 @@ class DockerTaskRuntime:
             build_dir.mkdir(parents=True, exist_ok=True)
             timeout = float((task.config.get("environment") or {}).get("build_timeout_sec") or 1200)
             base = declared or f"mesocosm-task-base:{key}"
-            if native_compose is not None and main.get("build"):
+            recipe = harness_dockerfile("native-image", self.opencode_version, "native-user")
+            recipe += startup_script({"Cmd": ["native-command"]})
+            labels = expected_labels(fingerprint, hashlib.sha256(recipe.encode()).hexdigest(),
+                                     self.opencode_version, platform)
+            image = f"mesocosm-task-agent:{key}"
+            try:
+                cached = await find_prepared_image(self.command, tag=image, labels=labels, platform=platform,
+                                                  imported=self.imported_images,
+                                                  import_sha256=self.import_receipt_sha256)
+            except (OSError, ValueError) as exc:
+                raise TaskEnvironmentError(f"prepared-image verification failed: {exc}") from exc
+            if cached is not None:
+                base = cached["base"]["Id"]
+            elif native_compose is not None and main.get("build"):
                 compiled = self._compile(task, native_compose, key)
                 build_spec = next(iter(compiled.main_by_agent.values()))["build"]
                 build_file = build_dir / "build.yaml"
@@ -318,7 +347,8 @@ class DockerTaskRuntime:
             else:
                 await self.command("docker", "build", "-t", base, "-f", str(context / "Dockerfile"), str(context),
                                    timeout=timeout)
-            inspected = json.loads((await self.command("docker", "image", "inspect", base)).decode())[0]
+            inspected = cached["base"] if cached is not None else json.loads(
+                (await self.command("docker", "image", "inspect", base)).decode())[0]
             config = copy.deepcopy(inspected["Config"])
             if native_compose is not None:
                 main = native_compose["services"]["main"]
@@ -336,13 +366,21 @@ class DockerTaskRuntime:
             workdir = config.get("WorkingDir") or "/"
             if not workdir.startswith("/") or workdir in ("/", "/usr", "/etc", "/bin", "/root"):
                 raise TaskEnvironmentError(f"{task.name}: native WORKDIR {workdir!r} cannot be workspace-mounted")
+            if environment_fingerprint(task, self.opencode_version) != fingerprint:
+                raise TaskEnvironmentError("task environment changed during image preparation")
+            if cached is not None:
+                native = NativeImage(cached["agent"]["Id"], inspected["Id"], config, workdir, key,
+                                     native_compose, platform, cached["evidence"])
+                self.images[key] = native
+                return native
             source = build_dir / "Dockerfile"
             selected = f"mesocosm-task-selected:{key}"
             await self.command("docker", "tag", inspected["Id"], selected)
             source.write_text(harness_dockerfile(selected, self.opencode_version, config.get("User") or ""))
-            image = f"mesocosm-task-agent:{key}"
+            labels[PREFIX + "base-image-id"] = inspected["Id"]
+            label_args = [part for name, value in sorted(labels.items()) for part in ("--label", f"{name}={value}")]
             await self.command("docker", "build", *(["--platform", platform] if platform else []),
-                               "-t", image, "-f", str(source), str(build_dir), timeout=timeout)
+                               *label_args, "-t", image, "-f", str(source), str(build_dir), timeout=timeout)
             native = NativeImage(image, inspected["Id"], config, workdir, key, native_compose, platform)
             self.images[key] = native
             return native
@@ -833,7 +871,8 @@ class DockerTaskRuntime:
     def receipt(self, container: str, native: NativeImage) -> dict[str, Any]:
         return {"container": container, "image": native.image, "base_image_id": native.base_id,
                 "workdir": native.workdir, "user": native.config.get("User") or "root",
-                "environment_key": native.key, "verifier_network": self.verifier_network}
+                "environment_key": native.key, "verifier_network": self.verifier_network,
+                "prepared_image": native.prepared_image}
 
     def adaptations(self, task: Task) -> list[str]:
         env = task.config.get("environment") or {}
