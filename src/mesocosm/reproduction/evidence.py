@@ -81,12 +81,13 @@ def _event(raw: dict[str, Any], location: dict[str, Any], source_sha: str,
         "event_id": "evidence_" + digest([source_sha, location]),
         "source_event_id": source_id,
         "kind": _kind(source_kind), "source_kind": source_kind,
-        "ts": timestamp, "time_basis": raw.get("time_basis", "source_unspecified"),
+        "ts": timestamp, "time_basis": raw.get("time_basis", parent.get("time_basis", "source_unspecified")),
         "agent_id": raw.get("agent_id", parent.get("agent_id")),
         "session_id": session, "identity": identity,
         "display_name": raw.get("display_name"), "principal": raw.get("principal"),
         "run_id": raw.get("run_id", parent.get("run_id")),
         "request_id": raw.get("request_id"), "links": raw.get("links", []),
+        "link_coverage": raw.get("link_coverage", "unknown"),
         "data": data, "source_location": location, "confidence": raw.get("confidence"),
         "evidence_basis": "recorded_source", "source_sha256": source_sha,
     }
@@ -108,7 +109,7 @@ def _native_messages(payload: dict[str, Any], path: str, sha: str,
             location = {"path": path, "pointer": f"/messages/{index}/parts/{part_index}"}
             common = {"message_id": info.get("id"), "role": info.get("role"),
                       "part_id": part.get("id"), "synthetic": part.get("synthetic", False),
-                      "ignored": part.get("ignored", False)}
+                      "ignored": part.get("ignored", False), "task": parent.get("task")}
             if part.get("type") == "tool":
                 state = _object(part.get("state"))
                 time = _object(state.get("time"))
@@ -189,7 +190,8 @@ def inspect_transcript(path: Path) -> dict[str, Any]:
         if not is_bundle:
             metadata = meta
         for raw, location in rows:
-            event = _event(raw, location, sha, parent={"run_id": bundle_run_id})
+            event = _event(raw, location, sha, parent={"run_id": bundle_run_id,
+                           **({"time_basis": "unix_seconds"} if is_bundle else {})})
             if label == "receipts.jsonl":
                 event["kind"] = "intervention"
             events.append(event)
@@ -215,7 +217,7 @@ def inspect_transcript(path: Path) -> dict[str, Any]:
                     raise ValueError("native turn hash mismatch or missing digest")
                 files.append({"path": relative, "sha256": native_sha, "bytes": len(content)})
                 parent = {"run_id": raw.get("run_id"), "agent_id": raw.get("agent_id"),
-                          "session_id": data.get("session_id")}
+                          "session_id": data.get("session_id"), "task": data.get("task")}
                 events.extend(_native_messages(json.loads(content), relative, native_sha, parent))
     if not is_bundle and metadata.get("messages") and isinstance(metadata["messages"][0].get("info"), dict):
         events = _native_messages(metadata, path.name, files[0]["sha256"], {})

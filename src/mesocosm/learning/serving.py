@@ -121,6 +121,20 @@ class VLLMPolicyServer:
         response.raise_for_status()
         return {"action": "wake", "status_code": response.status_code}
 
+    async def verify_adapter_rank(self, policy: PolicyIdentity, rank: int) -> dict[str, Any]:
+        """Read the server's actual LoRA capacity before loading external weights."""
+        response = await self.client.get("/server_info", params={"config_format": "json"})
+        response.raise_for_status()
+        info = response.json()
+        resolved = _verify_configuration(info, policy)
+        maximum = info["vllm_config"]["lora_config"].get("max_lora_rank")
+        if type(maximum) is not int or maximum < 1:
+            raise PolicyServingError("server max_lora_rank is unknown; external adapter activation is unsupported")
+        if rank > maximum:
+            raise PolicyServingError(f"external adapter rank {rank} exceeds server max_lora_rank {maximum}")
+        return {"max_lora_rank": maximum, "adapter_rank": rank, "configuration": resolved,
+                "source": "/server_info?config_format=json", "field": "vllm_config.lora_config.max_lora_rank"}
+
     async def verify(self, policy: PolicyIdentity) -> dict[str, Any]:
         response = await self.client.get("/v1/models")
         response.raise_for_status()

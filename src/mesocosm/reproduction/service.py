@@ -25,7 +25,7 @@ from mesocosm.core.config import absolutize_manifest
 from mesocosm.execution.client import ExecutionClient, worker_url
 from mesocosm.execution.package import pack_submission, unpack_submission
 from mesocosm.execution.protocol import TERMINAL
-from mesocosm.reproduction import behavior, evidence, factors
+from mesocosm.reproduction import behavior, collective, evidence, factors
 from mesocosm.reproduction.store import Store, digest, file_hash, write_json
 
 TRANSCRIPT_MAX_FILE_BYTES = 256 * 1024 * 1024
@@ -37,7 +37,7 @@ TOOLS = (
     "prepare_dataset", "submit_training", "run_experiment", "get_job_status", "snapshot_experiment",
     "fork_experiment", "evaluate_candidate", "compare_candidates", "export_reproducer",
     "deploy_policy", "evaluate_run", "plan_factorial", "advance_factorial", "report_factorial",
-    "describe_tool", "read_record", "read_events", "list_records",
+    "describe_tool", "read_record", "read_events", "list_records", "evaluate_collective",
 )
 
 
@@ -79,47 +79,64 @@ class ResearchWorkbench:
     async def deploy_policy(self, server: str, model: str, base_model: str, base_revision: str,
                             base_sha256: str, idempotency_key: str,
                             dtype: Literal["bfloat16", "float16"] = "bfloat16",
-                            training_job_id: str | None = None) -> dict[str, Any]:
-        """Verify a base or load an owned SFT adapter; requires shared checkpoint paths with vLLM."""
+                            training_job_id: str | None = None,
+                            external_adapter: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Verify a base or load a hashed local adapter; requires shared checkpoint paths with vLLM."""
         with self.store.lease("serving:" + worker_url(server) + ":" + model):
             return await self._deploy_policy(server, model, base_model, base_revision, base_sha256,
-                                             idempotency_key, dtype, training_job_id)
+                                             idempotency_key, dtype, training_job_id, external_adapter)
 
     async def _deploy_policy(self, server: str, model: str, base_model: str, base_revision: str,
                              base_sha256: str, idempotency_key: str, dtype: Literal["bfloat16", "float16"],
-                             training_job_id: str | None) -> dict[str, Any]:
+                             training_job_id: str | None, external_adapter: dict[str, Any] | None) -> dict[str, Any]:
         from mesocosm.learning.config import PolicyIdentity, policy_id
-        from mesocosm.reproduction.deployment import training_artifact, verify_artifacts
+        from mesocosm.reproduction.deployment import external_artifact, training_artifact, verify_artifacts
 
         endpoint = worker_url(server)
         if endpoint not in self.allowed_servers:
             raise ValueError("serving endpoint is not operator-approved")
+        if training_job_id is not None and external_adapter is not None:
+            raise ValueError("training_job_id and external_adapter are mutually exclusive")
+        external, rank = (external_artifact(external_adapter, base_model)
+                          if external_adapter is not None else (None, None))
         artifact = training_artifact(self.store, training_job_id) if training_job_id else None
         if artifact and (artifact["config"]["base_sha256"] != base_sha256 or artifact["config"]["dtype"] != dtype):
             raise ValueError("serving base/dtype differs from the actual SFT job")
-        adapter_sha = artifact["adapter_sha256"] if artifact else None
+        adapter_sha = artifact["adapter_sha256"] if artifact else external["sha256"] if external else None
         if dtype not in {"bfloat16", "float16"}:
             raise ValueError("serving currently requires bfloat16/float16; no implicit SFT dtype conversion")
         policy = PolicyIdentity.model_validate({"id": policy_id(base_model, base_revision, base_sha256,
                                                                 adapter_sha, dtype),
             "model": model, "base_model": base_model, "base_revision": base_revision,
             "base_sha256": base_sha256, "dtype": dtype, "adapter_sha256": adapter_sha,
-            "adapter_path": artifact["adapter_path"] if artifact else None})
+            "adapter_path": artifact["adapter_path"] if artifact else external["path"] if external else None})
         args = {"server": endpoint, "policy": policy.model_dump(mode="json"), "training_artifact": artifact,
                 "server_token_env": self.allowed_servers[endpoint]}
+        if external is not None:
+            args["external_adapter"] = external
         identifier = "job-" + digest({"key": idempotency_key, "tool": "deploy_policy", "args": args})
         record = {"kind": "deployment", "status": "activating", **args, "created_at": time.time()}
         cached = self.store.begin(idempotency_key, "deploy_policy", args, job=(identifier, record))
         if cached is not None:
             return cached
         client = None
+        activation_started = False
         try:
             await asyncio.to_thread(verify_artifacts, policy)
             client = self._server(endpoint)
-            receipt = await (client.load(policy) if artifact else client.verify(policy))
+            capacity = await client.verify_adapter_rank(policy, rank) if external else None
+            activation_started = True
+            receipt = await (client.load(policy) if policy.adapter_path else client.verify(policy))
+            if external:
+                receipt["external_adapter_capacity"] = capacity
             await asyncio.to_thread(verify_artifacts, policy)
             result = self._complete_deployment(identifier, record, receipt)
         except Exception as exc:
+            if external and not activation_started:
+                record.update(status="rejected", error_type=type(exc).__name__)
+                self.store.save_job(identifier, record)
+                self.store.finish(idempotency_key, None, error=type(exc).__name__)
+                raise ValueError(str(exc)) from exc
             # A load may have succeeded before the connection failed. Reconcile by
             # verification only; never reload/replace an alias automatically.
             record.update(status="activation_uncertain", error_type=type(exc).__name__)
@@ -141,6 +158,9 @@ class ResearchWorkbench:
                  "verified_at": time.time(), "deployment_job_id": job_id,
                  "evidence_level": "shared_filesystem_artifact_hash_and_serving_api",
                  "numerical_weight_verification": "unverified"}
+        if job.get("external_adapter") is not None:
+            value.update(external_adapter=job["external_adapter"],
+                         evidence_level="external_adapter_hash_and_serving_api", training_provenance="unverified")
         identifier = self.store.put("deployment", value)
         job.update(status="ready", deployment_id=identifier)
         self.store.save_job(job_id, job)
@@ -149,7 +169,12 @@ class ResearchWorkbench:
 
     async def _verify_deployment(self, identifier: str) -> dict[str, Any]:
         from mesocosm.learning.config import PolicyIdentity
-        from mesocosm.reproduction.deployment import training_artifact, verify_artifacts, verify_receipt
+        from mesocosm.reproduction.deployment import (
+            external_artifact,
+            training_artifact,
+            verify_artifacts,
+            verify_receipt,
+        )
 
         value = self.store.get(identifier, "deployment")
         if (value["server"] not in self.allowed_servers
@@ -159,15 +184,28 @@ class ResearchWorkbench:
         if artifact and await asyncio.to_thread(training_artifact, self.store, artifact["training_job_id"]) != artifact:
             raise ValueError("deployed training artifact changed")
         policy = PolicyIdentity.model_validate(value["policy"])
+        external = value.get("external_adapter")
+        rank = (await asyncio.to_thread(external_artifact, external, policy.base_model))[1] if external else None
         await asyncio.to_thread(verify_artifacts, policy)
         client = self._server(value["server"])
         try:
+            capacity = await client.verify_adapter_rank(policy, rank) if external else None
             receipt = await client.verify(policy)
+            if external:
+                receipt["external_adapter_capacity"] = capacity
             verify_receipt(policy, receipt)
             await asyncio.to_thread(verify_artifacts, policy)
             return {"deployment_id": identifier, "verified_at": time.time(), "receipt": receipt}
         finally:
             await client.aclose()
+
+    async def _serving_preflight(self, experiment: dict[str, Any]) -> dict[str, Any]:
+        from mesocosm.reproduction.deployment import agent_bindings
+
+        receipts = {}
+        for identifier in sorted(set(agent_bindings(experiment).values())):
+            receipts[identifier] = await self._verify_deployment(identifier)
+        return receipts
 
     def _worker(self, endpoint: str, token_env: str) -> str:
         endpoint = worker_url(endpoint)
@@ -290,8 +328,8 @@ class ResearchWorkbench:
         return destination
 
     def define_behavior(self, spec: dict[str, Any]) -> dict[str, Any]:
-        """Freeze a versioned stage rubric before configuring candidates."""
-        value = behavior.define_behavior(spec)
+        """Freeze a versioned stage rubric or closed-domain collective detector before candidate access."""
+        value = collective.freeze(spec) if spec.get("kind") == "collective" else behavior.define_behavior(spec)
         identifier = self.store.put("behavior", value)
         self.store.audit("behavior.defined", {"behavior_id": identifier})
         return {"behavior_id": identifier, "definition": value}
@@ -321,7 +359,8 @@ class ResearchWorkbench:
 
     def configure_experiment(self, base_world: str, behavior_id: str, changes: list[dict[str, Any]],
                              roles: dict[str, list[str]] | None = None,
-                             split: str = "development", deployment_id: str | None = None) -> dict[str, Any]:
+                             split: str = "development", deployment_id: str | None = None,
+                             agent_deployments: dict[str, str] | None = None) -> dict[str, Any]:
         """Freeze a rubric, scoped factors and all portable world inputs into one candidate."""
         self.store.get(behavior_id, "behavior")
         if split not in {"train", "development", "test"}:
@@ -329,27 +368,55 @@ class ResearchWorkbench:
         source = pathlib.Path(base_world).resolve(strict=True)
         original = source.read_bytes()
         raw = yaml.safe_load(original)
-        if deployment_id:
+        if deployment_id is not None and agent_deployments is not None:
+            raise ValueError("deployment_id and agent_deployments are mutually exclusive")
+        if deployment_id or agent_deployments is not None:
             from mesocosm.core.manifest import WorldManifest
             from mesocosm.reproduction.deployment import serving_identity
 
-            deployed = self.store.get(deployment_id, "deployment")
             world = WorldManifest.model_validate(raw)
-            if any(world.model_for(agent).id != world.model.id for agent in world.agents):
+            if deployment_id and any(world.model_for(agent).id != world.model.id for agent in world.agents):
                 raise ValueError("deployment binding currently requires a shared policy for all agents")
-            if any(change.get("factor", "").startswith(("model.", "agent.model")) for change in changes):
+            if any(change.get("factor", "").startswith(("model.", "agent.model"))
+                   or change.get("factor") == "models" for change in changes):
                 raise ValueError("model factors cannot override a bound deployment")
+            if agent_deployments is not None:
+                bindings = agent_deployments
+            else:
+                assert deployment_id is not None
+                bindings = {agent.id: deployment_id for agent in world.agents}
+            if set(bindings) != {agent.id for agent in world.agents}:
+                raise ValueError("agent_deployments must name every agent exactly once; missing or unknown agent id")
+            deployments = {identifier: self.store.get(identifier, "deployment")
+                           for identifier in set(bindings.values())}
+            bases = {(worker_url(value["server"]), *(value["policy"][key] for key in
+                      ("base_model", "base_revision", "base_sha256", "dtype"))) for value in deployments.values()}
+            if len(bases) != 1:
+                raise ValueError("agent deployments must share endpoint, base model, revision, base hash and dtype")
+            aliases = [value["policy"]["model"] for value in deployments.values()]
+            if len(set(aliases)) != len(aliases):
+                raise ValueError("distinct deployments must have distinct model aliases")
             raw = world.model_dump(mode="json")
-            policy = deployed["policy"]
             old_model = copy.deepcopy(raw["model"])
-            raw["model"].update(id=policy["model"], hf_repo=policy["base_model"], revision=policy["base_revision"],
-                                upstream=deployed["server"], api_key_env=deployed["server_token_env"], kind="vllm",
-                                serving_identity=serving_identity(deployment_id, deployed))
-            raw["models"] = [model for model in raw["models"] if model["id"] != policy["model"]]
-            if raw["judge"]["monitor"]["model"] == old_model["id"] and old_model["id"] != policy["model"]:
+            bound_models = {}
+            for identifier, deployed in sorted(deployments.items()):
+                policy = deployed["policy"]
+                bound_models[policy["model"]] = {**old_model, "id": policy["model"], "hf_repo": policy["base_model"],
+                    "revision": policy["base_revision"], "upstream": deployed["server"],
+                    "api_key_env": deployed["server_token_env"], "kind": "vllm",
+                    "serving_identity": serving_identity(identifier, deployed)}
+            if deployment_id:
+                raw["model"] = bound_models.pop(deployments[deployment_id]["policy"]["model"])
+            elif raw["model"]["id"] in bound_models:
+                raw["model"] = bound_models.pop(raw["model"]["id"])
+            raw["models"] = [model for model in raw["models"] if model["id"] not in aliases
+                             and (deployment_id or model["id"] == raw["judge"]["monitor"]["model"])]
+            raw["models"].extend(bound_models.values())
+            if (raw["judge"]["monitor"]["model"] == old_model["id"] and old_model["id"] != raw["model"]["id"]
+                    and old_model["id"] not in {model["id"] for model in raw["models"]}):
                 raw["models"].append(old_model)
             for agent in raw["agents"]:
-                agent["model"] = policy["model"]
+                agent["model"] = deployments[bindings[agent["id"]]]["policy"]["model"]
         configuration = factors.configure_experiment(raw, changes, roles)
         runtime_manifest = copy.deepcopy(configuration["manifest"])
         absolutize_manifest(runtime_manifest, source.parent)
@@ -367,6 +434,8 @@ class ResearchWorkbench:
                      "state_mode": "fresh_world", "source_root": str(source.parent)}
             if deployment_id:
                 value["deployment_id"] = deployment_id
+            if agent_deployments is not None:
+                value["agent_deployments"] = dict(agent_deployments)
             identifier = self.store.put("experiment", value)
             target = self.store.directory("experiments", identifier)
             target.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -493,8 +562,8 @@ class ResearchWorkbench:
         if cached is not None:
             return cached
         try:
-            if experiment.get("deployment_id"):
-                record["serving_preflight"] = await self._verify_deployment(experiment["deployment_id"])
+            if experiment.get("deployment_id") or experiment.get("agent_deployments"):
+                record["serving_preflight"] = await self._serving_preflight(experiment)
                 self.store.save_job(identifier, record)
             record["submission_started"] = True
             self.store.save_job(identifier, record)
@@ -539,13 +608,14 @@ class ResearchWorkbench:
             if action == "inspect":
                 return job
             if action == "reconcile" and job["status"] == "ready":
+                deployed = self.store.get(job["deployment_id"], "deployment")
                 return {"job_id": job_id, "status": "ready", "deployment_id": job["deployment_id"],
-                        "evidence_level": "shared_filesystem_artifact_hash_and_serving_api",
+                        "evidence_level": deployed["evidence_level"],
                         "numerical_weight_verification": "unverified"}
             if action != "reconcile" or job["status"] not in {"activation_uncertain", "activating"}:
                 raise ValueError("deployment only supports inspect or explicit uncertain-load reconciliation")
             from mesocosm.learning.config import PolicyIdentity
-            from mesocosm.reproduction.deployment import training_artifact, verify_artifacts
+            from mesocosm.reproduction.deployment import external_artifact, training_artifact, verify_artifacts
 
             artifact = job["training_artifact"]
             if artifact and training_artifact(self.store, artifact["training_job_id"]) != artifact:
@@ -554,10 +624,15 @@ class ResearchWorkbench:
                     or self.allowed_servers[job["server"]] != job["server_token_env"]):
                 raise ValueError("deployment server/credential approval changed")
             policy = PolicyIdentity.model_validate(job["policy"])
+            external = job.get("external_adapter")
+            rank = (await asyncio.to_thread(external_artifact, external, policy.base_model))[1] if external else None
             await asyncio.to_thread(verify_artifacts, policy)
             client = self._server(job["server"])
             try:
+                capacity = await client.verify_adapter_rank(policy, rank) if external else None
                 receipt = await client.verify(policy)
+                if external:
+                    receipt["external_adapter_capacity"] = capacity
                 await asyncio.to_thread(verify_artifacts, policy)
                 return self._complete_deployment(job_id, job, receipt)
             finally:
@@ -596,8 +671,8 @@ class ResearchWorkbench:
                 if job["status"] not in {"submitting", "submission_uncertain"}:
                     raise ValueError("resubmit only reconciles an uncertain submission using the SAME job ID")
                 experiment = self.store.get(job["experiment_id"], "experiment")
-                if experiment.get("deployment_id"):
-                    job["serving_preflight"] = await self._verify_deployment(experiment["deployment_id"])
+                if experiment.get("deployment_id") or experiment.get("agent_deployments"):
+                    job["serving_preflight"] = await self._serving_preflight(experiment)
                 job.update(status="submission_uncertain", submission_started=True)
                 self.store.save_job(job_id, job)
                 remote = await client.submit(self._archive(job["experiment_id"]), job["remote_job_id"],
@@ -699,6 +774,10 @@ class ResearchWorkbench:
 
         snapshot = self.store.get(snapshot_id, "snapshot")
         parent = self.store.get(snapshot["experiment_id"], "experiment")
+        if (parent.get("deployment_id") or parent.get("agent_deployments")) and any(
+                change.get("factor", "").startswith(("model.", "agent.model"))
+                or change.get("factor") == "models" for change in changes):
+            raise ValueError("model factors cannot override a bound deployment")
         configuration = factors.configure_experiment(parent["configuration"]["manifest"], changes,
                                                      parent["configuration"]["roles"])
         value = {**parent, "configuration": configuration, "parent_experiment_id": snapshot["experiment_id"],
@@ -747,6 +826,7 @@ class ResearchWorkbench:
 
     def _run_binding(self, job_id: str, run_id: str) -> tuple[pathlib.Path, dict[str, Any]]:
         from mesocosm.core.manifest import load_manifest
+        from mesocosm.reproduction.deployment import agent_bindings
         from mesocosm.reproduction.lineage import verify_run
 
         if not re.fullmatch(r"run_[A-Za-z0-9_-]+", run_id):
@@ -757,10 +837,15 @@ class ResearchWorkbench:
         experiment = self.store.get(job["experiment_id"], "experiment")
         if experiment["split"] == "test" and not self.allow_test_evaluation:
             raise ValueError("held-out test evaluation is reserved for the independent operator")
-        identifier = experiment.get("deployment_id")
-        if not identifier or job.get("serving_preflight", {}).get("deployment_id") != identifier:
+        bindings = agent_bindings(experiment)
+        preflight = job.get("serving_preflight", {})
+        # Existing single-deployment jobs retain their original receipt shape.
+        if experiment.get("deployment_id") and preflight.get("deployment_id") == experiment["deployment_id"]:
+            preflight = {experiment["deployment_id"]: preflight}
+        if not bindings or set(preflight) != set(bindings.values()) or any(
+                preflight[identifier].get("deployment_id") != identifier for identifier in bindings.values()):
             raise ValueError("candidate/job lacks its verified deployment preflight")
-        deployed = self.store.get(identifier, "deployment")
+        deployments = {identifier: self.store.get(identifier, "deployment") for identifier in set(bindings.values())}
         root = self._verified_results(job)
         original_job = json.loads((root / "job.json").read_text())
         if original_job.get("status") != "completed" or original_job.get("cleanup", {}).get("status") != "complete":
@@ -777,7 +862,8 @@ class ResearchWorkbench:
             package = unpack_submission(self._archive(job["experiment_id"]), inputs)
             path = inputs / package["entrypoint"]
             binding = verify_run(run, load_manifest(path).model_dump(mode="json"), package["digest"],
-                                 job["remote_job_id"], identifier, deployed, path)
+                                 job["remote_job_id"], experiment.get("deployment_id"),
+                                 deployments, path, agent_deployments=bindings)
         binding.update(job_id=job_id, remote_job_id=job["remote_job_id"], experiment_id=job["experiment_id"],
                        input_package_digest=experiment["package"]["digest"],
                        result_package_digest=job["retrieval"]["digest"],
@@ -801,6 +887,61 @@ class ResearchWorkbench:
         identifier = self.store.put("evaluation", result)
         self.store.audit("run.evaluated", {"evaluation_id": identifier, "runtime_binding_id": binding_id})
         return {"evaluation_id": identifier, "evaluation": result}
+
+    def evaluate_collective(self, behavior_id: str, transcript_id: str | None = None,
+                            job_id: str | None = None, run_id: str | None = None,
+                            evaluation_ids: list[str] | None = None) -> dict[str, Any]:
+        """Measure frozen collective signals in a qualified run or imported evidence; aggregate without CIs."""
+        definition = self.store.get(behavior_id, "behavior")
+        collective.validate_definition(definition)
+        modes = int(transcript_id is not None) + int(job_id is not None or run_id is not None)
+        modes += int(evaluation_ids is not None)
+        if modes != 1 or (job_id is None) != (run_id is None):
+            raise ValueError("choose transcript_id, job_id plus run_id, or evaluation_ids")
+        if evaluation_ids is not None:
+            if not 1 <= len(evaluation_ids) <= 1000:
+                raise ValueError("aggregate 1..1000 collective evaluation IDs")
+            rows = [self._collective_evaluation(identifier) for identifier in evaluation_ids]
+            if any(row["behavior_id"] != behavior_id for row in rows):
+                raise ValueError("collective evaluations must use the same frozen behavior")
+            result = collective.aggregate(rows)
+            result.update(behavior_id=behavior_id, evaluation_ids=evaluation_ids,
+                          operator_only=any(row.get("operator_only", False) for row in rows))
+            identifier = self.store.put("collective_comparison", result)
+            self.store.audit("collective.compared", {"comparison_id": identifier})
+            return {"comparison_id": identifier, "comparison": result}
+        binding = None
+        if job_id is not None and run_id is not None:
+            run, binding = self._run_binding(job_id, run_id)
+            if self.store.get(binding["experiment_id"], "experiment")["behavior_id"] != behavior_id:
+                raise ValueError("qualified collective evaluation must use the candidate's frozen behavior")
+            transcript_id = self.inspect_transcript(str(run))["transcript_id"]
+        assert transcript_id is not None
+        transcript = self.store.get(transcript_id, "transcript")
+        self._transcript_sources(transcript_id)
+        if _held_out(transcript) and not self.allow_test_evaluation:
+            raise ValueError("held-out collective evidence requires the independent operator")
+        result = collective.evaluate(definition, transcript)
+        result.update(behavior_id=behavior_id, association="verified_runtime_lineage" if binding else "unverified",
+                      assignment={"transcript_id": transcript_id, **({"binding": binding,
+                                  "experiment_id": binding["experiment_id"]} if binding else {})},
+                      operator_only=_held_out(transcript) or bool(binding and self.store.get(
+                          binding["experiment_id"], "experiment")["split"] == "test"))
+        identifier = self.store.put("collective_evaluation", result)
+        self.store.audit("collective.evaluated", {"evaluation_id": identifier, "behavior_id": behavior_id})
+        return {"evaluation_id": identifier, "evaluation": result}
+
+    def _collective_evaluation(self, identifier: str) -> dict[str, Any]:
+        result = self.store.get(identifier, "collective_evaluation")
+        transcript_id = result["assignment"]["transcript_id"]
+        transcript = self.store.get(transcript_id, "transcript")
+        self._transcript_sources(transcript_id)
+        if _held_out(transcript) and not self.allow_test_evaluation:
+            raise ValueError("held-out collective evidence requires the independent operator")
+        binding = result["assignment"].get("binding")
+        if binding and self._run_binding(binding["job_id"], binding["run_id"])[1] != binding:
+            raise ValueError("collective runtime binding changed")
+        return result
 
     def _evaluation(self, identifier: str) -> dict[str, Any]:
         value = self.store.get(identifier, "evaluation")
@@ -878,6 +1019,9 @@ class ResearchWorkbench:
             write_json(staged / "behavior.json", self.store.get(experiment["behavior_id"], "behavior"))
             if experiment.get("deployment_id"):
                 write_json(staged / "deployment.json", self.store.get(experiment["deployment_id"], "deployment"))
+            if experiment.get("agent_deployments"):
+                write_json(staged / "deployments.json", {identifier: self.store.get(identifier, "deployment")
+                           for identifier in sorted(set(experiment["agent_deployments"].values()))})
             for evaluation in evaluations:
                 assignment = evaluation["assignment"]
                 if assignment.get("runtime_binding_id"):
@@ -891,6 +1035,7 @@ class ResearchWorkbench:
                 "manifest_sha256": experiment["configuration"]["manifest_sha256"],
                 "roles": experiment["configuration"]["roles"], "package": experiment["package"],
                 "source_manifest_sha256": experiment["source_manifest_sha256"],
+                "agent_deployments": experiment.get("agent_deployments"),
                 "configuration_source": "world.zip; operator connection credentials are excluded"})
             write_json(staged / "evaluations.json", evaluations)
             write_json(staged / "factor-changes.json", experiment["configuration"]["effective_changes"])

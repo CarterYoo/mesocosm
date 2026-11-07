@@ -103,19 +103,21 @@ def fetched(bench, experiment_id, tmp_path, mutate=None, *, owned_job_id=None, d
         )
     )
     candidate = bench.store.get(experiment_id, "experiment")
-    dep_id = candidate["deployment_id"]
-    dep = bench.store.get(dep_id, "deployment")
-    identity = serving_identity(dep_id, dep)
+    bindings = candidate.get("agent_deployments") or {agent.id: candidate["deployment_id"] for agent in world.agents}
     native = []
     for i, agent in enumerate(world.agents):
+        dep_id = bindings[agent.id]
+        dep = bench.store.get(dep_id, "deployment")
+        identity = serving_identity(dep_id, dep)
+        model = world.model_for(agent)
         request = {
-            "model": world.model.id,
+            "model": model.id,
             "messages": [{"role": "user", "content": "original instruction"}],
             "stream": False,
         }
         response = {
             "id": f"reply-{i}",
-            "model": world.model.id,
+            "model": model.id,
             "choices": [
                 {"index": 0, "message": {"role": "assistant", "content": "recorded reply"}, "finish_reason": "stop"}
             ],
@@ -130,7 +132,7 @@ def fetched(bench, experiment_id, tmp_path, mutate=None, *, owned_job_id=None, d
             "agent": agent.id,
             "identified_by": "key",
             "request_id": f"r-{i}",
-            "expected_model": world.model.id,
+            "expected_model": model.id,
             "serving_identity": identity,
             "upstream": dep["server"].rstrip("/"),
             "model_kind": "vllm",
@@ -243,13 +245,45 @@ def fetched(bench, experiment_id, tmp_path, mutate=None, *, owned_job_id=None, d
                 "worker": "http://127.0.0.1:8088",
                 "token_env": "WORKER_KEY",
                 "remote_job_id": remote_id,
-                "serving_preflight": {"deployment_id": dep_id},
+                "serving_preflight": {identifier: {"deployment_id": identifier} for identifier in set(bindings.values())},
                 "results_path": str(result_path),
                 "retrieval": {"digest": result_package["digest"]},
             },
             new=owned_job_id is None,
         )
     return job_id, "run_contract"
+
+
+def test_collective_evaluator_qualifies_original_native_binding(loop, tmp_path):
+    bench, _, _, deployments = loop
+    defined = bench.define_behavior({"kind": "collective", "test_file_patterns": ["tests/*.py"],
+                                     "test_function_names": ["run_tests"], "impossible_task": False,
+                                     "exposure_kinds": ["observation", "tool_result"]})
+    candidate = bench.configure_experiment(str(world_file(tmp_path / "collective-world")),
+                    defined["behavior_id"], [], deployment_id=deployments["base"])
+    job, run = fetched(bench, candidate["experiment_id"], tmp_path)
+    result = bench.evaluate_collective(defined["behavior_id"], job_id=job, run_id=run)
+    assert result["evaluation"]["association"] == "verified_runtime_lineage"
+    assert result["evaluation"]["assignment"]["binding"]["model_calls"] == 3
+    assert result["evaluation"]["prevalence"]["status"] == "unknown"
+    different = bench.define_behavior({"kind": "collective", "test_file_patterns": ["other.py"],
+                                       "exposure_kinds": ["observation"]})
+    with pytest.raises(ValueError, match="candidate's frozen behavior"):
+        bench.evaluate_collective(different["behavior_id"], job_id=job, run_id=run)
+
+def test_collective_qualified_test_results_keep_operator_gate(loop, tmp_path):
+    bench, _, _, deployments = loop
+    defined = bench.define_behavior({"kind": "collective", "test_file_patterns": ["tests/*.py"],
+                                     "exposure_kinds": ["observation", "tool_result"]})
+    operator = ResearchWorkbench(bench.store.root, allow_test_evaluation=True,
+                                  allowed_workers=bench.allowed_workers, allowed_servers=bench.allowed_servers)
+    held = operator.configure_experiment(str(world_file(tmp_path / "held-collective")),
+                defined["behavior_id"], [], deployment_id=deployments["base"], split="test")
+    held_job, held_run = fetched(operator, held["experiment_id"], tmp_path / "held-result")
+    measured = operator.evaluate_collective(defined["behavior_id"], job_id=held_job, run_id=held_run)
+    assert measured["evaluation"]["operator_only"] is True
+    with pytest.raises(PermissionError, match="held-out"):
+        bench.read_record(measured["evaluation_id"])
 
 
 def test_run_lineage_freezes_full_sources_and_keeps_zero(loop, tmp_path):
@@ -271,6 +305,131 @@ def test_run_lineage_freezes_full_sources_and_keeps_zero(loop, tmp_path):
     retained.write_text("{}")
     with pytest.raises(ValueError, match="bytes changed"):
         bench.compare_candidates([result["evaluation_id"]])
+
+
+def mixed_candidate(loop, *, bindings=None, changes=None):
+    bench, baseline, _, deployments = loop
+    experiment = bench.store.get(baseline, "experiment")
+    mapping = bindings if bindings is not None else {
+        "agent-0": deployments["trained"], "agent-1": deployments["base"], "agent-2": deployments["base"]}
+    return bench.configure_experiment(str(pathlib.Path(experiment["source_root"]) / "world.yaml"),
+        experiment["behavior_id"], changes or [], agent_deployments=mapping)
+
+
+def test_mixed_agent_binding_packages_aliases_lineage_and_all_deployments(loop, tmp_path):
+    bench, baseline, _, deployments = loop
+    source = pathlib.Path(bench.store.get(baseline, "experiment")["source_root"]) / "world.yaml"
+    original = yaml.safe_load(source.read_text())
+    original["models"] = [{"id": "second-original-policy"}]
+    original["agents"][1]["model"] = "second-original-policy"
+    source.write_text(yaml.safe_dump(original))
+    candidate = mixed_candidate(loop)
+    identifier = candidate["experiment_id"]
+    package = unpack_submission(bench._archive(identifier), tmp_path / "mixed-input")
+    world = load_manifest(tmp_path / "mixed-input" / package["entrypoint"])
+    assert {agent.id: world.model_for(agent).id for agent in world.agents} == {
+        "agent-0": "trained", "agent-1": "base", "agent-2": "base"}
+    assert {model.id for model in world.models} == {"base", "trained"}
+    for agent in world.agents:
+        model = world.model_for(agent)
+        assert model.serving_identity.deployment_id == deployments[model.id]
+    job, run = fetched(bench, identifier, tmp_path)
+    result = bench.evaluate_run(job, run)
+    assert result["evaluation"]["assignment"]["agent_deployments"] == {
+        "agent-0": deployments["trained"], "agent-1": deployments["base"], "agent-2": deployments["base"]}
+    exported = bench.export_reproducer(identifier, [result["evaluation_id"]])
+    records = json.loads((pathlib.Path(exported["path"]) / "deployments.json").read_text())
+    assert set(records) == set(deployments.values())
+
+
+def test_single_binding_retains_legacy_preflight_and_binding_receipt(loop, tmp_path):
+    bench, _, bound, deployments = loop
+    job, run = fetched(bench, bound, tmp_path)
+    value = bench.store.job(job)
+    value["serving_preflight"] = {"deployment_id": deployments["base"]}
+    bench.store.save_job(job, value)
+    result = bench.evaluate_run(job, run)
+    assert result["evaluation"]["assignment"]["deployment_id"] == deployments["base"]
+    assert "agent_deployments" not in result["evaluation"]["assignment"]
+
+
+def test_deployment_binding_arguments_are_mutually_exclusive(loop):
+    bench, baseline, _, deployments = loop
+    experiment = bench.store.get(baseline, "experiment")
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        bench.configure_experiment(str(pathlib.Path(experiment["source_root"]) / "world.yaml"),
+            experiment["behavior_id"], [], deployment_id=deployments["base"],
+            agent_deployments={f"agent-{i}": deployments["base"] for i in range(3)})
+
+
+@pytest.mark.parametrize("bad_keys", [{"agent-0", "agent-1"}, {"agent-0", "agent-1", "unknown"}, set()])
+def test_mixed_binding_requires_exact_agent_keys(loop, bad_keys):
+    with pytest.raises(ValueError, match="every agent exactly once"):
+        mixed_candidate(loop, bindings={key: loop[3]["base"] for key in bad_keys})
+
+
+@pytest.mark.parametrize("field", ["server", "base_model", "base_revision", "base_sha256", "dtype"])
+def test_mixed_binding_rejects_different_base_or_endpoint(loop, field):
+    bench, _, _, deployments = loop
+    changed = bench.store.get(deployments["trained"], "deployment")
+    if field == "server":
+        changed[field] = "http://127.0.0.1:9000"
+    else:
+        changed["policy"][field] = {"base_model": "other/base", "base_revision": "e" * 40,
+            "base_sha256": "f" * 64, "dtype": "float16"}[field]
+    mismatch = bench.store.put("deployment", changed)
+    with pytest.raises(ValueError, match="must share"):
+        mixed_candidate(loop, bindings={"agent-0": mismatch, "agent-1": deployments["base"],
+                                       "agent-2": deployments["base"]})
+
+
+@pytest.mark.parametrize("factor", ["model.sampling.seed", "agent.model", "models"])
+def test_mixed_binding_locks_model_factors(loop, factor):
+    with pytest.raises(ValueError, match="cannot override"):
+        mixed_candidate(loop, changes=[{"factor": factor, "value": "trained"}])
+
+
+def test_mixed_binding_rejects_another_agents_response_alias(loop, tmp_path):
+    bench, _, _, _ = loop
+    candidate = mixed_candidate(loop)
+
+    def mutate(bundle, native):
+        call = next(row for row in native if row["event"] == "chat_completion" and row["agent"] == "agent-2")
+        call["response"]["model"] = "trained"
+
+    job, run = fetched(bench, candidate["experiment_id"], tmp_path, mutate)
+    with pytest.raises(ValueError, match="response model"):
+        bench.evaluate_run(job, run)
+
+
+async def test_mixed_submission_preflights_each_distinct_deployment_once(loop, monkeypatch):
+    bench, _, _, deployments = loop
+    candidate = mixed_candidate(loop)
+    verified = []
+
+    async def verify(identifier):
+        verified.append(identifier)
+        return {"deployment_id": identifier}
+
+    class Client:
+        def __init__(self, *args):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+        async def submit(self, archive, job_id, **kwargs):
+            return {"job_id": job_id, "digest": kwargs["digest"], "status": "queued"}
+
+    monkeypatch.setattr(bench, "_verify_deployment", verify)
+    monkeypatch.setattr("mesocosm.reproduction.service.ExecutionClient", Client)
+    result = await bench.run_experiment(candidate["experiment_id"], "mixed", "http://127.0.0.1:8088", "WORKER_KEY")
+    assert sorted(verified) == sorted(deployments.values())
+    assert bench.store.job(result["job_id"])["serving_preflight"] == {
+        identifier: {"deployment_id": identifier} for identifier in deployments.values()}
 
 
 @pytest.mark.parametrize(

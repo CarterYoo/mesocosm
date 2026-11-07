@@ -1,7 +1,7 @@
 # Research-agent workbench
 
 The workbench connects incident evidence, experimental factors, demonstration learning,
-real-world execution and behavior evaluation. It exposes 23 Python/JSON tools over Mesocosm's
+real-world execution and behavior evaluation. It exposes 24 Python/JSON tools over Mesocosm's
 existing runtime. It does not insert scripted outcomes into the world.
 
 This is a software interface, not a new claim of successful behavior reproduction. The
@@ -11,6 +11,8 @@ tests and remaining limitations. A requirement marked **partial** is not complet
 For SFT adapter deployment, verified runtime lineage and repeated four-condition experiments,
 see [From a trained adapter to a measured experiment](verified-research-loop.md). This path keeps
 serving API attribution separate from numerical weight verification and real-agent acceptance.
+For fixed external adapters, mixed populations and one collective detector for imported teacher
+and lineage-qualified student evidence, see the [fixed-policy study guide](fixed-p-study.md).
 
 ## Start with a frozen question
 
@@ -87,7 +89,8 @@ need an operator-provided serving endpoint; declaring a model revision does not 
 | `evaluate_candidate` | Applies the candidate's frozen rubric with present/absent/unknown judgments and cited events. |
 | `compare_candidates` | Compares incident-clustered observations; failures, missing outcomes and unknown costs remain visible. |
 | `export_reproducer` | Exports portable original inputs, rubric, evaluations and evidence with content hashes. |
-| `deploy_policy` | Verifies a base or loads an owned completed SFT adapter on an approved shared-filesystem vLLM endpoint. |
+| `deploy_policy` | Verifies a base, owned SFT adapter or hash-checked external adapter on an approved shared-filesystem vLLM endpoint. External training provenance remains unverified. |
+| `evaluate_collective` | Scores one frozen collective detector on imported or lineage-qualified evidence; descriptive aggregation retains unknown coverage and explicit denominators. |
 | `evaluate_run` | Recovers the candidate from a fetched job and checks runtime/model/harness/verifier evidence before evaluation. |
 | `plan_factorial` | Freezes base/trained × baseline/designed candidates, budgets and every scheduled repetition. |
 | `advance_factorial` | Reconciles a durable current trial and submits at most one next trial without outcome-selected retries. |

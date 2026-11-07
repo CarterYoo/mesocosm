@@ -17,7 +17,8 @@ RESPONSE_BYTES = 24 * 1024
 PAGE_BYTES = 12 * 1024
 ITEM_BYTES = 6 * 1024
 KINDS = {"experiment", "transcript", "behavior", "dataset", "deployment", "evaluation", "comparison",
-         "factorial", "snapshot", "fork_recipe", "runtime_binding", "tool_response", "job", "export"}
+         "factorial", "snapshot", "fork_recipe", "runtime_binding", "tool_response", "job", "export",
+         "collective_evaluation", "collective_comparison"}
 
 
 def byte_size(value: Any) -> int:

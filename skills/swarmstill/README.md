@@ -73,9 +73,11 @@ six-tool local designer MCP can provide that interface; paid remote hosting is u
 The base CLI's presence does not establish that the designer extension is installed.
 See [the inverse-study procedure](references/inverse-study.md).
 
-This documentation package does not ship the designer extension or an isolation launcher.
-Without that separate setup, produce an operator analysis or a hypothesis draft and mark
-the isolated designer test as unavailable. A fresh chat alone is not OS isolation.
+The repository now provides the optional designer extension: install with
+`uv sync --locked --extra mcp` and follow the [operator setup guide](https://github.com/GRAIL-center/mesocosm/blob/main/docs/designer-mcp.md)
+for `mesocosm designer mask-corpus` and `mesocosm designer serve`. This skill does not install
+or create an isolation launcher. Without an actual OS boundary, produce an operator
+analysis or hypothesis draft and mark the isolated designer test unavailable.
 
 ## Runtime documentation
 
@@ -83,6 +85,7 @@ the isolated designer test as unavailable. A fresh chat alone is not OS isolatio
 - [Runtime requirements](https://github.com/GRAIL-center/mesocosm/blob/main/docs/research-runtime.md)
 - [Task integrations](https://github.com/GRAIL-center/mesocosm/blob/main/docs/integrations.md)
 - [Capability evidence](https://github.com/GRAIL-center/mesocosm/blob/main/docs/capability-matrix.md)
+- [Fixed-policy populations and collective detector](https://github.com/GRAIL-center/mesocosm/blob/main/docs/fixed-p-study.md)
 
 Source and runtime licensing follow the repository's
 [license](https://github.com/GRAIL-center/mesocosm/blob/main/LICENSE).

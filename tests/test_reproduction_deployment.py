@@ -9,10 +9,113 @@ import httpx
 import pytest
 from test_reproduction_training import local_training_assets  # noqa: F401
 
+from mesocosm.learning.checkpoints import checkpoint_sha256
 from mesocosm.learning.serving import VLLMPolicyServer
 from mesocosm.reproduction.deployment import training_artifact
 from mesocosm.reproduction.service import ResearchWorkbench
 from mesocosm.reproduction.training import run_training
+
+
+@pytest.fixture
+def external_assets(tmp_path):
+    base = tmp_path / "base"
+    base.mkdir()
+    (base / "config.json").write_text('{"architectures":["FixtureForCausalLM"]}')
+    (base / "model.safetensors").write_bytes(b"base fixture weights")
+    adapter = tmp_path / "adapter"
+    adapter.mkdir()
+    (adapter / "adapter_config.json").write_text(json.dumps({"base_model_name_or_path": str(base), "r": 32}))
+    (adapter / "adapter_model.safetensors").write_bytes(b"external fixture weights")
+    return dict(server="http://127.0.0.1:8000", model="hacker", base_model=str(base),
+        base_revision="a" * 40, base_sha256=checkpoint_sha256(base), idempotency_key="external",
+        external_adapter={"repo": "publisher/adapters", "revision": "d" * 40, "subfolder": "seed-42",
+                          "path": str(adapter), "sha256": checkpoint_sha256(adapter, adapter=True)})
+
+
+@pytest.mark.parametrize("failure", ["hash", "base", "owned_and_external", "revision"])
+async def test_external_adapter_invalid_inputs_never_reach_server(tmp_path, external_assets, monkeypatch, failure):
+    bench = ResearchWorkbench(tmp_path / "research", allowed_servers={"http://127.0.0.1:8000": None})
+    args = external_assets
+    if failure == "hash":
+        args["external_adapter"]["sha256"] = "f" * 64
+    elif failure == "base":
+        config = pathlib.Path(args["external_adapter"]["path"]) / "adapter_config.json"
+        config.write_text('{"base_model_name_or_path":"different/base","r":32}')
+        args["external_adapter"]["sha256"] = checkpoint_sha256(config.parent, adapter=True)
+    elif failure == "owned_and_external":
+        args["training_job_id"] = "nonexistent"
+    else:
+        args["external_adapter"]["revision"] = "main"
+    monkeypatch.setattr(bench, "_server", lambda _: pytest.fail("invalid adapter reached serving API"))
+    with pytest.raises(ValueError, match={"hash": "hash mismatch", "base": "base model mismatch",
+            "owned_and_external": "mutually exclusive", "revision": "revision"}[failure]):
+        await bench.deploy_policy(**args)
+
+
+def external_transport(args, *, maximum=32, lose_ack=False):
+    entries = [{"id": "base", "root": args["base_model"], "parent": None}]
+    calls = []
+
+    def handle(request):
+        calls.append(request.url.path)
+        if request.url.path == "/v1/models":
+            return httpx.Response(200, json={"data": entries})
+        if request.url.path == "/server_info":
+            lora = {"lora_dtype": "auto"}
+            if maximum is not None:
+                lora["max_lora_rank"] = maximum
+            return httpx.Response(200, json={"vllm_config": {
+                "model_config": {"model": args["base_model"], "revision": args["base_revision"],
+                    "dtype": "bfloat16", "quantization": None, "hf_overrides": {}, "hf_config": {}},
+                "cache_config": {"cache_dtype": "auto"}, "lora_config": lora}})
+        body = json.loads(request.content)
+        if request.url.path == "/v1/load_lora_adapter":
+            entries.append({"id": body["lora_name"], "root": body["lora_path"], "parent": "base"})
+            if lose_ack:
+                raise httpx.ReadError("load succeeded but acknowledgement was lost")
+            return httpx.Response(200, json={"status": "loaded"})
+        assert request.url.path == "/v1/completions"
+        return httpx.Response(200, json={"id": "probe", "model": body["model"],
+            "choices": [{"text": "reply", "finish_reason": "length"}], "usage": {"completion_tokens": 1}})
+
+    return httpx.MockTransport(handle), calls
+
+
+@pytest.mark.parametrize("maximum", [None, 16])
+async def test_external_adapter_requires_observed_server_rank_capacity(
+    tmp_path, external_assets, monkeypatch, maximum
+):
+    bench = ResearchWorkbench(tmp_path / "research", allowed_servers={"http://127.0.0.1:8000": None})
+    transport, calls = external_transport(external_assets, maximum=maximum)
+    monkeypatch.setattr(bench, "_server", lambda url: VLLMPolicyServer(url, transport=transport))
+    with pytest.raises(ValueError, match="unknown|exceeds"):
+        await bench.deploy_policy(**external_assets)
+    assert "/v1/load_lora_adapter" not in calls
+
+
+async def test_external_adapter_uncertain_load_reconciles_without_reload_and_rehashes(
+    tmp_path, external_assets, monkeypatch
+):
+    bench = ResearchWorkbench(tmp_path / "research", allowed_servers={"http://127.0.0.1:8000": None})
+    transport, calls = external_transport(external_assets, lose_ack=True)
+    monkeypatch.setattr(bench, "_server", lambda url: VLLMPolicyServer(url, transport=transport))
+    initial = await bench.deploy_policy(**external_assets)
+    assert initial["status"] == "activation_uncertain"
+    reconciled = await bench.get_job_status(initial["job_id"], "reconcile")
+    assert reconciled["status"] == "ready"
+    assert await bench.get_job_status(initial["job_id"], "reconcile") == reconciled
+    assert calls.count("/v1/load_lora_adapter") == 1
+    record = bench.store.get(reconciled["deployment_id"], "deployment")
+    assert record["training_artifact"] is None
+    assert record["external_adapter"] == external_assets["external_adapter"]
+    assert record["training_provenance"] == "unverified"
+    assert record["evidence_level"] == "external_adapter_hash_and_serving_api"
+    assert record["receipt"]["external_adapter_capacity"]["max_lora_rank"] == 32
+    await bench._verify_deployment(reconciled["deployment_id"])
+    assert calls.count("/v1/load_lora_adapter") == 1
+    pathlib.Path(record["external_adapter"]["path"], "adapter_model.safetensors").write_bytes(b"changed")
+    with pytest.raises(ValueError, match="hash mismatch"):
+        await bench._verify_deployment(reconciled["deployment_id"])
 
 
 async def test_real_completed_sft_connects_to_deployment_and_uncertain_load_reconciliation(

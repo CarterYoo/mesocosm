@@ -6,10 +6,40 @@ import json
 import pathlib
 from typing import Any
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from mesocosm.core.serving import ServingIdentity
 from mesocosm.learning.checkpoints import checkpoint_sha256, resolve_base
 from mesocosm.learning.config import PolicyIdentity
 from mesocosm.reproduction.store import Store, digest, file_hash
+
+
+class ExternalAdapter(BaseModel):
+    """Operator-supplied, already materialized weights; publication provenance is unverified."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    repo: str = Field(min_length=1)
+    revision: str = Field(pattern=r"^[a-f0-9]{40}$")
+    subfolder: str
+    path: str = Field(min_length=1)
+    sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+def external_artifact(value: dict[str, Any], base_model: str) -> tuple[dict[str, Any], int]:
+    adapter = ExternalAdapter.model_validate(value)
+    path = pathlib.Path(adapter.path).expanduser().resolve(strict=True)
+    if not path.is_dir():
+        raise ValueError("external adapter path must be an existing local directory")
+    if checkpoint_sha256(path, adapter=True) != adapter.sha256:
+        raise ValueError("external adapter hash mismatch")
+    config = json.loads((path / "adapter_config.json").read_text())
+    if config.get("base_model_name_or_path") != base_model:
+        raise ValueError("external adapter base model mismatch")
+    ranks = [config.get("r"), *(config.get("rank_pattern") or {}).values()]
+    if any(type(rank) is not int or rank < 1 for rank in ranks):
+        raise ValueError("external adapter must declare a positive LoRA rank")
+    return {**adapter.model_dump(), "path": str(path)}, max(ranks)
 
 
 def training_artifact(store: Store, job_id: str) -> dict[str, Any]:
@@ -89,3 +119,11 @@ def serving_identity(deployment_id: str, value: dict[str, Any]) -> dict[str, Any
     policy = PolicyIdentity.model_validate(value["policy"])
     return ServingIdentity(deployment_id=deployment_id, policy_id=policy.id,
                            base_sha256=policy.base_sha256, adapter_sha256=policy.adapter_sha256).model_dump()
+
+
+def agent_bindings(experiment: dict[str, Any]) -> dict[str, str]:
+    if experiment.get("agent_deployments") is not None:
+        return experiment["agent_deployments"]
+    identifier = experiment.get("deployment_id")
+    return ({agent["id"]: identifier for agent in experiment["configuration"]["manifest"]["agents"]}
+            if identifier else {})

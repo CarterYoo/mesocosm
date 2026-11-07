@@ -44,6 +44,11 @@ mesocosm_capabilities     mesocosm_corpus_search  mesocosm_corpus_stats
 mesocosm_read_events      mesocosm_check_spec     mesocosm_submit_spec
 ```
 
+Mesocosm provides this optional extension through `mesocosm designer serve`; use the
+[operator setup guide](https://github.com/GRAIL-center/mesocosm/blob/main/docs/designer-mcp.md)
+to prepare the reviewed corpus and finite fixed-P design space. Its installation does
+not supply the external OS sandbox required below.
+
 Discover the tools and their current limits from that interface. The public
 `mesocosm research call` CLI is a broader trusted-operator interface and cannot be given to
 the designer as an equivalent substitute. There is no assumed `mesocosm designer call`

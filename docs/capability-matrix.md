@@ -155,3 +155,20 @@ complete software contracts from partial requirements. All new native workflow a
 | Production process isolation on Colab | **unsupported** by the documented wrapper: it removes PID isolation and exposes host `/proc` and `/sys`. This restriction is separate from tested network checks | [A100 adaptations](native-multiagent-evidence.md) |
 
 Update this matrix when an interface or its evidence changes. Keep raw runs outside version control.
+
+## Fixed-policy populations and collective measurements (ADR-0066/0067)
+
+| Capability | Status and boundary | Evidence |
+|---|---|---|
+| Exhaustive per-agent deployment binding, deduplicated serving preflight, alias-specific runtime lineage and exports | **supported** in software contracts; live mixed-policy acceptance is **unverified** | [Runtime tests](../tests/test_reproduction_runtime.py), [ADR-0066](adr/0066-mixed-deployments-and-external-adapters.md) |
+| Local external adapter hash/base/rank checks and reconciliation using actual server-advertised LoRA capacity | **supported** in software contracts; no weight download or claimed training provenance; Qwen3.5/vLLM smoke is **unverified** | [Deployment tests](../tests/test_reproduction_deployment.py), [study readiness](fixed-p-study.md) |
+| Frozen collective signals, source-linked exposure/adoption, review acceptance and explicit unknown-aware denominators | **supported** in software contracts; imported association is unverified; no CI or task-independence claim | [Detector tests](../tests/test_reproduction_collective.py), [native binding tests](../tests/test_reproduction_runtime.py), [ADR-0067](adr/0067-collective-observable-signals.md) |
+| Original ImpossibleBench/fallback task-source execution, test fingerprints and task-ID split acceptance | **unsupported** on the current native Harbor path: original completion/submission/sandbox contracts cannot be preserved. Behavioral results are **unverified** | [Original-contract audit](reward-hack-benchmark-contract.md); no substitute adapter/scorer was added |
+
+## Restricted fixed-policy designer (ADR-0068)
+
+| Capability | Status | Evidence and limit |
+|---|---|---|
+| Six-tool local stdio designer MCP; operator-approved finite S/E domains; real configure/validate checks; immutable final per session | supported | Software contract: [test_designer_mcp.py](../tests/test_designer_mcp.py), including actual MCP stdio discovery/calls. [Operator guide](designer-mcp.md). |
+| Masked teacher bundle projection, private source/projection hashes and citation mapping; bounded exact event pages and private call audit | supported | Software contract: [test_designer_corpus.py](../tests/test_designer_corpus.py), [test_designer_mcp.py](../tests/test_designer_mcp.py). Requires explicit operator content review; no automated semantic decontamination guarantee. |
+| Fresh-context designer execution behind a separately probed OS sandbox, and behavioral transfer under a hidden intervention | unverified | The server is not an OS sandbox. Requires the [inverse-study acceptance procedure](../skills/swarmstill/references/inverse-study.md) and actual agents; software fixtures do not count. |

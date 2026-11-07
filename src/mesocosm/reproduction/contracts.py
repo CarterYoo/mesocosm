@@ -26,6 +26,7 @@ from pydantic import (
 )
 
 from mesocosm.reproduction import behavior
+from mesocosm.reproduction.collective import CollectiveSpec
 from mesocosm.reproduction.dataset import DatasetConfig
 from mesocosm.reproduction.errors import ToolInputError, validation_error
 from mesocosm.reproduction.training import SFTConfig
@@ -38,7 +39,8 @@ Kind = Literal["speech", "action_request", "action_execution", "tool_result", "s
                "intervention", "reward", "outcome", "model_call", "context", "observation"]
 Action = Literal["inspect", "fetch", "cancel", "start", "resubmit", "reconcile"]
 RecordKind = Literal["experiment", "transcript", "behavior", "dataset", "deployment", "evaluation", "comparison",
-                     "factorial", "snapshot", "fork_recipe", "runtime_binding", "tool_response", "job", "export"]
+                     "factorial", "snapshot", "fork_recipe", "runtime_binding", "tool_response", "job", "export",
+                     "collective_evaluation", "collective_comparison"]
 Scalar = StrictStr | StrictInt | StrictFloat | StrictBool | None
 
 
@@ -161,7 +163,7 @@ class FactorChange(_Object):
         return self
 
 
-def _model(function: Callable[..., Any]) -> type[BaseModel]:
+def _model(function: Callable[..., Any], *, behavior_schema: type[BaseModel] | None = None) -> type[BaseModel]:
     hints = get_type_hints(function)
     name = function.__name__
     fields: dict[str, Any] = {}
@@ -170,7 +172,10 @@ def _model(function: Callable[..., Any]) -> type[BaseModel]:
             continue
         annotation = hints.get(key, Any)
         if name == "define_behavior" and key == "spec":
-            annotation = BehaviorSpec
+            annotation = behavior_schema or (BehaviorSpec | CollectiveSpec)
+        elif name == "deploy_policy" and key == "external_adapter":
+            from mesocosm.reproduction.deployment import ExternalAdapter
+            annotation = ExternalAdapter | None
         elif key in {"changes", "environment_changes"}:
             annotation = list[FactorChange]
         elif name == "prepare_dataset" and key == "config":
@@ -223,7 +228,12 @@ def validate_arguments(function: Callable[..., Any], arguments: Any) -> dict[str
     """Validate a JSON call before any side effects, with bounded safe feedback."""
     if not isinstance(arguments, dict):
         raise ToolInputError("invalid_arguments", "Tool arguments must be a JSON object.")
-    model = _model(function)
+    behavior_schema = None
+    if function.__name__ == "define_behavior":
+        spec = arguments.get("spec")
+        behavior_schema = (CollectiveSpec if isinstance(spec, dict) and spec.get("kind") == "collective"
+                           else BehaviorSpec)
+    model = _model(function, behavior_schema=behavior_schema)
     try:
         parsed = model.model_validate(arguments)
     except ValidationError as exc:
@@ -259,6 +269,13 @@ _EXAMPLES: dict[str, dict[str, Any]] = {
 }
 
 _GUIDANCE = {
+    "evaluate_collective": [
+        "Freeze a kind=collective definition through define_behavior; only closed detector parameters are accepted.",
+        "Choose imported transcript_id (association unverified), job_id plus run_id (strict runtime lineage), "
+        "or evaluation_ids for descriptive aggregation. Every input must use the same frozen detector.",
+        "Missing coverage is unknown. Explicit observed source links are required for exposure/adoption; "
+        "the detector does not infer causal transmission or compute confidence intervals.",
+    ],
     "define_behavior": [
         "Each rule has exactly one operator; maximum nesting depth is 12. Sequence only accepts event selectors "
         "with min_count=1 and requires recorded, comparable timestamps.",

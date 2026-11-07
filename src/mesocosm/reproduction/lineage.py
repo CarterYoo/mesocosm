@@ -68,7 +68,8 @@ def verify_wire(record: dict[str, Any]) -> None:
 
 
 def verify_run(root: pathlib.Path, packaged: dict[str, Any], package_digest: str, remote_job_id: str,
-               deployment_id: str, deployed: dict[str, Any], packaged_path: pathlib.Path) -> dict[str, Any]:
+               deployment_id: str | None, deployed: dict[str, Any], packaged_path: pathlib.Path, *,
+               agent_deployments: dict[str, str] | None = None) -> dict[str, Any]:
     binding = json.loads((root / "worker-binding.json").read_text())
     original = json.loads((root / "manifest.json").read_text())
     world = WorldManifest.model_validate(original["manifest"])
@@ -93,14 +94,25 @@ def verify_run(root: pathlib.Path, packaged: dict[str, Any], package_digest: str
     _require(summary["status"] == "ok", "incomplete run remains a failed attempt, not an admitted evaluation")
     label = world.gateway.run_label or root.name
     _require(summary["run_label"] == label, "run label mismatch")
-    expected_identity = serving_identity(deployment_id, deployed)
-    policy = deployed["policy"]
+    if agent_deployments is None:
+        _require(deployment_id is not None, "missing deployment binding")
+        assert deployment_id is not None
+        agent_deployments = {agent.id: deployment_id for agent in world.agents}
+        deployments = {deployment_id: deployed}
+    else:
+        deployments = deployed
+    _require(set(agent_deployments) == {agent.id for agent in world.agents}, "incomplete per-agent deployment binding")
+    identities = {agent: serving_identity(identifier, deployments[identifier])
+                  for agent, identifier in agent_deployments.items()}
     for agent in world.agents:
+        expected_identity = identities[agent.id]
+        deployment = deployments[agent_deployments[agent.id]]
+        policy = deployment["policy"]
         model = world.model_for(agent)
         _require(model.serving_identity is not None and model.serving_identity.model_dump() == expected_identity
-                 and model.id == policy["model"] and model.upstream == deployed["server"]
+                 and model.id == policy["model"] and model.upstream == deployment["server"]
                  and model.revision == policy["base_revision"] and model.hf_repo == policy["base_model"]
-                 and model.api_key_env == deployed["server_token_env"], "candidate model/deployment mismatch")
+                 and model.api_key_env == deployment["server_token_env"], "candidate model/deployment mismatch")
     events = _rows(root / "events.jsonl")
     _require(all(event.get("run_id") == root.name for event in events), "event run identity changed")
     _require(any(event["kind"] == "runtime.cleanup" and event["data"].get("status") == "complete"
@@ -142,13 +154,17 @@ def verify_run(root: pathlib.Path, packaged: dict[str, Any], package_digest: str
     _require(set(row["agent"] for row in calls) == agents and summary["model_calls"] == len(calls),
              "missing agent calls or mismatched call count")
     for record in [*admissions, *calls]:
+        _require(record["agent"] in agents, "native request names an unknown agent")
+        deployment = deployments[agent_deployments[record["agent"]]]
+        policy = deployment["policy"]
         _require(record["run"] == label and record["agent"] in agents and record["identified_by"] == "key"
                  and record.get("expected_model") == policy["model"]
-                 and record.get("serving_identity") == expected_identity
-                 and record["upstream"].rstrip("/") == deployed["server"].rstrip("/")
+                 and record.get("serving_identity") == identities[record["agent"]]
+                 and record["upstream"].rstrip("/") == deployment["server"].rstrip("/")
                  and record["model_kind"] == "vllm",
                  "native request attribution differs from frozen deployment")
     for record in calls:
+        policy = deployments[agent_deployments[record["agent"]]]["policy"]
         response = record["response"]
         _require(record["status"] == 200 and record["request"]["model"] == policy["model"]
                  and response_identity(response, policy["model"]) == "matched"
@@ -220,6 +236,7 @@ def verify_run(root: pathlib.Path, packaged: dict[str, Any], package_digest: str
                  "original verifier score or metadata mismatch")
     return {"run_id": root.name, "runtime_manifest_digest": world.digest(), "model_calls": len(calls),
             "agents": sorted(agents), "request_ids": sorted(call_ids), "deployment_id": deployment_id,
+            **({"agent_deployments": agent_deployments} if deployment_id is None else {}),
             "worker_binding_sha256": file_hash(root / "worker-binding.json"),
             "gateway_records_sha256": file_hash(root / "native/gateway/records.jsonl"),
             "costs": {"model_requests": len(calls), **{

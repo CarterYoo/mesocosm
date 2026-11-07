@@ -67,3 +67,6 @@ One file per decision, numbered. Status is `proposed`, `accepted`, `superseded b
 | [0063](0063-research-agent-workbench.md) | Immutable evidence, factors, SFT/LoRA, durable jobs and candidate evaluation through 14 research tools | accepted |
 | [0064](0064-verified-workbench-experiments.md) | Owned SFT deployment, runtime-qualified evaluations and durable four-condition comparisons | accepted |
 | [0065](0065-bounded-research-tool-context.md) | Bounded research responses, focused schema/evidence navigation, safe errors and recoverable progress/results | accepted |
+| [0066](0066-mixed-deployments-and-external-adapters.md) | Per-agent deployment binding and hash-checked external local adapters with server-advertised LoRA capacity | accepted |
+| [0067](0067-collective-observable-signals.md) | Frozen collective signals, explicit exposure links, unknown-aware denominators and descriptive aggregation | accepted |
+| [0068](0068-restricted-fixed-policy-designer.md) | Six restricted stdio designer tools, finite operator S/E choices and hash-bound reviewed corpus projections | accepted |
