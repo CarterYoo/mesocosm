@@ -37,6 +37,7 @@ TOOLS = (
     "prepare_dataset", "submit_training", "run_experiment", "get_job_status", "snapshot_experiment",
     "fork_experiment", "evaluate_candidate", "compare_candidates", "export_reproducer",
     "deploy_policy", "evaluate_run", "plan_factorial", "advance_factorial", "report_factorial",
+    "describe_tool", "read_record", "read_events", "list_records",
 )
 
 
@@ -175,21 +176,23 @@ class ResearchWorkbench:
         return endpoint
 
     async def call(self, tool: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        from mesocosm.reproduction.contracts import validate_arguments
+        from mesocosm.reproduction.views import present
+
         if tool not in TOOLS:
             raise ValueError("unknown research tool")
-        if not isinstance(arguments, dict):
-            raise ValueError("tool arguments must be a JSON object")
         function = getattr(self, tool)
-        inspect.signature(function).bind(**arguments)
+        arguments = validate_arguments(getattr(type(self), tool), arguments)
         if inspect.iscoroutinefunction(function):
-            return await function(**arguments)
-        # Snapshot helpers and synchronous imports must not nest asyncio.run in
-        # this dispatcher event loop or block another caller's status request.
-        return await asyncio.to_thread(function, **arguments)
+            result = await function(**arguments)
+        else:
+            # Synchronous imports must not block another caller's status request.
+            result = await asyncio.to_thread(function, **arguments)
+        return await asyncio.to_thread(present, self, tool, result)
 
     @classmethod
     def tools(cls) -> dict[str, Any]:
-        return {"schema_version": 1, "tools": [
+        return {"schema_version": 2, "detail_tool": "describe_tool", "response_limit_bytes": 24 * 1024, "tools": [
             {"name": name, "description": inspect.getdoc(getattr(cls, name)),
              "parameters": [{"name": key, "required": value.default is inspect.Parameter.empty,
                              "type": str(value.annotation),
@@ -197,6 +200,30 @@ class ResearchWorkbench:
                             for key, value in inspect.signature(getattr(cls, name)).parameters.items()
                             if key != "self"]}
             for name in TOOLS], "trust_boundary": "single trusted operator; not a multi-tenant sandbox"}
+
+    def describe_tool(self, name: str) -> dict[str, Any]:
+        """Read one tool's detailed input schema, example and operational boundaries."""
+        from mesocosm.reproduction.contracts import describe_tool
+        if name not in TOOLS:
+            raise ValueError("unknown research tool")
+        return describe_tool(type(self), name)
+
+    def read_record(self, record_id: str, pointer: str = "", offset: int = 0, limit: int = 20,
+                    index_path: list[int] | None = None, expected_version: str | None = None) -> dict[str, Any]:
+        """Navigate a saved object/job by JSON pointer; pages and long text are bounded, with explicit cursors."""
+        from mesocosm.reproduction.views import read_record
+        return read_record(self, record_id, pointer, offset, limit, index_path, expected_version)
+
+    def read_events(self, transcript_id: str, agent_id: str | None = None, kind: str | None = None,
+                    event_id: str | None = None, offset: int = 0, limit: int = 20) -> dict[str, Any]:
+        """Read a bounded filtered event page; use returned pointers to inspect oversized events in full."""
+        from mesocosm.reproduction.views import read_events
+        return read_events(self, transcript_id, agent_id, kind, event_id, offset, limit)
+
+    def list_records(self, kind: str = "experiment", offset: int = 0, limit: int = 20) -> dict[str, Any]:
+        """Rediscover persisted records or jobs after context loss without replaying prior tool responses."""
+        from mesocosm.reproduction.views import list_records
+        return list_records(self, kind, offset, limit)
 
     def inspect_transcript(self, path: str) -> dict[str, Any]:
         """Normalize recorded evidence; narration never establishes executed behavior."""
@@ -269,10 +296,28 @@ class ResearchWorkbench:
         self.store.audit("behavior.defined", {"behavior_id": identifier})
         return {"behavior_id": identifier, "definition": value}
 
-    def list_factors(self, experiment_id: str | None = None) -> dict[str, Any]:
-        """List enforced fields, types, defaults, scopes and unsupported live changes."""
-        world = self.store.get(experiment_id, "experiment")["configuration"]["manifest"] if experiment_id else None
-        return {"factors": factors.list_factors(world)}
+    def list_factors(self, experiment_id: str | None = None, names: list[str] | None = None,
+                     prefix: str | None = None, detail: bool = False, offset: int = 0,
+                     limit: int = 20) -> dict[str, Any]:
+        """Search a bounded factor index; request detail for selected fields and their exact schemas."""
+        from mesocosm.reproduction.views import limits, page, record
+        limits(offset, limit)
+        world = record(self, experiment_id)["configuration"]["manifest"] if experiment_id else None
+        catalog = factors.list_factors(world)
+        if names is not None and set(names) - {item["name"] for item in catalog}:
+            raise ValueError("unknown factor name; search the factor index first")
+        selected = [item for item in catalog if (names is None or item["name"] in names)
+                    and (prefix is None or item["name"].startswith(prefix))]
+        if not detail:
+            fields = {"name", "status", "category", "scopes", "change_timing", "native_acceptance"}
+            selected = [{key: value for key, value in item.items() if key in fields} for item in selected]
+        # Detailed schemas can be larger than a page; the dispatcher's retained-result view bounds those.
+        if detail:
+            stop = min(offset + limit, len(selected))
+            return {"factors": selected[offset:stop], "total": len(selected), "offset": offset,
+                    "next_offset": stop if stop < len(selected) else None, "eof": stop >= len(selected)}
+        result = page(selected, offset, limit)
+        return {"factors": result.pop("items"), **result}
 
     def configure_experiment(self, base_world: str, behavior_id: str, changes: list[dict[str, Any]],
                              roles: dict[str, list[str]] | None = None,
@@ -465,13 +510,20 @@ class ResearchWorkbench:
         self.store.finish(idempotency_key, result)
         return result
 
-    async def get_job_status(self, job_id: str, action: str = "inspect") -> dict[str, Any]:
-        """Inspect, fetch, cancel, start a queued trainer or reconcile an uncertain submission."""
+    async def get_job_status(self, job_id: str, action: str = "inspect",
+                             since_version: str | None = None) -> dict[str, Any]:
+        """Inspect or act on an owned job; since_version returns compact unchanged polling responses."""
+        from mesocosm.reproduction.progress import status_view
+
+        if since_version is not None and (action != "inspect" or not re.fullmatch(r"[a-f0-9]{64}", since_version)):
+            raise ValueError("since_version requires inspect and a returned state_version")
         job = self.store.job(job_id)
         resource = ("serving:" + job["server"] + ":" + job["policy"]["model"]
                     if job["kind"] == "deployment" else job_id)
         with self.store.lease(resource):
-            return await self._get_job_status(job_id, action)
+            result = await self._get_job_status(job_id, action)
+            return (status_view(self.store, self.store.job(job_id), result, since_version)
+                    if action == "inspect" else result)
 
     async def _get_job_status(self, job_id: str, action: str) -> dict[str, Any]:
         if action not in {"inspect", "fetch", "cancel", "start", "resubmit", "reconcile"}:
@@ -561,26 +613,34 @@ class ResearchWorkbench:
             if action == "fetch":
                 if job["status"] not in TERMINAL:
                     raise ValueError("fetch requires a terminal job")
-                destination = directory / "results"
-                if not destination.exists():
-                    job["retrieval"] = await client.fetch(job["remote_job_id"], destination)
-                job["results_path"] = str(destination)
-                self._verified_results(job)
+                from mesocosm.reproduction.retrieval import fetch_results
+
+                await fetch_results(self.store, job, client, self._verified_results)
         self.store.save_job(job_id, job)
         return self.store.job(job_id)
 
     def _verified_results(self, job: dict[str, Any]) -> pathlib.Path:
         """Recheck the complete fetched result inventory against the retained receipt."""
+        from mesocosm.execution.package import MAX_INDEX_BYTES
+
+        if not isinstance(job.get("retrieval"), dict) or not job.get("results_path"):
+            raise ValueError("results lack a durable retrieval receipt; fetch the owned job to recover")
         root = self.store.directory("jobs", job["job_id"]) / "results"
         if root.is_symlink() or root.resolve() != pathlib.Path(job["results_path"]).resolve():
             raise ValueError("result directory differs from its owned job path")
         metadata_path = root / "package.json"
         if metadata_path.is_symlink():
             raise ValueError("result package metadata cannot be a symlink")
-        metadata = json.loads(metadata_path.read_text())
+        with metadata_path.open("rb") as stream:
+            content = stream.read(MAX_INDEX_BYTES + 1)
+        if len(content) > MAX_INDEX_BYTES:
+            raise ValueError("result package metadata exceeds size limit")
+        metadata = json.loads(content)
+        if not isinstance(metadata, dict) or not isinstance(metadata.get("files"), dict):
+            raise ValueError("result package metadata is invalid")
         fingerprint = hashlib.sha256(json.dumps({key: value for key, value in metadata.items() if key != "digest"},
                                                 sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-        if metadata.get("digest") != fingerprint or fingerprint != job["retrieval"]["digest"]:
+        if metadata.get("digest") != fingerprint or fingerprint != job["retrieval"].get("digest"):
             raise ValueError("fetched result package identity mismatch")
         entries = metadata["files"]
         if {path.relative_to(root).as_posix() for path in root.rglob("*")} != {*entries, "package.json"}:

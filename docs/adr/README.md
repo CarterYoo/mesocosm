@@ -66,3 +66,4 @@ One file per decision, numbered. Status is `proposed`, `accepted`, `superseded b
 | [0062](0062-bounded-harness-health.md) | Self-bounded healthchecks and independent responsiveness checks during pending harness turns | accepted |
 | [0063](0063-research-agent-workbench.md) | Immutable evidence, factors, SFT/LoRA, durable jobs and candidate evaluation through 14 research tools | accepted |
 | [0064](0064-verified-workbench-experiments.md) | Owned SFT deployment, runtime-qualified evaluations and durable four-condition comparisons | accepted |
+| [0065](0065-bounded-research-tool-context.md) | Bounded research responses, focused schema/evidence navigation, safe errors and recoverable progress/results | accepted |

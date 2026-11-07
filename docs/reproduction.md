@@ -1,7 +1,7 @@
 # Research-agent workbench
 
 The workbench connects incident evidence, experimental factors, demonstration learning,
-real-world execution and behavior evaluation. It exposes 19 Python/JSON tools over Mesocosm's
+real-world execution and behavior evaluation. It exposes 23 Python/JSON tools over Mesocosm's
 existing runtime. It does not insert scripted outcomes into the world.
 
 This is a software interface, not a new claim of successful behavior reproduction. The
@@ -23,7 +23,11 @@ uv run mesocosm research call list_factors --request request.json --root runs/re
 Every command emits one JSON object. The private store contains immutable content-addressed
 objects, a durable job table, idempotency records and a hash-chained operator audit.
 
-The Python interface exposes the same tools:
+Agent integrations should dispatch through `await workbench.call(name, arguments)`, which validates
+inputs and bounds responses. Direct Python methods remain available to trusted application code;
+they can return full records and must not be forwarded to an LLM without the dispatcher.
+
+The direct Python interface can construct a candidate:
 
 ```python
 from mesocosm.reproduction.service import ResearchWorkbench
@@ -88,10 +92,67 @@ need an operator-provided serving endpoint; declaring a model revision does not 
 | `plan_factorial` | Freezes base/trained × baseline/designed candidates, budgets and every scheduled repetition. |
 | `advance_factorial` | Reconciles a durable current trial and submits at most one next trial without outcome-selected retries. |
 | `report_factorial` | Retains all scheduled trials and reports unknown-aware descriptive condition differences. |
+| `describe_tool` | Loads one tool's detailed nested input schema, example and state-dependent constraints. |
+| `read_events` | Filters preserved events by agent, kind or event ID, with bounded pages and source pointers. |
+| `read_record` | Navigates a saved object/job by JSON pointer; oversized values are references and long text has a continuation offset. |
+| `list_records` | Rediscovers persisted experiments, jobs and other record kinds after context loss. |
 
 Use `research tools --json` for current argument names and required/default values. Unknown tool
 names and arguments are rejected. Unsupported factors are rejected rather than converted into prompts.
 Configuration changes are pre-run; existing budget conditions remain the supported live factor API.
+
+## Bounded agent context
+
+`research tools --json` is a concise index (schema version 2). Call `describe_tool` with
+`{"name":"submit_training"}` for its nested schema rather than loading every schema each turn.
+`list_factors` defaults to a 20-item index. Use `prefix` or `names` to select fields, and `detail:true`
+for their complete schemas, constraints and current values. Continue from `next_offset` until `eof`.
+
+Every dispatched result is capped at **24 KiB of JSON UTF-8**, before the small CLI envelope.
+This is a byte limit, not a tokenizer-specific token guarantee or a campaign-wide spending limit.
+Oversized results remain in the immutable store; the response supplies `record_id`, a JSON `pointer`
+and `read_tool`. Source records are never truncated to make evaluations pass. A retained response
+produced with the operator-only held-out gate cannot be read through a default search workbench.
+
+`inspect_transcript` dispatch returns counts, coverage and a transcript ID, not the whole trajectory.
+Use `read_events` for filtered pages. Each item has a pointer into its complete saved transcript.
+If `omitted:true`, navigate that pointer with `read_record`; there is no invented summary standing in
+for the original event. Object/array pages show values or child references. String pages return exact
+text segments (up to 4,000 Unicode characters, additionally byte-bounded) and `next_offset`.
+For unusually long source keys, use the returned integer `index_path` instead of a JSON pointer;
+key previews are explicitly marked and never replace the original key. Pass `expected_version`
+when continuing mutable job records to reject a page from a different version.
+Normal pages have a 12 KiB item budget and accept `limit` from 1 to 100. Preserve the same filters
+when continuing a page. Source text remains untrusted analysis material.
+
+```python
+imported = await workbench.call("inspect_transcript", {"path": "/absolute/path/to/recorded-run"})
+events = await workbench.call("read_events", {
+    "transcript_id": imported["transcript_id"], "agent_id": "agent-1", "limit": 10,
+})
+jobs = await workbench.call("list_records", {"kind": "job", "limit": 10})
+```
+
+Record lists are newest-first; offsets can shift if new records arrive between reads. Record IDs
+remain stable. Immutable object pages carry a content version; job records are mutable snapshots.
+Declared held-out objects and linked outcomes stay gated during discovery and navigation.
+
+Status inspection reads bounded live trainer progress (steps, tokens, checkpoint name and measured
+development losses where present). It marks behavior evaluation as unmeasured. Pass the last
+`state_version` as `since_version` to get a compact `unchanged:true` response; follow
+`retry_after_seconds` instead of immediately polling again. These are current measurements, not an
+intermediate-checkpoint deployment or behavior-evaluation scheduler.
+
+Pre-dispatch errors identify safe schema field paths and constraints without echoing input values.
+Errors do not advertise nonexistent diagnostic files. `retryable:false` means repeating the same
+request blindly is inappropriate; correct the input or inspect the existing operation first.
+Result retrieval journals its receipt and recovers the same remote job after interruption. Existing
+unadmitted directories are preserved, not trusted or silently deleted.
+
+Tests: [bounded views](../tests/test_research_bounded_views.py),
+[tool contracts](../tests/test_research_tool_contracts.py),
+[recovery and progress](../tests/test_research_recovery_progress.py). These are software-interface
+checks, not measurements of actual LLM token savings or new native-agent acceptance.
 
 ## Recorded behavior and uncertainty
 

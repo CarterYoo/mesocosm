@@ -73,7 +73,7 @@ def loop(tmp_path):
     return bench, baseline["experiment_id"], bound["experiment_id"], deployments
 
 
-def fetched(bench, experiment_id, tmp_path, mutate=None, *, owned_job_id=None):
+def fetched(bench, experiment_id, tmp_path, mutate=None, *, owned_job_id=None, destination=None, save_job=True):
     original = tmp_path / "worker-job"
     original.mkdir(parents=True)
     package = unpack_submission(bench._archive(experiment_id), original / "input")
@@ -228,26 +228,27 @@ def fetched(bench, experiment_id, tmp_path, mutate=None, *, owned_job_id=None):
     )
     (original / "result.json").write_text(json.dumps({"status": "ok", "run_status": "ok", "run_id": bundle.run_id}))
     job_id = owned_job_id or "job-" + "f" * 64
-    result_path = bench.store.directory("jobs", job_id) / "results"
+    result_path = destination or bench.store.directory("jobs", job_id) / "results"
     result_path.parent.mkdir(parents=True, exist_ok=True)
     archive = tmp_path / "result.zip"
     result_package = export_results(original, archive)
     extract_results(archive, result_path)
-    bench.store.save_job(
-        job_id,
-        {
-            "kind": "world",
-            "status": "completed",
-            "experiment_id": experiment_id,
-            "worker": "http://127.0.0.1:8088",
-            "token_env": "WORKER_KEY",
-            "remote_job_id": remote_id,
-            "serving_preflight": {"deployment_id": dep_id},
-            "results_path": str(result_path),
-            "retrieval": {"digest": result_package["digest"]},
-        },
-        new=owned_job_id is None,
-    )
+    if save_job:
+        bench.store.save_job(
+            job_id,
+            {
+                "kind": "world",
+                "status": "completed",
+                "experiment_id": experiment_id,
+                "worker": "http://127.0.0.1:8088",
+                "token_env": "WORKER_KEY",
+                "remote_job_id": remote_id,
+                "serving_preflight": {"deployment_id": dep_id},
+                "results_path": str(result_path),
+                "retrieval": {"digest": result_package["digest"]},
+            },
+            new=owned_job_id is None,
+        )
     return job_id, "run_contract"
 
 
@@ -610,8 +611,10 @@ async def test_factorial_full_schedule_and_failure_accounting(loop, tmp_path, mo
                     if terminal == "quarantined":
                         rows[1]["response"]["model"] = "wrong"
 
-                fetched(bench, owned["experiment_id"], tmp_path / job_id, mutation, owned_job_id=owned["job_id"])
-                return bench.store.job(owned["job_id"])["retrieval"]
+                fetched(bench, owned["experiment_id"], tmp_path / job_id, mutation,
+                        owned_job_id=owned["job_id"], destination=destination, save_job=False)
+                receipt = json.loads((destination / "package.json").read_text())
+                return {"job_id": job_id, "digest": receipt["digest"], "destination": str(destination)}
             source = tmp_path / job_id
             source.mkdir()
             (source / "job.json").write_text(json.dumps(submitted[job_id]))
@@ -619,7 +622,7 @@ async def test_factorial_full_schedule_and_failure_accounting(loop, tmp_path, mo
             archive = source.with_suffix(".zip")
             package = export_results(source, archive)
             extract_results(archive, destination)
-            return {"digest": package["digest"]}
+            return {"job_id": job_id, "digest": package["digest"], "destination": str(destination)}
 
     monkeypatch.setattr(bench, "_verify_deployment", verify)
     monkeypatch.setattr("mesocosm.reproduction.service.ExecutionClient", Client)

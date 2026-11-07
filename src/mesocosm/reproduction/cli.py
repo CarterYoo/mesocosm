@@ -10,6 +10,7 @@ import sys
 
 import typer
 
+from mesocosm.reproduction.errors import error_payload
 from mesocosm.reproduction.service import ResearchWorkbench
 
 research_app = typer.Typer(no_args_is_help=True, help="Evidence, factors, learning and candidate lifecycle")
@@ -47,9 +48,7 @@ def call(tool: str, request: pathlib.Path = typer.Option(..., "--request"),
         payload = {"ok": True, "tool": tool, "result": result}
     except Exception as exc:
         ok = False
-        # Errors can contain private dataset rows or upstream credentials.
-        payload = {"ok": False, "tool": tool, "error_type": type(exc).__name__,
-                   "message": "Request failed. Inspect the private store/job diagnostics; no automatic retry occurred."}
+        payload = error_payload(tool, exc)
     typer.echo(json.dumps(payload, ensure_ascii=False, allow_nan=False, indent=None if json_ else 2))
     if not ok:
         raise typer.Exit(1)
