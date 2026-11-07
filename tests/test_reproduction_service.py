@@ -161,7 +161,7 @@ async def test_dataset_and_queued_job_idempotency_cancel(bench, tmp_path):
         bench.submit_training(**(args | {"config": args["config"] | {"learning_rate": 0.1}}))
 
 
-def test_cli_has_exactly_14_tools_and_one_json_result(tmp_path):
+def test_cli_has_all_declared_tools_and_one_json_result(tmp_path):
     runner = CliRunner()
     result = runner.invoke(app, ["research", "tools", "--json"])
     assert result.exit_code == 0, result.output

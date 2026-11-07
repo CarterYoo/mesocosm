@@ -106,8 +106,9 @@ def _with_domain(names: list[str], domain: str | None) -> list[str]:
 def gateway_upstreams(manifest: WorldManifest) -> dict[str, dict]:
     """Explicit routes and opt-in sampling, including models on the default inference server."""
     return {m.id: {"url": m.upstream, "key_env": m.api_key_env, "kind": m.kind,
-                   **({"sampling": m.sampling.model_dump()} if m.sampling is not None else {})}
-            for m in manifest.catalog().values() if m.upstream or m.sampling is not None}
+                   **({"sampling": m.sampling.model_dump()} if m.sampling is not None else {}),
+                   **({"serving_identity": m.serving_identity.model_dump()} if m.serving_identity else {})}
+            for m in manifest.catalog().values() if m.upstream or m.sampling is not None or m.serving_identity}
 
 
 def agent_files(manifest: WorldManifest, run_label: str, gateway_url: str = GATEWAY_URL,
@@ -254,6 +255,8 @@ def render_compose(manifest: WorldManifest, *, repo_root: pathlib.Path, run_labe
                 "MESOCOSM_GATEWAY_HOST": "0.0.0.0",
                 "MESOCOSM_CONTROL_KEY": manifest.gateway.api_key,
                 "MESOCOSM_AGENT_KEYS": json.dumps(agent_keys(manifest, run_label)),
+                "MESOCOSM_AGENT_MODELS": json.dumps({a.id: manifest.model_for(a).id for a in manifest.agents
+                                                     if manifest.model_for(a).serving_identity}),
                 "MESOCOSM_UPSTREAM_KEY": manifest.gateway.upstream_key or manifest.gateway.api_key,
                 "MESOCOSM_UPSTREAMS": json.dumps(gateway_upstreams(manifest)),
                 "MESOCOSM_TEAM_RESOURCES": json.dumps({"requests": manifest.resources.model_requests,

@@ -7,6 +7,7 @@ Content hashes establish consistency; they do not authenticate external evidence
 from __future__ import annotations
 
 import contextlib
+import fcntl
 import hashlib
 import json
 import os
@@ -101,7 +102,8 @@ class Store:
             raise ValueError("research object content hash mismatch")
         return value
 
-    def begin(self, key: str, tool: str, arguments: dict[str, Any]) -> dict[str, Any] | None:
+    def begin(self, key: str, tool: str, arguments: dict[str, Any], *,
+              job: tuple[str, dict[str, Any]] | None = None) -> dict[str, Any] | None:
         if not isinstance(key, str) or not 1 <= len(key) <= 256:
             raise ValueError("idempotency_key must contain 1 to 256 characters")
         fingerprint = digest({"tool": tool, "arguments": arguments})
@@ -113,10 +115,36 @@ class Store:
                     raise ValueError("idempotency key was already used with different inputs")
                 if row[1] == "completed":
                     return json.loads(row[2])
+                if row[1] == "running" and job is not None:
+                    owned = db.execute("SELECT body FROM jobs WHERE id=?", (job[0],)).fetchone()
+                    if owned:
+                        value = json.loads(owned[0])
+                        return {key: value[key] for key in ("job_id", "status", "remote_job_id", "deployment_id")
+                                if key in value}
                 raise ValueError(f"request is {row[1]}; inspect its job before any new attempt")
             db.execute("INSERT INTO requests VALUES (?,?,?,?,NULL,NULL)", (key, fingerprint, tool, "running"))
+            if job is not None:
+                identifier, value = job
+                self.check_id(identifier)
+                db.execute("INSERT INTO jobs VALUES (?,?)", (identifier, canonical(
+                    {**value, "job_id": identifier, "updated_at": time.time()})))
         self.audit("request.started", {"key": key, "tool": tool, "inputs_sha256": fingerprint})
         return None
+
+    @contextlib.contextmanager
+    def lease(self, resource: str) -> Iterator[None]:
+        """Release on process exit; callers reread durable state while holding it."""
+        directory = self.root / "locks"
+        if directory.is_symlink():
+            raise ValueError("research lock directory cannot be a symlink")
+        directory.mkdir(mode=0o700, exist_ok=True)
+        descriptor = os.open(directory / digest(resource), os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(descriptor, "r+") as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise ValueError("another caller owns this research operation") from None
+            yield
 
     def finish(self, key: str, result: dict[str, Any] | None, error: str | None = None) -> None:
         with self.connection() as db:

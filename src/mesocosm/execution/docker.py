@@ -267,6 +267,15 @@ class DockerBackend:
                 previous = inventory["worlds"][-1]
                 raise StackCleanupError(previous["compose"], previous["cleanup_error"])
             spec = load_manifest(manifest)
+            binding_snapshot = None
+            if kind == "world" and any(model.serving_identity for model in spec.catalog().values()):
+                from mesocosm.core.evaluation import input_snapshot
+                from mesocosm.execution.binding import verify_runtime_manifest
+
+                original_entry = inputs / entrypoint
+                verify_runtime_manifest(load_manifest(original_entry).model_dump(mode="json"),
+                                        spec.model_dump(mode="json"), original_entry.parent)
+                binding_snapshot = input_snapshot(original_entry)
             report = validate_manifest(manifest)
             if not report.ok:
                 raise ValueError(f"invalid worker world: {report.errors}")
@@ -309,6 +318,17 @@ class DockerBackend:
                 if interrupted and error is None:
                     raise asyncio.CancelledError
             assert run is not None
+            if binding_snapshot is not None:
+                from mesocosm.core.evaluation import verify_inputs
+
+                verify_inputs(inputs / entrypoint, binding_snapshot)
+                package = json.loads((inputs / "package.json").read_text())
+                _json(run.bundle_path / "worker-binding.json", {
+                    "schema_version": 1, "job_id": job.name, "package_digest": package["digest"],
+                    "entrypoint": entrypoint, "input_base": str((inputs / entrypoint).parent),
+                    "runtime_manifest_digest": spec.digest(), "inputs_verified_after_run": True,
+                    "input_snapshot": binding_snapshot,
+                })
             return run
 
         try:

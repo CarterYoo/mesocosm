@@ -147,6 +147,7 @@ class VLLMPolicyServer:
             raise PolicyServingError("serving probe did not respond using the intended model alias")
         return {"action": "verify", "policy_id": policy.id, "model": policy.model,
                 "registration": matching[0], "configuration": resolved, "probe_request_id": body.get("id"),
+                "probe_response": body,
                 "probe_completion_tokens": body.get("usage", {}).get("completion_tokens"),
                 "weight_verification": "local_artifact_hash_and_load_api; rollout_logprob_parity_required"}
 

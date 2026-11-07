@@ -17,7 +17,7 @@ research_app = typer.Typer(no_args_is_help=True, help="Evidence, factors, learni
 
 @research_app.command("tools")
 def tools(json_: bool = typer.Option(False, "--json")) -> None:
-    """List the 14 tool contracts without starting any jobs."""
+    """List the research tool contracts without starting any jobs."""
     typer.echo(json.dumps(ResearchWorkbench.tools(), ensure_ascii=False, indent=None if json_ else 2))
 
 
@@ -27,6 +27,10 @@ def call(tool: str, request: pathlib.Path = typer.Option(..., "--request"),
          json_: bool = typer.Option(False, "--json"),
          worker: str | None = typer.Option(None, "--worker", help="Operator-approved execution endpoint"),
          worker_token_env: str = typer.Option("MESOCOSM_WORKER_TOKEN", "--worker-token-env"),
+         server: str | None = typer.Option(None, "--server", help="Operator-approved vLLM serving endpoint"),
+         server_token_env: str | None = typer.Option(None, "--server-token-env"),
+         shared_checkpoint_paths: bool = typer.Option(False, "--shared-checkpoint-paths",
+             help="Operator confirms the workbench and vLLM share the same checkpoint filesystem"),
          allow_test_evaluation: bool = typer.Option(False, "--allow-test-evaluation",
                                                     help="Independent operator only; never expose to a search agent"),
          ) -> None:
@@ -34,8 +38,11 @@ def call(tool: str, request: pathlib.Path = typer.Option(..., "--request"),
     ok = True
     try:
         with contextlib.redirect_stdout(sys.stderr):
+            if server and not shared_checkpoint_paths:
+                raise ValueError("serving deployment requires shared checkpoint paths; remote upload is unsupported")
             workbench = ResearchWorkbench(root, allow_test_evaluation=allow_test_evaluation,
-                                          allowed_workers={worker: worker_token_env} if worker else None)
+                                          allowed_workers={worker: worker_token_env} if worker else None,
+                                          allowed_servers={server: server_token_env} if server else None)
             result = asyncio.run(workbench.call(tool, json.loads(request.read_text())))
         payload = {"ok": True, "tool": tool, "result": result}
     except Exception as exc:

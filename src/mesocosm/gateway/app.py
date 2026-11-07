@@ -35,6 +35,7 @@ from starlette.background import BackgroundTask
 
 from mesocosm.core.receipts import EnforcedAt, Receipt, Verification
 from mesocosm.core.sampling import SamplingSpec
+from mesocosm.core.serving import ServingIdentity, response_identity
 from mesocosm.gateway.actions import register_action_routes
 from mesocosm.gateway.capture import MAX_BODY_BYTES, MAX_BODY_CHUNKS, BodyCapture, CaptureLimitError, DecodedBody
 from mesocosm.gateway.resources import ResourceExhausted, TeamResources
@@ -65,6 +66,7 @@ class Settings:
     # model id -> {url, key_env, kind}: where requests for that model go (ADR-0029); other models go to `upstream`
     upstreams: dict[str, dict[str, Any]] = field(default_factory=dict)
     team_resources: dict[str, int | None] = field(default_factory=dict)
+    agent_models: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if type(self.top_logprobs) is not int or not 0 <= self.top_logprobs <= 20 \
@@ -73,12 +75,20 @@ class Settings:
         if any(type(value) is not int or value < 1 for value in (self.capture_max_bytes, self.capture_max_chunks)):
             raise ValueError("capture byte and chunk limits must be positive integers")
         for spec in self.upstreams.values():
+            if "serving_identity" in spec:
+                ServingIdentity.model_validate(spec["serving_identity"])
+                if spec.get("kind", "vllm") != "vllm":
+                    raise ValueError("serving identity requires a vllm route")
             if "sampling" in spec:
                 SamplingSpec.model_validate(spec["sampling"])
                 if spec.get("kind", "vllm") != "vllm":
                     raise ValueError("model sampling requires a vllm route")
                 if self.require_rollout_binding:
                     raise ValueError("model sampling cannot combine with rollout-bound training")
+        for agent, model in self.agent_models.items():
+            if (not any(value.get("agent") == agent for value in self.agent_keys.values())
+                    or not self.upstreams.get(model, {}).get("serving_identity")):
+                raise ValueError("agent model binding requires a configured key and serving identity")
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -98,6 +108,7 @@ class Settings:
             upstream_key=os.environ.get("MESOCOSM_UPSTREAM_KEY") or None,
             upstreams=json.loads(os.environ.get("MESOCOSM_UPSTREAMS", "{}") or "{}"),
             team_resources=json.loads(os.environ.get("MESOCOSM_TEAM_RESOURCES", "{}") or "{}"),
+            agent_models=json.loads(os.environ.get("MESOCOSM_AGENT_MODELS", "{}") or "{}"),
         )
 
 
@@ -200,7 +211,13 @@ def parse_sse(raw: str) -> dict[str, Any]:
         if chunk.get("error") is not None:
             out["stream_errors"].append(chunk["error"])
         out["id"] = out["id"] or chunk.get("id")
-        out["model"] = out["model"] or chunk.get("model")
+        observed = chunk.get("model")
+        if observed is not None:
+            if not isinstance(observed, str) or not observed or (out["model"] and observed != out["model"]):
+                if "conflicting_model_ids" not in out["stream_errors"]:
+                    out["stream_errors"].append("conflicting_model_ids")
+            elif out["model"] is None:
+                out["model"] = observed
         if chunk.get("usage"):
             out["usage"] = chunk["usage"]
         if chunk.get("prompt_token_ids") is not None:
@@ -277,6 +294,7 @@ class Route:
     key: str | None
     kind: str          # vllm: token ids can be requested; openai: any other OpenAI-compatible API
     sampling: SamplingSpec | None = None
+    serving_identity: dict[str, Any] | None = None
 
 
 class Gateway:
@@ -419,16 +437,17 @@ class Gateway:
         if spec is None:
             return Route(self.client, self.settings.upstream, self.settings.upstream_key, "vllm")
         sampling = SamplingSpec.model_validate(spec["sampling"]) if "sampling" in spec else None
-        if sampling is not None and not spec.get("url"):
+        identity = copy.deepcopy(spec.get("serving_identity"))
+        if not spec.get("url"):
             # A sampling-only entry must preserve the existing default server and its key.
-            return Route(self.client, self.settings.upstream, self.settings.upstream_key, "vllm", sampling)
+            return Route(self.client, self.settings.upstream, self.settings.upstream_key, "vllm", sampling, identity)
         url = str(spec["url"]).rstrip("/")
         client = self.clients.get(url)
         if client is None:
             client = self.clients[url] = httpx.AsyncClient(base_url=url, timeout=httpx.Timeout(None),
                                                            transport=self._transport)
         key = os.environ.get(spec["key_env"]) if spec.get("key_env") else None
-        return Route(client, url, key or None, str(spec.get("kind") or "vllm"), sampling)
+        return Route(client, url, key or None, str(spec.get("kind") or "vllm"), sampling, identity)
 
     def log(self, record: dict[str, Any]) -> None:
         if self._log_file is None:
@@ -734,6 +753,11 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
             model = body.get("model")
         route = gw.route(model)
         base.update({"upstream": route.upstream, "model_kind": route.kind})
+        expected_model = gw.settings.agent_models.get(agent) if identified_by == "key" else None
+        if is_chat and expected_model is not None and model != expected_model:
+            return invalid_request("request differs from the assigned model")
+        if is_chat and expected_model is not None:
+            base.update(expected_model=expected_model, serving_identity=route.serving_identity)
         # A lease lasts through the final stream chunk. Other agents keep their own independent leases.
         lock = gw.request_locks.setdefault(agent, asyncio.Lock())
         lock_released = False
@@ -766,7 +790,7 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
             if identified_by == "key" and gw.settings.require_rollout_binding and context is None:
                 gw.log({**base, "event": "rollout_denied", "reason": "missing_binding", "request": body})
                 return refusal("invalid")
-            bound_model = context["policy"]["model"] if context is not None else None
+            bound_model = context["policy"]["model"] if context is not None else expected_model
             if is_models and bound_model is not None:
                 route = gw.route(bound_model)
                 base.update({"upstream": route.upstream, "model_kind": route.kind})
@@ -956,6 +980,8 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                         else:
                             response_usage = gw.add_usage(agent, parsed.get("usage"))
                         usage_recorded = True
+                        if expected_model is not None:
+                            base["model_identity_check"] = response_identity(parsed, expected_model)
                         gw.log({**base, "event": "chat_completion", "stream": True, "status": upstream.status_code,
                                 "latency_ms": round((time.time() - t0) * 1000), "request": body,
                                 "request_summary": request_summary(body), "response": parsed,
@@ -1035,12 +1061,16 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
                     parsed = {"raw": content[:2000].decode("utf-8", "replace")}
                 response_usage = gw.add_usage(agent, data.get("usage") if isinstance(data, dict) else None)
                 usage_recorded = True
+                if expected_model is not None:
+                    base["model_identity_check"] = response_identity(parsed, expected_model)
                 gw.log({**base, "event": "chat_completion", "stream": False, "status": upstream.status_code,
                         "latency_ms": round((time.time() - t0) * 1000), "request": body,
                         "request_summary": request_summary(body), "response": parsed,
                         "raw_capture": capture.record(),
                         "usage_total": gw.usage_for(agent), "missing_usage": agent in gw.missing_usage})
                 capture_recorded = True
+                if expected_model is not None and base["model_identity_check"] != "matched":
+                    return refusal("upstream")
             return Response(content=content, status_code=upstream.status_code, headers=resp_headers,
                             media_type=upstream.headers.get("content-type"))
         finally:

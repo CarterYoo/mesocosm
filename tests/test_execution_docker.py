@@ -369,3 +369,27 @@ async def test_compose_failure_remains_failure_after_orphan_resource_cleanup():
     assert any(call[:2] == ("volume", "ls") for call in calls)
     assert any(call[:2] == ("network", "ls") for call in calls)
     assert stack.cleanup_evidence["owned_resource_cleanup"]["remaining_volumes"] == []
+
+
+async def test_bound_world_produces_original_input_and_runtime_receipt(tmp_path, boundaries):
+    from mesocosm.execution.package import pack_submission, unpack_submission
+
+    calls, _ = boundaries
+    _, source, entrypoint = package(tmp_path / 'source', patch={'model': {
+        'id': 'bound', 'hf_repo': 'test/model', 'revision': 'a' * 40, 'upstream': 'http://model.invalid/',
+        'serving_identity': {'deployment_id': 'deployment-' + 'b' * 64, 'policy_id': 'c' * 64,
+                             'base_sha256': 'd' * 64}}})
+    archive = tmp_path / 'input.zip'
+    packed = pack_submission(source / entrypoint, archive)
+    job = tmp_path / ('f' * 32)
+    job.mkdir()
+    inputs = job / 'input'
+    unpack_submission(archive, inputs)
+    result = await docker.DockerBackend(REPO).execute(job, inputs, 'world', packed['entrypoint'])
+    assert result['status'] == 'ok', result
+    receipt = json.loads((pathlib.Path(result['bundle']) / 'worker-binding.json').read_text())
+    assert receipt['package_digest'] == packed['digest'] and receipt['job_id'] == job.name
+    assert receipt['inputs_verified_after_run'] is True
+    executed = next(spec for kind, spec in calls if kind == 'run')
+    assert receipt['runtime_manifest_digest'] == executed.digest()
+    assert receipt['input_snapshot']['tasks']

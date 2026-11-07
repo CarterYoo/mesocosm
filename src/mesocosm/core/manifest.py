@@ -25,6 +25,7 @@ from mesocosm.core.artifacts import ArtifactSpec
 from mesocosm.core.episode_controls import AssignmentSpec, FeedbackSpec, ReputationSpec, RewardTerm
 from mesocosm.core.history import HistorySpec
 from mesocosm.core.sampling import SamplingSpec
+from mesocosm.core.serving import ServingIdentity
 
 SUPPORTED_HARNESSES = {"opencode"}
 # Conditions the platform enforces today, and where. M3 extends this table.
@@ -162,11 +163,15 @@ class ModelSpec(ManifestModel):
     output_limit: int = Field(default=8192, ge=256)
     sampling: SamplingSpec | None = Field(default=None,
         description="Opt-in vLLM request sampling; a fixed request seed is not deterministic world replay")
+    serving_identity: ServingIdentity | None = Field(default=None,
+        description="Workbench deployment attribution; does not establish numerical GPU weight parity")
 
     @model_validator(mode="after")
     def _sampling_kind(self) -> ModelSpec:
         if self.sampling is not None and self.kind != "vllm":
             raise ValueError("model sampling requires a vllm route")
+        if self.serving_identity is not None and (self.kind != "vllm" or not self.upstream or not self.revision):
+            raise ValueError("serving identity requires an explicit vllm upstream and pinned revision")
         return self
 
 
@@ -514,10 +519,11 @@ class WorldManifest(ManifestModel):
         from mesocosm.core.research import research_profile_errors
 
         models = [self.model, *self.models]
-        if any(model.sampling is not None for model in models):
+        if any(model.sampling is not None or model.serving_identity is not None for model in models):
             ids = [model.id for model in models]
             if len(ids) != len(set(ids)):
-                raise ValueError("model sampling requires unique model ids before catalog construction")
+                raise ValueError("model sampling/serving identity requires unique model ids "
+                                 "before catalog construction")
         errors = research_profile_errors(self)
         if errors:
             raise ValueError("\n".join(errors))

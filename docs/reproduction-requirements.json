@@ -2836,5 +2836,22 @@
       "evidence_scope": "software_contract_only",
       "native_acceptance": "unverified"
     }
-  ]
+  ],
+  "followup": {
+    "baseline_commit": "4bfe55e18370fea9fd50495ce29c575d8105268b",
+    "guide": "docs/verified-research-loop.md",
+    "scope": [
+      "owned SFT serving deployment",
+      "verified worker/runtime/transcript/evaluation linkage",
+      "durable four-cell repeated studies"
+    ],
+    "evidence": [
+      "tests/test_reproduction_deployment.py",
+      "tests/test_reproduction_runtime.py",
+      "tests/test_serving_identity.py",
+      "tests/test_execution_docker.py"
+    ],
+    "native_acceptance": "unverified",
+    "per_item_statuses": "Original workbench baseline; follow-up does not upgrade broader or empirical requirements."
+  }
 }

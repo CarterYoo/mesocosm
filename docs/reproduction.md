@@ -1,12 +1,16 @@
 # Research-agent workbench
 
 The workbench connects incident evidence, experimental factors, demonstration learning,
-real-world execution and behavior evaluation. It exposes 14 Python/JSON tools over Mesocosm's
+real-world execution and behavior evaluation. It exposes 19 Python/JSON tools over Mesocosm's
 existing runtime. It does not insert scripted outcomes into the world.
 
 This is a software interface, not a new claim of successful behavior reproduction. The
 [185-item requirements audit](reproduction-requirements.md) maps every requested item to code,
 tests and remaining limitations. A requirement marked **partial** is not complete.
+
+For SFT adapter deployment, verified runtime lineage and repeated four-condition experiments,
+see [From a trained adapter to a measured experiment](verified-research-loop.md). This path keeps
+serving API attribution separate from numerical weight verification and real-agent acceptance.
 
 ## Start with a frozen question
 
@@ -79,6 +83,11 @@ need an operator-provided serving endpoint; declaring a model revision does not 
 | `evaluate_candidate` | Applies the candidate's frozen rubric with present/absent/unknown judgments and cited events. |
 | `compare_candidates` | Compares incident-clustered observations; failures, missing outcomes and unknown costs remain visible. |
 | `export_reproducer` | Exports portable original inputs, rubric, evaluations and evidence with content hashes. |
+| `deploy_policy` | Verifies a base or loads an owned completed SFT adapter on an approved shared-filesystem vLLM endpoint. |
+| `evaluate_run` | Recovers the candidate from a fetched job and checks runtime/model/harness/verifier evidence before evaluation. |
+| `plan_factorial` | Freezes base/trained × baseline/designed candidates, budgets and every scheduled repetition. |
+| `advance_factorial` | Reconciles a durable current trial and submits at most one next trial without outcome-selected retries. |
+| `report_factorial` | Retains all scheduled trials and reports unknown-aware descriptive condition differences. |
 
 Use `research tools --json` for current argument names and required/default values. Unknown tool
 names and arguments are rejected. Unsupported factors are rejected rather than converted into prompts.
@@ -221,7 +230,10 @@ An imported transcript associated by the operator remains an annotation unless i
 is independently bound to the candidate. A rubric frozen before that annotation is not automatically
 evidence of prospective preregistration before the historical event.
 
-## Implementation verification — 2026-11-06
+## Original workbench verification — 2026-11-06
+
+These counts describe the initial workbench at `4bfe55e`, before the verified-loop extension.
+Current extension checks and limits are in [the verified-loop guide](verified-research-loop.md).
 
 - Full repository suite: **1,698 passed**, with four existing staged-scenario deprecation warnings.
 - New research-workbench suite: **149 tests**, included in that full run.

@@ -15,6 +15,15 @@ The machine-readable [audit](reproduction-requirements.json) retains the source 
 full exact text, implementation paths, test paths and a per-item boundary. This audit is
 not a completion percentage: items vary greatly in size and empirical requirements.
 
+## Verified-loop follow-up
+
+The original per-item audit below is the `4bfe55e` baseline. The subsequent
+[verified-loop extension](verified-research-loop.md) adds owned SFT serving deployment,
+worker/model/transcript/evaluator provenance and durable repeated four-condition comparisons.
+These are software-verified additions, with real three-agent acceptance still **unverified**.
+The original 185 requirement texts and IDs remain unchanged; this addendum is not a blanket upgrade
+of their empirical or broader automation claims.
+
 ## Source and scope
 
 - Source: `Mesocosm 행동 재현을 위한 Factor와 도구 요구사항.md`
