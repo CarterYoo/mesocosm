@@ -75,6 +75,7 @@ a model endpoint and an external task.
 | Build a research hypothesis | [Variable manual](docs/experimental-variables.md) · [Paper notes](docs/research-literature.md) · [Variable audit](docs/variable-audit.md) |
 | Train from verified rollouts | [Policy training](docs/training.md) |
 | Configure and evaluate candidates from a research agent | [Workbench guide](docs/reproduction.md) · [185-item implementation audit](docs/reproduction-requirements.md) |
+| Use an agent skill for SwarmStill research | [Install and use the SwarmStill skill](skills/swarmstill/README.md) |
 
 ## Add an integration
 
