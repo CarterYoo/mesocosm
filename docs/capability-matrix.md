@@ -29,6 +29,22 @@ publication still require new three-agent acceptance and do not establish an ind
 The [variable manual](experimental-variables.md), [paper notes](research-literature.md) and
 [audit](variable-audit.md) distinguish mechanism, implementation and scientific evidence.
 
+## Research-agent workbench
+
+The [guide](reproduction.md) and [185-item audit](reproduction-requirements.md) distinguish
+complete software contracts from partial requirements. All new native workflow acceptance remains
+**unverified**; existing historical agent runs do not validate the new interfaces.
+
+| Capability | Status and boundary | Evidence |
+|---|---|---|
+| Typed global/role/agent factors | **supported** for the allowlisted enforced fields; arbitrary and unsupported live changes are refused | [Factor tests](../tests/test_reproduction_factors.py) |
+| Recorded incident normalization and stage rubric | **supported** conservative evidence contracts; narration, tool errors and missing coverage do not prove execution/absence | [Evidence tests](../tests/test_reproduction_evidence.py), [behavior tests](../tests/test_reproduction_behavior.py) |
+| Grouped observation/action datasets | **supported** frozen prefixes, explicit labels and incident/task/session split integrity; semantic hidden-answer detection **unsupported** | [Dataset tests](../tests/test_reproduction_dataset.py) |
+| Local SFT/LoRA and checkpoint resume | **supported** actual tiny CPU gradient/adapter/optimizer/RNG tests; behavioral improvement **unverified**; QLoRA/full/preference/joint training **unsupported** in this backend | [Training tests](../tests/test_reproduction_training.py) |
+| Fourteen tool dispatcher and candidate identities | **supported** software contracts, immutable input packages, idempotent submissions and existing worker integration; native acceptance **unverified** | [Service tests](../tests/test_reproduction_service.py), [store tests](../tests/test_reproduction_store.py), ADR-0063 |
+| Closed-run snapshot import and partial fork | **supported** bounded safe files, parent cleanup and restoration checks; full harness/inflight/RNG rewind **unsupported** | [Snapshot tests](../tests/test_reproduction_snapshots.py) |
+| Held-out tool gate | **supported** for declared test candidates; filesystem isolation and multi-tenant authorization **unsupported** by the workbench | [Service tests](../tests/test_reproduction_service.py), [trust boundary](reproduction.md#trust-boundary-and-held-out-evaluation) |
+
 ## Real execution and task integration
 
 | Capability | Status and boundary | Evidence |

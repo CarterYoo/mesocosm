@@ -15,6 +15,7 @@ reviewed behavior remain separate measurements.
 [Choose variables](docs/experimental-variables.md) · [Compare conditions](docs/experiments.md) ·
 [Task sources](docs/task-sources.md) ·
 [Add an integration](docs/integrations.md) ·
+[Research-agent tools](docs/reproduction.md) ·
 [Architecture](ARCHITECTURE.md)
 
 ## What it does
@@ -29,6 +30,7 @@ reviewed behavior remain separate measurements.
 | **Monitor and intervene** | Posthoc review or assessment before supported tool calls, with recorded allow, deny or termination decisions. |
 | **Update policies** | An optional REINFORCE/LoRA training loop using validated action/reward records and checkpoint activation between worlds. |
 | **Inspect evidence** | Original model and harness records, tool events, verifier results, enforcement receipts, CLI reports, diagnostics and integrity checks. |
+| **Build a research workflow** | Fourteen callable tools connect incident evidence, typed factors, frozen candidate inputs, local SFT/LoRA, execution jobs and behavior comparisons. Support boundaries are explicit. |
 
 The built-in Docker/OpenCode runtime supports a defined subset of Debian/Ubuntu tasks and original Compose services.
 Shared-service mode retains separate agent workspaces and records one team measurement. Compatibility
@@ -72,6 +74,7 @@ a model endpoint and an external task.
 | Vary conditions across trials | [Experiments](docs/experiments.md) · [Research controls](docs/research-controls.md) |
 | Build a research hypothesis | [Variable manual](docs/experimental-variables.md) · [Paper notes](docs/research-literature.md) · [Variable audit](docs/variable-audit.md) |
 | Train from verified rollouts | [Policy training](docs/training.md) |
+| Configure and evaluate candidates from a research agent | [Workbench guide](docs/reproduction.md) · [185-item implementation audit](docs/reproduction-requirements.md) |
 
 ## Add an integration
 
@@ -114,6 +117,9 @@ acceptance, as do the new repeated-interaction controls. A completed policy upda
 improved behavior, and task failure alone does not establish a platform defect.
 
 The [capability matrix](docs/capability-matrix.md) tracks verified scope and remaining limits.
+The research workbench has software-contract and tiny local training tests; its full native workflow
+still needs real-agent acceptance. Full live-state rewind and several advanced training/harness
+controls remain unsupported, as listed in the requirements audit.
 The [acceptance procedure](docs/native-acceptance.md) defines the next integration checks.
 [Milestones](docs/milestones.md) and [design decisions](docs/adr/README.md) explain the development direction.
 

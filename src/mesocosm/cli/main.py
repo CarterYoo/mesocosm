@@ -27,6 +27,7 @@ from mesocosm.execution.local import (
 )
 from mesocosm.execution.worker_cli import worker_app
 from mesocosm.integrations.cli import integration_app
+from mesocosm.reproduction.cli import research_app
 
 if TYPE_CHECKING:
     from mesocosm.core.run import RunResult
@@ -62,6 +63,7 @@ app.add_typer(audit_app, name="audit")
 app.add_typer(execution_app, name="execution")
 app.add_typer(worker_app, name="worker")
 app.add_typer(integration_app, name="integrations")
+app.add_typer(research_app, name="research")
 
 RUNS_ROOT_OPT = typer.Option(pathlib.Path("runs"), "--runs-root")
 WORKSPACE_ROOT_OPT = typer.Option(pathlib.Path("spike/workspace"), "--workspace-root")
@@ -128,6 +130,9 @@ def capabilities(json_: bool = JSON_OPT) -> None:
         "team_resources": ["model_requests", "completion_tokens", "model_concurrency", "service_requests"],
         "internal_access": "services.access; isolate_agents required; shared mounts unsupported",
         "containment": "required private PID inspection; adapted hosts remain explicitly unverified",
+        "research_workbench": {"entrypoint": "mesocosm research tools --json", "tools": 14,
+                               "software_contracts": "supported", "native_acceptance": "unverified",
+                               "requirements": "docs/reproduction-requirements.md"},
         "evidence": "docs/capability-matrix.md; automated tests are not live agent behavior evidence",
     }, json_)
 
@@ -621,9 +626,10 @@ def fork(snapshot: pathlib.Path,
     label = spec.gateway.run_label or "spike-docker"
     compose_file = out_dir / "world.compose.yml"
     compose_file.write_text(compose_yaml(spec, repo_root=pathlib.Path.cwd(), run_label=label, vllm_port=vllm_port,
-                                         vllm_host=vllm_host, manifest_dir=manifest_path.resolve().parent))
-    write_agent_files(spec, label, pathlib.Path.cwd() / "runs" / label / "agents",
-                      manifest_dir=manifest_path.resolve().parent, web_dir=pathlib.Path.cwd() / "runs" / label / "web")
+                                         vllm_host=vllm_host, manifest_dir=manifest_path.resolve().parent,
+                                         runs_dir=str(runs_root.resolve()), workspace_root=workspace_root.resolve()))
+    write_agent_files(spec, label, runs_root.resolve() / label / "agents",
+                      manifest_dir=manifest_path.resolve().parent, web_dir=runs_root.resolve() / label / "web")
     (runs_root / label).mkdir(parents=True, exist_ok=True)
     stack = DockerStack(compose_file)
 
@@ -631,6 +637,8 @@ def fork(snapshot: pathlib.Path,
         await stack.up()
         try:
             restore = await restore_snapshot(snapshot, workspace_root, DockerWorldState(compose_file))
+            if restore.get("ok") is not True:
+                _emit({"status": "restore_failed", "restore": restore, "lineage": lineage}, json_, ok=False)
             components = _components(spec, compose_file, runs_root, workspace_root, verifier_image, vllm_host,
                                      vllm_port, verifier_network=verifier_network,
                                      allow_unenforced_storage=allow_unenforced_storage, task_runtime=task_runtime)
