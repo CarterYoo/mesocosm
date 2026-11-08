@@ -37,7 +37,7 @@ bytes; it does not independently prove execution or custody.
 
 ## Use an actual isolated designer when available
 
-An installed restricted designer MCP may expose exactly:
+The fixed-P restricted designer MCP exposes:
 
 ```text
 mesocosm_capabilities     mesocosm_corpus_search  mesocosm_corpus_stats
@@ -46,8 +46,17 @@ mesocosm_read_events      mesocosm_check_spec     mesocosm_submit_spec
 
 Mesocosm provides this optional extension through `mesocosm designer serve`; use the
 [operator setup guide](https://github.com/GRAIL-center/mesocosm/blob/main/docs/designer-mcp.md)
-to prepare the reviewed corpus and finite fixed-P design space. Its installation does
+to prepare the reviewed corpus and finite design space. Its installation does
 not supply the external OS sandbox required below.
+
+For editable P, follow the [policy-design guide](https://github.com/GRAIL-center/mesocosm/blob/main/docs/designer-policy.md).
+Discover `mesocosm_policy_catalog`, select approved model/adapter handles, or request real
+SFT/LoRA using `mesocosm_train_policy`. Inspect/cancel an owned attempt with
+`mesocosm_policy_status`; activate its completed artifact using `mesocosm_activate_policy`.
+Only a ready policy handle can enter `policy_id` or an exhaustive `agent_policies` final
+spec. Preserve the declared training budgets and source restrictions. Training completion,
+serving attribution and behavioral reproduction are separate results. This optional mode
+does not permit target instructions through persona, skills or task prose.
 
 Discover the tools and their current limits from that interface. The public
 `mesocosm research call` CLI is a broader trusted-operator interface and cannot be given to

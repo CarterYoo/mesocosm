@@ -13,6 +13,8 @@ see [From a trained adapter to a measured experiment](verified-research-loop.md)
 serving API attribution separate from numerical weight verification and real-agent acceptance.
 For fixed external adapters, mixed populations and one collective detector for imported teacher
 and lineage-qualified student evidence, see the [fixed-policy study guide](fixed-p-study.md).
+For a designer that may also choose P and perform real SFT/LoRA, see the
+[restricted policy-design guide](designer-policy.md).
 
 ## Start with a frozen question
 

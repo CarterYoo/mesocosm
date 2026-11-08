@@ -11,13 +11,13 @@ import typer
 from mesocosm.research_mcp.corpus import Corpus, _read_file, review_source
 from mesocosm.research_mcp.service import Settings
 
-designer_app = typer.Typer(no_args_is_help=True, help="Restricted fixed-policy designer MCP")
+designer_app = typer.Typer(no_args_is_help=True, help="Restricted S/E and optional policy designer MCP")
 
 
 @designer_app.command()
 def serve(config: Path = typer.Option(..., "--config"),
           json_: bool = typer.Option(False, "--json", help="stdio is always the MCP JSON-RPC protocol")) -> None:
-    """Run the six-tool stdio server with private operator-owned settings."""
+    """Run the restricted stdio server with private operator-owned settings."""
     from mesocosm.research_mcp.server import serve as run
 
     try:

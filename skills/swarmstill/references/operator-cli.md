@@ -2,7 +2,7 @@
 
 Use this reference for evidence analysis, factor discovery, candidate preparation and
 operations explicitly requested by the researcher. It describes the existing public
-workbench, not the isolated six-tool inverse interface.
+workbench, not the restricted designer interface.
 
 ## Discover contracts, then dispatch
 

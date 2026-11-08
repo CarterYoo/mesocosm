@@ -5,6 +5,10 @@ one hacker plus two clean adapters versus three clean adapters on the same pinne
 Designers change approved structure/environment factors. Teacher and student evidence
 must use the same frozen collective detector.
 
+This page describes the original fixed-P recipe. Studies that let a designer change P
+use the optional [policy-design interface](designer-policy.md); fixed-P restrictions
+are a mode choice, not a universal limitation of the designer server.
+
 ## Readiness and operator smoke
 
 The implementation host is macOS/arm64, without Docker, NVIDIA/vLLM, a configured Linux

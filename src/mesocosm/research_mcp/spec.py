@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from mesocosm.reproduction import factors
 from mesocosm.reproduction.store import canonical
@@ -84,6 +84,17 @@ class Change(StrictObject):
 
 class DesignerSpec(StrictObject):
     changes: list[Change] = Field(default_factory=list, max_length=40)
+
+
+class MutableDesignerSpec(DesignerSpec):
+    policy_id: str | None = Field(default=None, min_length=1, max_length=96)
+    agent_policies: dict[str, str] | None = Field(default=None, min_length=1, max_length=1000)
+
+    @model_validator(mode="after")
+    def exclusive_policy(self) -> MutableDesignerSpec:
+        if self.policy_id is not None and self.agent_policies is not None:
+            raise ValueError("Choose a shared policy_id or complete agent_policies, not both.")
+        return self
 
 
 class Allowlist(StrictObject):

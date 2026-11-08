@@ -69,7 +69,7 @@ context and does not make it safe to expose unchanged to a blinded designer.
 
 A formal isolated inverse study additionally needs a reviewed masked corpus, a restricted
 designer interface, and a fresh designer process inside an OS sandbox. An already installed
-six-tool local designer MCP can provide that interface; paid remote hosting is unnecessary.
+local designer MCP can provide that interface; paid remote hosting is unnecessary.
 The base CLI's presence does not establish that the designer extension is installed.
 See [the inverse-study procedure](references/inverse-study.md).
 
@@ -86,6 +86,7 @@ analysis or hypothesis draft and mark the isolated designer test unavailable.
 - [Task integrations](https://github.com/GRAIL-center/mesocosm/blob/main/docs/integrations.md)
 - [Capability evidence](https://github.com/GRAIL-center/mesocosm/blob/main/docs/capability-matrix.md)
 - [Fixed-policy populations and collective detector](https://github.com/GRAIL-center/mesocosm/blob/main/docs/fixed-p-study.md)
+- [Designer policy selection and real SFT/LoRA](https://github.com/GRAIL-center/mesocosm/blob/main/docs/designer-policy.md)
 
 Source and runtime licensing follow the repository's
 [license](https://github.com/GRAIL-center/mesocosm/blob/main/LICENSE).

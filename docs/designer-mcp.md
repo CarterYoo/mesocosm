@@ -1,9 +1,14 @@
-# Fixed-policy designer interface
+# Restricted designer interface
 
-The local designer MCP exposes exactly six tools:
+Without a policy-space configuration, the local designer MCP exposes exactly six tools:
 `mesocosm_capabilities`, `mesocosm_corpus_search`, `mesocosm_corpus_stats`,
 `mesocosm_read_events`, `mesocosm_check_spec`, `mesocosm_submit_spec`.
 Install its optional transport dependency with `uv sync --extra mcp`.
+
+To let a designer change P as well as S/E, add the optional private `policy_space`
+configuration described in [policy selection and real training](designer-policy.md).
+That mode adds four bounded tools for policy discovery, actual SFT/LoRA, status and
+verified activation. The fixed-P settings below remain valid.
 
 The following preparation belongs in the trusted operator context. None of these
 configuration files, private stores, source bundles or commands belongs in a designer

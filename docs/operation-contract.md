@@ -6,8 +6,9 @@ Python users can call the underlying modules, such as `core.run` and `core.exper
 There is no implemented `core.api` facade or general HTTP/MCP control API. The worker API owns finite
 world/experiment jobs; it is not an arbitrary mid-run control surface. The training controller
 uses its strict native rollout collector; Inspect export remains an evaluation format.
-The separate [designer stdio MCP](designer-mcp.md) exposes six restricted inverse-study tools;
-it does not expose the trusted operator workbench or execution controls.
+The separate [designer stdio MCP](designer-mcp.md) exposes six restricted inverse-study tools,
+with four optional [policy selection/training tools](designer-policy.md). It keeps trusted
+operator records, world execution and evaluation controls private.
 
 Changing a supported variable is a configuration operation. Introducing a new variable or service
 requires implementation, validation and a capability declaration. A prompt description is not an

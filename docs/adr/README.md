@@ -70,3 +70,5 @@ One file per decision, numbered. Status is `proposed`, `accepted`, `superseded b
 | [0066](0066-mixed-deployments-and-external-adapters.md) | Per-agent deployment binding and hash-checked external local adapters with server-advertised LoRA capacity | accepted |
 | [0067](0067-collective-observable-signals.md) | Frozen collective signals, explicit exposure links, unknown-aware denominators and descriptive aggregation | accepted |
 | [0068](0068-restricted-fixed-policy-designer.md) | Six restricted stdio designer tools, finite operator S/E choices and hash-bound reviewed corpus projections | accepted |
+| [0069](0069-designer-policy-selection-and-training.md) | Optional designer policy selection, bounded real SFT/LoRA jobs and verified activation behind private handles | accepted |
+| [0070](0070-pse-experiment-workflow.md) | Proposed shared P/S/E experiment composition, scoped discovery, graph enforcement and comparable execution | proposed |
