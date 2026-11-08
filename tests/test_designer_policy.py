@@ -275,11 +275,19 @@ async def test_queue_launch_failure_recovers_saved_native_job_without_resubmissi
         raise OSError("PRIVATE worker launch failure")
     monkeypatch.setattr("mesocosm.reproduction.jobs.start_worker", fail_after_admission)
     uncertain = manager.train_policy("sft", {}, "request")
-    assert uncertain["status"] == "submission_uncertain"
+    assert uncertain["status"] == "queued" and uncertain["worker_start"] == "failed"
+    native_id = manager.store.job(uncertain["policy_job_id"])["training_job_id"]
     recovered = await manager.policy_status(uncertain["policy_job_id"])
     assert recovered["status"] == "queued" and launches == [1]
-    assert manager.train_policy("sft", {}, "request") == recovered
-    assert launches == [1]
+    monkeypatch.setattr("mesocosm.reproduction.jobs.start_worker", lambda store: launches.append(2))
+    retried = manager.train_policy("sft", {}, "request")
+    assert retried["worker_start"] == "started" and launches == [1, 2]
+    assert manager.store.job(retried["policy_job_id"])["training_job_id"] == native_id
+    assert manager.train_policy("sft", {}, "request") == retried and launches == [1, 2]
+    assert manager.catalog()["training_budget"]["reserved"]["jobs"] == 1
+    with manager.workbench.store.connection() as db:
+        assert len([json.loads(row[0]) for row in db.execute("SELECT body FROM jobs")
+                    if json.loads(row[0]).get("kind") == "training"]) == 1
 
 
 def test_public_parameter_input_cannot_coerce_arbitrary_shapes(setup):
@@ -295,3 +303,178 @@ async def test_same_request_concurrency_never_queues_a_second_optimizer_job(setu
     manager, _, launches = setup
     results = await asyncio.gather(*(asyncio.to_thread(manager.train_policy, "sft", {}, "same") for _ in range(4)))
     assert len({value["policy_job_id"] for value in results}) == 1 and len(launches) == 1
+
+
+@pytest.mark.asyncio
+async def test_owned_start_recovers_admitted_job_after_missing_designer_and_native_completion(setup):
+    manager, _, launches = setup
+    result = manager.train_policy("sft", {}, "request")
+    value = manager.store.job(result["policy_job_id"])
+    native_id = value.pop("training_job_id")
+    value.update(status="submission_uncertain", worker_start="pending")
+    manager.store.save_job(value["job_id"], value)
+    # Reproduce a crash after save_job but before native request completion.
+    with manager.workbench.store.connection() as db:
+        db.execute("UPDATE requests SET status='running',result=NULL WHERE key=?", (value["native_key"],))
+    recovered = await manager.policy_status(result["policy_job_id"], action="start")
+    assert recovered["status"] == "queued" and recovered["worker_start"] == "started"
+    assert manager.store.job(result["policy_job_id"])["training_job_id"] == native_id
+    assert len(launches) == 2
+    native = manager.workbench.store.job(native_id)
+    for status in ("running", "completed", "cancelled", "interrupted", "budget_exhausted"):
+        manager.workbench.store.save_job(native_id, {**native, "status": status})
+        assert (await manager.policy_status(result["policy_job_id"], action="start"))["status"] == status
+    assert len(launches) == 2
+    assert manager.catalog()["training_budget"]["reserved"]["jobs"] == 1
+
+
+@pytest.mark.asyncio
+async def test_start_does_not_replace_unresolved_native_admission_or_cross_session_job(setup, monkeypatch):
+    manager, _, launches = setup
+    monkeypatch.setattr(manager.workbench, "submit_training", lambda *args, **kwargs: (_ for _ in ()).throw(OSError()))
+    result = manager.train_policy("sft", {}, "request")
+    assert result["status"] == "submission_uncertain"
+    with pytest.raises(ToolInputError) as error:
+        await manager.policy_status(result["policy_job_id"], action="start")
+    assert error.value.code == "submission_uncertain" and not launches
+    other = PolicyManager(manager.space, manager.store, manager.workbench, "other", "d" * 64)
+    with pytest.raises(ToolInputError) as error:
+        await other.policy_status(result["policy_job_id"], action="start")
+    assert error.value.code == "unknown_policy_job"
+    assert manager.catalog()["training_budget"]["reserved"]["jobs"] == 1
+
+
+def test_concurrent_launch_retries_keep_one_native_job_and_one_reservation(setup, monkeypatch):
+    import threading
+
+    manager, _, _ = setup
+    def fail(store):
+        raise OSError("worker launch failure")
+    monkeypatch.setattr("mesocosm.reproduction.jobs.start_worker", fail)
+    first = manager.train_policy("sft", {}, "request")
+    launches = []
+    entered, release = threading.Event(), threading.Event()
+    def start(store):
+        launches.append(store.root)
+        entered.set()
+        assert release.wait(5)
+    monkeypatch.setattr("mesocosm.reproduction.jobs.start_worker", start)
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        owner = executor.submit(manager.train_policy, "sft", {}, "request")
+        assert entered.wait(5)
+        others = list(executor.map(lambda _: manager.train_policy("sft", {}, "request"), range(3)))
+        release.set()
+        retried = owner.result(timeout=5)
+    assert retried["worker_start"] == "started" and len(launches) == 1
+    assert {item["policy_job_id"] for item in [first, retried, *others]} == {first["policy_job_id"]}
+    assert manager.catalog()["training_budget"]["reserved"]["jobs"] == 1
+    with manager.workbench.store.connection() as db:
+        assert len([json.loads(row[0]) for row in db.execute("SELECT body FROM jobs")
+                    if json.loads(row[0]).get("kind") == "training"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_activation_before_native_admission_retries_same_key_and_alias(setup, monkeypatch):
+    manager, _, _ = setup
+    result = manager.train_policy("sft", {}, "request")
+    value = manager.store.job(result["policy_job_id"])
+    monkeypatch.setattr("mesocosm.research_mcp.policy.training_artifact", lambda store, identifier: {
+        "config": {key: item for key, item in value["config"].items() if key != "resume"}})
+    attempts = []
+    ready = deployment(manager.workbench, "trained", adapter="f" * 64)
+    async def activate(**kwargs):
+        attempts.append(kwargs)
+        if len(attempts) == 1:
+            raise OSError("PRIVATE pre-admission failure")
+        return {"job_id": "job-" + "e" * 64, "status": "ready", "deployment_id": ready}
+    monkeypatch.setattr(manager.workbench, "deploy_policy", activate)
+    failed = await manager.activate_policy(result["policy_job_id"])
+    assert failed["status"] == "activation_not_started" and "PRIVATE" not in json.dumps(failed)
+    with pytest.raises(ToolInputError) as error:
+        await manager.activate_policy(result["policy_job_id"], reconcile=True)
+    assert error.value.code == "activation_not_started" and len(attempts) == 1
+    retried = await manager.activate_policy(result["policy_job_id"])
+    assert retried["status"] == "ready" and retried["policy_id"].startswith("policy-")
+    assert len(attempts) == 2 and attempts[0] == attempts[1]
+    assert manager.catalog()["training_budget"]["reserved"]["jobs"] == 1
+
+
+@pytest.mark.asyncio
+async def test_activation_crash_after_local_marker_before_native_admission_can_retry(setup, monkeypatch):
+    manager, _, _ = setup
+    result = manager.train_policy("sft", {}, "request")
+    value = manager.store.job(result["policy_job_id"])
+    value.update(status="activation_uncertain", activation_key="same-persisted-key")
+    manager.store.save_job(value["job_id"], value)
+    monkeypatch.setattr("mesocosm.research_mcp.policy.training_artifact", lambda store, identifier: {
+        "config": {key: item for key, item in value["config"].items() if key != "resume"}})
+    ready = deployment(manager.workbench, "trained", adapter="f" * 64)
+    attempts = []
+    async def activate(**kwargs):
+        attempts.append(kwargs)
+        return {"job_id": "job-" + "e" * 64, "status": "ready", "deployment_id": ready}
+    monkeypatch.setattr(manager.workbench, "deploy_policy", activate)
+    assert (await manager.activate_policy(value["job_id"]))["status"] == "ready"
+    assert attempts[0]["idempotency_key"] == "same-persisted-key"
+
+
+@pytest.mark.asyncio
+async def test_activation_exception_after_native_admission_recovers_only_by_verification(setup, monkeypatch):
+    manager, _, _ = setup
+    result = manager.train_policy("sft", {}, "request")
+    value = manager.store.job(result["policy_job_id"])
+    monkeypatch.setattr("mesocosm.research_mcp.policy.training_artifact", lambda store, identifier: {
+        "config": {key: item for key, item in value["config"].items() if key != "resume"}})
+    native_id, attempts = "job-" + "e" * 64, []
+    async def activate(**kwargs):
+        attempts.append(kwargs)
+        manager.workbench.store.save_job(native_id, {"kind": "deployment", "status": "activating",
+            "policy": {"model": kwargs["model"]},
+            "training_artifact": {"training_job_id": kwargs["training_job_id"]}}, new=True)
+        raise OSError("PRIVATE failure after durable admission")
+    monkeypatch.setattr(manager.workbench, "deploy_policy", activate)
+    failed = await manager.activate_policy(value["job_id"])
+    assert failed["status"] == "activation_uncertain"
+    assert manager.store.job(value["job_id"])["activation_job_id"] == native_id
+    with pytest.raises(ToolInputError) as error:
+        await manager.activate_policy(value["job_id"])
+    assert error.value.code == "activation_uncertain" and len(attempts) == 1
+    ready = deployment(manager.workbench, "trained", adapter="f" * 64)
+    reconciles = []
+    async def reconcile(identifier, action):
+        reconciles.append((identifier, action))
+        return {"job_id": identifier, "status": "ready", "deployment_id": ready}
+    monkeypatch.setattr(manager.workbench, "get_job_status", reconcile)
+    assert (await manager.activate_policy(value["job_id"], reconcile=True))["status"] == "ready"
+    assert reconciles == [(native_id, "reconcile")] and len(attempts) == 1
+    # Repeating the public training request after activation is a read, never a restart.
+    owned = manager.store.job(value["job_id"])
+    owned["worker_start"] = "failed"
+    manager.store.save_job(value["job_id"], owned)
+    assert manager.train_policy("sft", {}, "request")["status"] == "ready"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("admission", ["request_only", "ambiguous_jobs"])
+async def test_incomplete_or_ambiguous_native_activation_admission_never_reloads(setup, monkeypatch, admission):
+    manager, _, _ = setup
+    public_id = manager.train_policy("sft", {}, "request")["policy_job_id"]
+    value = manager.store.job(public_id)
+    value.update(status="activation_uncertain", activation_key="admitted-key")
+    manager.store.save_job(public_id, value)
+    monkeypatch.setattr("mesocosm.research_mcp.policy.training_artifact", lambda store, identifier: {
+        "config": {key: item for key, item in value["config"].items() if key != "resume"}})
+    if admission == "request_only":
+        manager.workbench.store.begin(value["activation_key"], "deploy_policy", {"fixture": "interrupted"})
+    else:
+        for index in ("e", "f"):
+            manager.workbench.store.save_job("job-" + index * 64, {"kind": "deployment", "status": "activating",
+                "policy": {"model": manager._alias(public_id)},
+                "training_artifact": {"training_job_id": value["training_job_id"]}}, new=True)
+    async def forbidden(**kwargs):
+        pytest.fail("admitted or ambiguous native activation must never load another alias")
+    monkeypatch.setattr(manager.workbench, "deploy_policy", forbidden)
+    for reconcile in (False, True):
+        with pytest.raises(ToolInputError) as error:
+            await manager.activate_policy(public_id, reconcile=reconcile)
+        assert error.value.code == "activation_uncertain"

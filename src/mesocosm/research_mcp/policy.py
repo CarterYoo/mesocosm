@@ -255,6 +255,7 @@ class PolicyManager:
         fingerprint = digest(arguments)
         identifier = "policy_job-" + digest({"session_id": self.session_id, "request_id": request_id,
                                                "context_sha256": self.context_sha256})
+        existing = None
         with self.store.connection() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT digest FROM requests WHERE key=?", (key,)).fetchone()
@@ -263,35 +264,52 @@ class PolicyManager:
                     _fail("request_id_reused", "This request_id already names different training choices.",
                           "request_id")
                 saved = db.execute("SELECT body FROM jobs WHERE id=?", (identifier,)).fetchone()
-                return self._public(json.loads(saved[0]))
-            prior = [json.loads(row[0]) for row in db.execute("SELECT body FROM jobs")]
-            prior = [value for value in prior if value.get("kind") == "designer_policy"
-                     and value.get("session_id") == self.session_id]
-            reservation = {"steps": config["max_steps"], "train_tokens": config["max_train_tokens"],
-                           "eval_tokens": config["max_eval_tokens"], "seconds": config["max_seconds"]}
-            ceilings = {"steps": self.space.max_total_steps, "train_tokens": self.space.max_total_train_tokens,
-                        "eval_tokens": self.space.max_total_eval_tokens, "seconds": self.space.max_total_seconds}
-            if len(prior) >= self.space.max_training_jobs or any(
-                sum(value["reservation"][name] for value in prior) + amount > ceilings[name]
-                for name, amount in reservation.items()
-            ):
-                _fail("training_budget_exhausted", "This session's reserved training budget is exhausted.", "recipe_id")
-            value: dict[str, Any] = {"kind": "designer_policy", "session_id": self.session_id,
-                     "context_sha256": self.context_sha256, "recipe_id": recipe_id, "config": config,
-                     "status": "submission_uncertain", "reservation": reservation,
-                     "native_key": "designer-sft:" + digest({"session": self.session_id, "request": request_id,
-                                                              "context": self.context_sha256}), "job_id": identifier}
-            db.execute("INSERT INTO requests VALUES (?,?,?,?,?,NULL)",
-                       (key, fingerprint, "train_policy", "completed", canonical({"policy_job_id": identifier})))
-            db.execute("INSERT INTO jobs VALUES (?,?)", (identifier, canonical(value)))
+                existing = json.loads(saved[0])
+            else:
+                self._reserve_training(db, key, fingerprint, identifier, recipe_id, config, request_id)
+        if existing is not None:
+            if existing.get("worker_start") == "failed" and not existing.get("activation_key"):
+                return self._start_training(identifier)
+            return self._public(existing)
+        value = self._owned(identifier)
         try:
             # Reuse the native queue, pinned dataset and real optimizer implementation.
             queued = self.workbench.submit_training(recipe.dataset_id, config, value["native_key"], start=True)
-            value.update(training_job_id=queued["job_id"], status=queued["status"])
+            value.update(training_job_id=queued["job_id"], status=queued["status"], worker_start="started")
         except Exception as exc:
             value["error_type"] = type(exc).__name__
+            value = self._recover(value)
+            if value.get("training_job_id"):
+                native = self.workbench.store.job(value["training_job_id"])
+                value.update(status=native["status"], worker_start="failed")
         self.store.save_job(identifier, value)
         return self._public(value)
+
+    def _reserve_training(self, db: Any, key: str, fingerprint: str, identifier: str, recipe_id: str,
+                          config: dict[str, Any], request_id: str) -> None:
+        prior = [json.loads(row[0]) for row in db.execute("SELECT body FROM jobs")]
+        prior = [value for value in prior if value.get("kind") == "designer_policy"
+                 and value.get("session_id") == self.session_id]
+        reservation = {"steps": config["max_steps"], "train_tokens": config["max_train_tokens"],
+                       "eval_tokens": config["max_eval_tokens"], "seconds": config["max_seconds"]}
+        ceilings = {"steps": self.space.max_total_steps, "train_tokens": self.space.max_total_train_tokens,
+                    "eval_tokens": self.space.max_total_eval_tokens, "seconds": self.space.max_total_seconds}
+        if len(prior) >= self.space.max_training_jobs or any(
+            sum(value["reservation"][name] for value in prior) + amount > ceilings[name]
+            for name, amount in reservation.items()
+        ):
+            _fail("training_budget_exhausted", "This session's reserved training budget is exhausted.", "recipe_id")
+        value: dict[str, Any] = {"kind": "designer_policy", "session_id": self.session_id,
+                 "context_sha256": self.context_sha256, "recipe_id": recipe_id, "config": config,
+                 "status": "submission_uncertain", "worker_start": "pending", "reservation": reservation,
+                 "native_key": "designer-sft:" + digest({"session": self.session_id, "request": request_id,
+                                                          "context": self.context_sha256}), "job_id": identifier}
+        from mesocosm.reproduction.training import training_source_pins
+
+        value["training_sources"] = training_source_pins()
+        db.execute("INSERT INTO requests VALUES (?,?,?,?,?,NULL)",
+                   (key, fingerprint, "train_policy", "completed", canonical({"policy_job_id": identifier})))
+        db.execute("INSERT INTO jobs VALUES (?,?)", (identifier, canonical(value)))
 
     def _recover(self, value: dict[str, Any], *, activation: bool = False) -> dict[str, Any]:
         target = "activation_job_id" if activation else "training_job_id"
@@ -304,6 +322,23 @@ class PolicyManager:
                 if isinstance(result, dict) and result.get("job_id"):
                     value[target] = result["job_id"]
                     self.store.save_job(value["job_id"], value)
+            if not activation and target not in value:
+                from mesocosm.reproduction.training import training_source_pins
+
+                args = {"dataset_id": self.space.recipes[value["recipe_id"]].dataset_id,
+                        "config": value["config"], "start": True, "resume_job_id": None,
+                        "training_sources": value.get("training_sources") or training_source_pins()}
+                expected = "job-" + digest({"key": key, "tool": "submit_training", "args": args})
+                with self.workbench.store.connection() as db:
+                    request = db.execute("SELECT digest FROM requests WHERE key=?", (key,)).fetchone()
+                    job = db.execute("SELECT body FROM jobs WHERE id=?", (expected,)).fetchone()
+                if request and job and request[0] == digest({"tool": "submit_training", "arguments": args}):
+                    native = json.loads(job[0])
+                    if native.get("kind") == "training" and all(native.get(name) == args[name] for name in
+                                                               ("dataset_id", "config", "training_sources",
+                                                                "resume_job_id")):
+                        value[target] = expected
+                        self.store.save_job(value["job_id"], value)
             if activation and target not in value:
                 # Native deployment admission atomically persists its job before
                 # loading. Recover that unique owned alias without another load.
@@ -325,6 +360,8 @@ class PolicyManager:
     def _public(self, value: dict[str, Any]) -> dict[str, Any]:
         result = {"policy_job_id": value["job_id"], "status": value["status"],
                   "automatic_cloud_allocation": False, "behavioral_improvement": "unverified"}
+        if value.get("worker_start"):
+            result["worker_start"] = value["worker_start"]
         if value.get("policy_id"):
             result["policy_id"] = value["policy_id"]
         measured = value.get("measured", {})
@@ -332,9 +369,41 @@ class PolicyManager:
             result["measured"] = measured
         return result
 
+    def _start_training(self, identifier: str, *, explicit: bool = False) -> dict[str, Any]:
+        from mesocosm.reproduction.jobs import start_worker
+
+        entered = False
+        try:
+            with self.store.lease("designer-training:" + identifier):
+                entered = True
+                value = self._recover(self._owned(identifier))
+                if value.get("activation_key"):
+                    _fail("activation_already_started", "This policy has entered activation.", "action")
+                if not value.get("training_job_id"):
+                    _fail("submission_uncertain", "Native admission is unresolved; no replacement job was created.",
+                          "policy_job_id")
+                native = self.workbench.store.job(value["training_job_id"])
+                value["status"] = native["status"]
+                if native["status"] == "queued" and (explicit or value.get("worker_start") != "started"):
+                    # Queue ownership is durable and single-writer. Starting another supervisor
+                    # cannot claim an already running/finished optimizer attempt.
+                    try:
+                        start_worker(self.workbench.store)
+                        value["worker_start"] = "started"
+                    except Exception as exc:
+                        value.update(worker_start="failed", error_type=type(exc).__name__)
+                self.store.save_job(identifier, value)
+                return self._public(value)
+        except ValueError:
+            if entered:
+                raise
+            return self._public(self._owned(identifier))
+
     async def policy_status(self, policy_job_id: str, action: str = "inspect") -> dict[str, Any]:
-        if action not in {"inspect", "cancel"}:
-            _fail("invalid_policy_action", "Choose inspect or cancel.", "action")
+        if action not in {"inspect", "cancel", "start"}:
+            _fail("invalid_policy_action", "Choose inspect, cancel or start.", "action")
+        if action == "start":
+            return self._start_training(policy_job_id, explicit=True)
         value = self._recover(self._owned(policy_job_id))
         if action == "cancel" and value.get("activation_key"):
             _fail("activation_already_started", "Cancellation stops training; this policy has entered activation.",
@@ -350,6 +419,18 @@ class PolicyManager:
                                  if type(measured.get(name)) in {int, float} and math.isfinite(measured[name])}
             self.store.save_job(policy_job_id, value)
         return self._public(value)
+
+    def _activation_admission(self, value: dict[str, Any], venue: PolicyVenue) -> tuple[dict[str, Any], bool]:
+        with self.workbench.store.lease("serving:" + worker_url(venue.server) + ":" + self._alias(value["job_id"])):
+            value = self._recover(value, activation=True)
+            with self.workbench.store.connection() as db:
+                request = db.execute("SELECT 1 FROM requests WHERE key=?", (value["activation_key"],)).fetchone()
+                jobs = [json.loads(row[0]) for row in db.execute("SELECT body FROM jobs")]
+            admitted = any(job.get("kind") == "deployment"
+                           and (job.get("policy") or {}).get("model") == self._alias(value["job_id"])
+                           and (job.get("training_artifact") or {}).get("training_job_id")
+                           == value.get("training_job_id") for job in jobs)
+            return value, bool(value.get("activation_job_id") or request or admitted)
 
     async def activate_policy(self, policy_job_id: str, reconcile: bool = False) -> dict[str, Any]:
         if type(reconcile) is not bool:
@@ -374,16 +455,24 @@ class PolicyManager:
             if value.get("policy_id"):
                 self._resolve(value["policy_id"], "policy_job_id")
                 return self._public(value)
+            admitted = False
             if value.get("activation_key"):
+                try:
+                    value, admitted = self._activation_admission(value, venue)
+                except ValueError:
+                    _fail("activation_uncertain", "Native activation admission is busy; inspect before retrying.",
+                          "policy_job_id")
+            if admitted:
                 if not reconcile or not value.get("activation_job_id"):
                     _fail("activation_uncertain", "Use explicit reconciliation; a policy is never loaded twice.",
                           "policy_job_id")
                 result = await self.workbench.get_job_status(value["activation_job_id"], action="reconcile")
             else:
                 if reconcile:
-                    _fail("activation_not_started", "There is no activation to reconcile.", "policy_job_id")
-                value.update(status="activation_uncertain", activation_key="designer-activate:" + digest({
-                    "job": policy_job_id, "context": self.context_sha256}))
+                    _fail("activation_not_started", "No native activation was admitted; retry activation normally.",
+                          "policy_job_id")
+                value.update(status="activation_uncertain", activation_key=value.get("activation_key") or
+                             "designer-activate:" + digest({"job": policy_job_id, "context": self.context_sha256}))
                 self.store.save_job(policy_job_id, value)
                 try:
                     result = await self.workbench.deploy_policy(
@@ -393,6 +482,11 @@ class PolicyManager:
                         idempotency_key=value["activation_key"], training_job_id=value["training_job_id"])
                 except Exception as exc:
                     value["error_type"] = type(exc).__name__
+                    try:
+                        value, admitted = self._activation_admission(value, venue)
+                    except ValueError:
+                        admitted = True  # A concurrent native owner makes admission uncertain.
+                    value["status"] = "activation_uncertain" if admitted else "activation_not_started"
                     self.store.save_job(policy_job_id, value)
                     return self._public(value)
             value.update(activation_job_id=result["job_id"], status=result["status"])

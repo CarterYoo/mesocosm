@@ -986,6 +986,16 @@ class DockerTaskRuntime:
     async def verify_with_artifacts(self, task: Task, workspace: pathlib.Path, logs_dir: pathlib.Path,
                                     spec: ArtifactSpec, *, on_capture: Callable[[dict[str, Any]], None]) -> Reward:
         """Capture acknowledged quiescent inputs before the unchanged original verifier starts."""
+        self._work_artifact_context(task, workspace, spec)
+
+        def capture() -> None:
+            on_capture(self._work_artifacts(task, workspace, spec, "quiesced_before_original_verifier"))
+
+        return await self._verify(task, workspace, logs_dir, "test.sh", before_measure=capture)
+
+    def _work_artifact_context(self, task: Task, workspace: pathlib.Path,
+                               spec: ArtifactSpec) -> tuple[str, str, NativeImage, TaskGroup]:
+        """Reject incompatible mappings before touching any running native environment."""
         if self.task_services == "shared":
             raise TaskEnvironmentError("rejected_unsupported: artifact exchange requires isolated verification")
         workspace = workspace.resolve()
@@ -1008,18 +1018,58 @@ class DockerTaskRuntime:
             if any(not any(source.is_relative_to(original) for original in inputs) for source in sources):
                 raise TaskEnvironmentError("rejected_unsupported: artifact exchange paths must be "
                                            "original verifier inputs")
+        return agent_id, container_id, native, group
 
-        def capture() -> None:
-            snapshot = capture_artifacts(workspace, spec)
-            snapshot["capture_evidence"] = {
-                "boundary": "quiesced_before_original_verifier", "task": task.name, "agent_id": agent_id,
-                "container_id": container_id, "quiesced_containers": dict(group.containers),
-                "workspace": str(workspace), "native_workdir": native.workdir,
-                "measurement_scope": "original_task_not_individual_file",
-            }
-            on_capture(snapshot)
+    def _work_artifacts(self, task: Task, workspace: pathlib.Path, spec: ArtifactSpec,
+                        boundary: str) -> dict[str, Any]:
+        agent_id, container_id, native, group = self._work_artifact_context(task, workspace, spec)
+        workspace = workspace.resolve()
+        snapshot = capture_artifacts(workspace, spec)
+        snapshot["capture_evidence"] = {
+            "boundary": boundary, "task": task.name, "agent_id": agent_id,
+            "container_id": container_id, "quiesced_containers": dict(group.containers),
+            "workspace": str(workspace), "native_workdir": native.workdir,
+            "measurement_scope": "original_task_not_individual_file",
+        }
+        return snapshot
 
-        return await self._verify(task, workspace, logs_dir, "test.sh", before_measure=capture)
+    async def complete_work(self, task: Task, workspace: pathlib.Path, logs_dir: pathlib.Path,
+                            spec: ArtifactSpec | None = None) -> dict[str, Any]:
+        """Finish a subordinate stage without invoking or manufacturing an original task score."""
+        if self.task_services != "isolated" or self.memory != "reset":
+            raise TaskEnvironmentError("rejected_unsupported: graph work completion requires isolated reset tasks")
+        workspace = workspace.resolve()
+        active = self.active.get(str(workspace))
+        if active is None:
+            raise TaskEnvironmentError(f"{task.name}: no native task environment was prepared")
+        agent_id, container_id, _ = active
+        group = self.groups[self.workspace_groups[str(workspace)]]
+        if task.has_side_tests:
+            raise TaskEnvironmentError("rejected_unsupported: graph work completion cannot skip side-task grading")
+        if spec is not None:
+            self._work_artifact_context(task, workspace, spec)
+        try:
+            await self._quiesce(group)
+            snapshot = (self._work_artifacts(task, workspace, spec, "quiesced_completed_work_without_grading")
+                        if spec is not None else None)
+            receipt = {"status": "complete", "agent_id": agent_id, "task": task.name,
+                       "container_id": container_id, "quiesced_containers": dict(group.containers),
+                       "original_verifier_invoked": False, "artifacts": snapshot}
+        finally:
+            await self._capture_service_logs(group, logs_dir)
+            async with self.runtime_lock:
+                await self._release(group)
+        receipt["cleanup_verified"] = group.released
+        if not group.released:
+            raise TaskEnvironmentError("subordinate work cleanup was not verified")
+        receipt["artifacts_sha256"] = (hashlib.sha256(json.dumps(snapshot, sort_keys=True).encode()).hexdigest()
+                                       if snapshot is not None else None)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        completion = logs_dir / "completion.json"
+        completion.write_text(json.dumps({key: value for key, value in receipt.items() if key != "artifacts"},
+                                         sort_keys=True))
+        receipt["completion_sha256"] = hashlib.sha256(completion.read_bytes()).hexdigest()
+        return receipt
 
     async def _verify(self, task: Task, workspace: pathlib.Path, logs_dir: pathlib.Path,
                       script: str, *, before_measure: Callable[[], None] | None = None) -> Reward:

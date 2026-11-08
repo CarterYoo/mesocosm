@@ -230,3 +230,5 @@ When the user corrects your approach, append a one-line rule here before ending 
 - The egress check's probes through the web gateway and the harness's own update checks (`registry.npmjs.org`) show up in `web.jsonl`; the run manager marks them (`probe`, `origin: harness`) and the judge skips them. Do not read raw `blocked_egress` counts without those marks.
 - Colab: run `mesocosm env compose --out` as `dock` with the output under `/home/dock` (`/content` is not writable by dock); `colab exec` wedges after a while, so drive long runs over SSH (`scratchpad/cssh.py`) and detach with `(setsid ... &)`.
 - Qwen3-4B agents finish a six-step world task in 30–60 s and may skip a `sleep`-and-retry instruction. Place a timed condition (`conditions.exposure`) inside that window; since ADR-0018 the seconds count from the run start (the run manager sets `/admin/clock`), not from the services start.
+
+- Separate durable job admission, supervisor launch and remote loading. Recover an owned queued job by the same identity/reservation; only proven pre-admission deployment failure permits a retry, and uncertain admitted loading requires verify-only reconciliation.

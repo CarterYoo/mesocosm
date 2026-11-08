@@ -78,6 +78,15 @@ tool calls, argument errors, citations and submission result; clean up disposabl
 authentication and executables. Simulated responses and mock agents do not count as agent
 evaluation. An unavailable launcher is not permission to drop isolation.
 
+Optional structure and development profiles permit a design iteration before final submission.
+Discover `mesocosm_structure_catalog` and the development limits through capabilities; use
+`prepare_candidate`, `run_candidate`, `run_status` and `compare_runs` only if advertised.
+Original tasks and hidden interventions stay locked. Status polling does not silently fetch,
+retry or advance trials. Worker launch recovery uses `policy_status(action="start")` on the
+same owned queued policy job, never a new training request. A proven pre-admission activation
+failure may retry its retained alias; an uncertain admitted activation requires explicit
+verify-only reconciliation.
+
 ## Evaluate only what was observed
 
 Structural reconstruction (2a) asks which harness properties the evidence can identify.

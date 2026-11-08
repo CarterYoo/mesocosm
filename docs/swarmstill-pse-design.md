@@ -197,13 +197,14 @@ do not choose a convenient checkpoint from the hidden-intervention result.
 | P selection/mixed adapters | Native immutable deployment binding and optional restricted policy handles | Live student serving; heterogeneous base/venue mixtures remain unsupported |
 | SFT/LoRA | Actual local durable training, checkpoint provenance and optional designer entry points | Full teacher/student loop and trained student serving acceptance |
 | RL | Separate native REINFORCE rollout/update contract | PPO/GRPO training providers and their original rollout/optimizer evidence; no current support claim |
-| N/roles/tasks | Native manifest agents/models, task sources and assignment primitives | Profile-aware population/role/task catalog and composer; restricted profile currently fixes slots/tasks |
-| Communication/permissions | Native service ACLs, channel/DM controls and sandbox gates | Public-slot graph compiler and restricted profile controls; permission is not proof of exposure |
-| Scheduling/review/final decision | Native task lifecycle, deadlines and defined peer-review matching | General enforced turn/review DAG and designated final-commit protocol |
+| N/roles/tasks | Optional approved role-template population composer and team ACL expansion; task sources remain operator-owned | Approved task/tool catalog and live population acceptance |
+| Communication/permissions | Optional public-slot visibility/work graph compiler, service/channel/DM/artifact ACL enforcement | New real-agent acceptance; permission is not proof of exposure |
+| Scheduling/review/final decision | Optional task-stage DAG, exact graph review assignments, cleanup-gated stage release and finalizer-only original grading | Native Docker comparison/reset/all/as-ready subset; graph reward/feedback/history/reputation barriers and shared tasks unsupported; live acceptance unverified |
 | Resources/history/rewards | Native budgets, history, feedback, reward allocation and state controls | Unified scoped discovery/diagnostics and precise reset capabilities per provider |
-| Run/recover/compare | Native durable jobs, factorial plans, evidence and collective evaluator | General P/S/E comparison planner and profile-aware run façade; actual acceptance and hidden-intervention outcomes |
+| Run/recover/compare | Optional designer development prepare/run/status/compare facade, same-job recovery, fixed task/verifier/budget identity and all-planned-trial accounting | Existing approved worker required; strict whole-run wall-clock unsupported; actual acceptance and hidden-intervention outcomes unverified |
 
-Implement the shared capability/validation contract and composer first, then graph/scheduler
-and the general run/comparison planner. Add PPO/GRPO only as real training providers. For every
+The optional [structure](designer-structure.md) and [development execution](designer-execution.md)
+profiles implement the bounded initial compiler/runtime/facade subset above. Extend provider
+capabilities and graph combinations only with actual enforcement. Add PPO/GRPO only as real training providers. For every
 increment, test software invariants and separately run fresh actual designers plus original
 multi-agent tasks. Preserve limitations in the capability matrix; do not fill them with prompts.

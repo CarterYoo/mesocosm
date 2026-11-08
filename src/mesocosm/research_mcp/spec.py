@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from mesocosm.reproduction import factors
 from mesocosm.reproduction.store import canonical
+from mesocosm.research_mcp.structure import StructureInput
 
 # Whole objects and unbounded string fields are deliberately absent. Strings in
 # approved values (for example artifact names) are exact operator-owned choices.
@@ -95,6 +96,20 @@ class MutableDesignerSpec(DesignerSpec):
         if self.policy_id is not None and self.agent_policies is not None:
             raise ValueError("Choose a shared policy_id or complete agent_policies, not both.")
         return self
+
+
+class StructuredDesignerSpec(DesignerSpec):
+    structure: StructureInput | None = None
+
+
+class StructuredMutableDesignerSpec(MutableDesignerSpec):
+    structure: StructureInput | None = None
+
+
+def designer_spec_type(mutable_policy: bool = False, mutable_structure: bool = False) -> type[DesignerSpec]:
+    if mutable_structure:
+        return StructuredMutableDesignerSpec if mutable_policy else StructuredDesignerSpec
+    return MutableDesignerSpec if mutable_policy else DesignerSpec
 
 
 class Allowlist(StrictObject):

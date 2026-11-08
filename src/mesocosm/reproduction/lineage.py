@@ -26,6 +26,7 @@ from mesocosm.gateway.app import parse_sse, request_summary, summarize_response
 from mesocosm.gateway.capture import MAX_BODY_BYTES, DecodedBody
 from mesocosm.reproduction.deployment import serving_identity
 from mesocosm.reproduction.store import digest, file_hash
+from mesocosm.reproduction.structure_lineage import verify_structure
 
 
 def _require(condition: Any, message: str) -> None:
@@ -180,9 +181,12 @@ def verify_run(root: pathlib.Path, packaged: dict[str, Any], package_digest: str
     task_pairs = {(agent.id, task.name) for agent in world.agents for task in world.tasks}
     transcripts = [event for event in events if event["kind"] == "harness.transcript"]
     rewards = [event for event in events if event["kind"] == "verifier.reward"]
-    for records in (transcripts, rewards):
+    reward_pairs = ({pair for pair in task_pairs if pair[0] in world.structure.execution.finalizers}
+                    if world.structure is not None else task_pairs)
+    for records, expected_pairs in ((transcripts, task_pairs), (rewards, reward_pairs)):
         _require(Counter((event["agent_id"], event["data"].get("task")) for event in records)
-                 == Counter(task_pairs), "missing or duplicate original task/session/verifier record")
+                 == Counter(expected_pairs), "missing or duplicate original task/session/verifier record")
+    structure = verify_structure(root, world, events)
     for event in transcripts:
         path = root / event["data"]["path"]
         _require(path.resolve().is_relative_to(root.resolve()) and file_hash(path) == event["data"]["sha256"],
@@ -222,8 +226,10 @@ def verify_run(root: pathlib.Path, packaged: dict[str, Any], package_digest: str
             "unfinished_message_ids": turn.unfinished_message_ids}
         _require(all(event["data"].get(key) == value for key, value in projection.items()),
                  "normalized harness turn differs from its original")
-    _require(summary.get("rewards") == {f"{event['agent_id']}/{event['data']['task']}": event["data"].get("reward")
-                                        for event in rewards}, "summary verifier matrix mismatch")
+    reward_matrix = {f"{agent}/{task}": None for agent, task in task_pairs} if world.structure is not None else {}
+    reward_matrix.update({f"{event['agent_id']}/{event['data']['task']}": event["data"].get("reward")
+                          for event in rewards})
+    _require(summary.get("rewards") == reward_matrix, "summary verifier matrix mismatch")
     for event in rewards:
         logs = root / "verifier" / event["agent_id"] / event["data"]["task"]
         _require(logs.resolve().is_relative_to(root.resolve()) and (logs / "environment.json").is_file()
@@ -246,4 +252,5 @@ def verify_run(root: pathlib.Path, packaged: dict[str, Any], package_digest: str
             "task_set_sha256": digest(sorted((task["source"], task["tree_sha256"])
                                                for task in binding["input_snapshot"]["tasks"])),
             "binding": "verified_worker_runtime_and_serving_attribution",
+            **structure,
             "numerical_weight_verification": "unverified", "exact_call_to_tool_causal_links": "unverified"}

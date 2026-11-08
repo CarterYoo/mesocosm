@@ -10,7 +10,7 @@ The existing six evidence/spec tools remain. A private `policy_space` file adds:
 |---|---|
 | `mesocosm_policy_catalog` | Page approved policy handles, compatibility groups and training recipes/domains. |
 | `mesocosm_train_policy` | Reserve the session budget and queue a real local SFT/LoRA job. |
-| `mesocosm_policy_status` | Inspect or cooperatively cancel a session-owned training attempt. |
+| `mesocosm_policy_status` | Inspect, cooperatively cancel, or explicitly start a session-owned queued training attempt. |
 | `mesocosm_activate_policy` | Deploy its completed owned artifact, or explicitly reconcile an uncertain activation. |
 
 ## Trusted preparation
@@ -105,13 +105,13 @@ agent with `policy_id`, or assign every public ordinal slot with `agent_policies
 }
 ```
 
-The slots follow the operator-fixed world's agent order. Equal handles share the same
+Without a [structure space](designer-structure.md), slots follow the operator-fixed world's agent order. Equal handles share the same
 policy weights, while harness sessions and contexts remain separate. Selective updates
 are explicit: train a new handle, then assign it only to the intended slots. Updating a
 handle never silently changes all agents that previously used its parent policy.
 Mixed assignments must share endpoint, base name/revision/hash and dtype. A uniform
-selection can choose another approved base; cross-base mixtures and changing agent count
-are not implemented in this restricted profile.
+selection can choose another approved base; cross-base mixtures remain unsupported.
+Changing population requires the separate approved structure space.
 
 For an actual update, call `mesocosm_train_policy` with a published `recipe_id`, optional
 exact `parameters` and a stable `request_id`. Reusing that ID recovers the same attempt;
@@ -130,6 +130,30 @@ Check the proposed P plus S/E changes with `mesocosm_check_spec`, then freeze on
 with `mesocosm_submit_spec`. This validates the exact packaged deployment map. It does
 not execute student tasks or expose the private evaluator. New train/activate operations
 close after final submission; owned status/cancellation remain available.
+
+## Recovery
+
+A supervisor-launch failure does not require a new training request. The response separates
+native job status from `worker_start: pending | started | failed`. `started` means supervisor
+launch returned; optimizer progress still comes from the native measured result. Repeat the
+exact `mesocosm_train_policy` request after a known launch failure, or call
+`mesocosm_policy_status` with the returned public `policy_job_id` and `action="start"`.
+Both use the same admitted native job and existing budget reservation. Explicit start also
+recovers a queued job after a crash between native persistence and request acknowledgement.
+Running and terminal attempts are not rerun. If native admission remains unresolved, no
+replacement job is created; the operator must inspect it. Starting the supervisor does not
+resume interrupted optimizer state or allocate another machine.
+
+Activation distinguishes pre-admission failure from an uncertain load. If no native request
+or owned deployment exists, status is `activation_not_started`: repair the transient cause
+and retry normal `mesocosm_activate_policy` with the same public handle. The native key and
+alias remain identical. `reconcile=true` never starts a new load and reports that there is
+nothing admitted to reconcile in this state. Once any native admission exists, an ordinary
+retry is refused with `activation_uncertain`; explicit reconciliation verifies the same
+owned job and alias without reloading it. A busy serving lease or ambiguous admission stays
+uncertain. Reservations are retained through every failure, and new request IDs cannot be
+used to evade the session budget. [ADR-0071](adr/0071-recover-owned-policy-start-and-activation.md)
+records these recovery boundaries.
 
 ## Evidence and limits
 

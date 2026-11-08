@@ -47,7 +47,8 @@ def episode_condition_errors(world: WorldManifest) -> list[str]:
     if world.reputation.enabled and (not world.rewards.enabled or world.mode != "comparison"):
         errors.append("reputation requires synchronized reward episodes")
     if world.artifacts.enabled and (not world.services.enabled or not world.services.board
-                                    or world.mode != "comparison" or not world.rewards.enabled):
+                                    or world.mode != "comparison"
+                                    or not world.rewards.enabled and world.structure is None):
         errors.append("artifact exchange requires board services and synchronized reward episodes")
     if world.artifacts.enabled and world.task_services != "isolated":
         errors.append("artifact exchange requires isolated verification")

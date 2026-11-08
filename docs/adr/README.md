@@ -72,3 +72,6 @@ One file per decision, numbered. Status is `proposed`, `accepted`, `superseded b
 | [0068](0068-restricted-fixed-policy-designer.md) | Six restricted stdio designer tools, finite operator S/E choices and hash-bound reviewed corpus projections | accepted |
 | [0069](0069-designer-policy-selection-and-training.md) | Optional designer policy selection, bounded real SFT/LoRA jobs and verified activation behind private handles | accepted |
 | [0070](0070-pse-experiment-workflow.md) | Proposed shared P/S/E experiment composition, scoped discovery, graph enforcement and comparable execution | proposed |
+| [0071](0071-recover-owned-policy-start-and-activation.md) | Recover owned queued training jobs and distinguish pre-admission activation failure from uncertain admitted loading | accepted |
+| [0072](0072-native-structure-graphs-and-designer-composition.md) | Native artifact/review/execution graphs, approved population compiler and finalizer-only original grading | accepted |
+| [0073](0073-bounded-designer-development-execution.md) | Optional bounded development execution, owned recovery and unknown-aware comparisons over native original evidence | accepted |

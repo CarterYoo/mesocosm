@@ -47,6 +47,9 @@ specification is not proof of reconstruction; a software test is not an agent ev
 Discover whether the study fixes P or enables policy design. When P is editable, use its
 approved policy handles and real training/activation tools; prompt or persona changes do
 not constitute weight training. See the policy workflow in the inverse-study reference.
+If advertised, use the structure catalog and development prepare/run/status/compare tools
+to iterate before final submission. Preserve exact task/verifier identities and all planned
+trials; ungraded workers and missing results remain unknown.
 Use a fresh-context actual agent for agent-interface assessment and an OS sandbox for an
 isolated designer. The broad operator CLI is not a replacement for that sandbox.
 

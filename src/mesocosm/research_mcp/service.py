@@ -15,12 +15,14 @@ from pydantic import Field, ValidationError
 from mesocosm.core.manifest import WorldManifest
 from mesocosm.reproduction.errors import ToolInputError
 from mesocosm.reproduction.service import ResearchWorkbench
-from mesocosm.reproduction.store import Store, canonical, digest
+from mesocosm.reproduction.store import Store, canonical, digest, write_json
 from mesocosm.research_mcp.corpus import Corpus, _read_file
-from mesocosm.research_mcp.spec import Allowlist, DesignerSpec, MutableDesignerSpec, StrictObject
+from mesocosm.research_mcp.spec import Allowlist, DesignerSpec, MutableDesignerSpec, StrictObject, designer_spec_type
 
 TOOLS = ("capabilities", "corpus_search", "corpus_stats", "read_events", "check_spec", "submit_spec")
 POLICY_TOOLS = ("policy_catalog", "train_policy", "policy_status", "activate_policy")
+STRUCTURE_TOOLS = ("structure_catalog",)
+EXECUTION_TOOLS = ("prepare_candidate", "run_candidate", "run_status", "compare_runs")
 MAX_RESPONSE_BYTES = 24_000
 PUBLIC_SETUP = (
     "The student agents use a small language model in the approximately four-billion-parameter size class. "
@@ -37,7 +39,7 @@ MUTABLE_SETUP = (
 
 def _spec_value(spec: DesignerSpec) -> dict[str, Any]:
     value = spec.model_dump()
-    for field in ("policy_id", "agent_policies"):
+    for field in ("policy_id", "agent_policies", "structure"):
         if value.get(field) is None:
             value.pop(field, None)
     return value
@@ -53,6 +55,8 @@ class Settings(StrictObject):
     corpus_ids: list[str] = Field(default_factory=list, max_length=32)
     session_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,64}$")
     policy_space: str | None = None
+    structure_space: str | None = None
+    execution_space: str | None = None
 
 
 class DesignerWorkbench:
@@ -80,7 +84,27 @@ class DesignerWorkbench:
             self.policy_space_sha256 = hashlib.sha256(policy_bytes).hexdigest()
             world = WorldManifest.model_validate(yaml.safe_load(base_world_bytes))
             self.agent_ids = [agent.id for agent in world.agents]
-        self.tools = TOOLS + POLICY_TOOLS if self.policy_space is not None else TOOLS
+        self.structure_space = None
+        self.structure_space_sha256 = None
+        self.execution_space = None
+        self.execution_space_sha256 = None
+        self.execution_manager = None
+        if settings.structure_space is not None:
+            from mesocosm.research_mcp.structure import StructureSpace
+
+            structure_bytes = _read_file(Path(settings.structure_space))
+            world = WorldManifest.model_validate(yaml.safe_load(base_world_bytes))
+            self.structure_space = StructureSpace.model_validate_json(structure_bytes).checked(world)
+            self.structure_space_sha256 = hashlib.sha256(structure_bytes).hexdigest()
+        if settings.execution_space is not None:
+            from mesocosm.research_mcp.execution import ExecutionSpace
+
+            execution_bytes = _read_file(Path(settings.execution_space))
+            self.execution_space = ExecutionSpace.model_validate_json(execution_bytes).checked(self.workbench)
+            self.execution_space_sha256 = hashlib.sha256(execution_bytes).hexdigest()
+        self.tools = (TOOLS + (POLICY_TOOLS if self.policy_space is not None else ())
+                      + (STRUCTURE_TOOLS if self.structure_space is not None else ())
+                      + (EXECUTION_TOOLS if self.execution_space is not None else ()))
         # Bind final submission to the operator's session setup without publishing it.
         context: dict[str, Any] = {"settings": settings.model_dump(exclude_none=True),
                                    "base_world_sha256": self.base_world_sha256,
@@ -88,12 +112,21 @@ class DesignerWorkbench:
                                    "allowlist_values": self.allowlist.model_dump()}
         if self.policy_space is not None:
             context["policy_space_sha256"] = self.policy_space_sha256
+        if self.structure_space is not None:
+            context["structure_space_sha256"] = self.structure_space_sha256
+        if self.execution_space is not None:
+            context["execution_space_sha256"] = self.execution_space_sha256
         self.context_sha256 = digest(context)
         if self.policy_space is not None:
             from mesocosm.research_mcp.policy import PolicyManager
 
             self.policy_manager = PolicyManager(self.policy_space, self.store, self.workbench,
                                                 settings.session_id, self.context_sha256)
+        if self.execution_space is not None:
+            from mesocosm.research_mcp.execution import ExecutionManager
+
+            self.execution_manager = ExecutionManager(self.execution_space, self.store, self.workbench,
+                                                       settings.session_id, self.context_sha256)
         context_id = self.store.put("designer_context", context)
         with self.store.connection() as db:
             db.execute("BEGIN IMMEDIATE")
@@ -115,6 +148,17 @@ class DesignerWorkbench:
                             != self.policy_space_sha256)
                 assert self.policy_space is not None
                 self.policy_space.checked(self.workbench)
+            if self.settings.structure_space is not None:
+                changed |= (hashlib.sha256(_read_file(Path(self.settings.structure_space))).hexdigest()
+                            != self.structure_space_sha256)
+                assert self.structure_space is not None
+                self.structure_space.checked(WorldManifest.model_validate(
+                    yaml.safe_load(_read_file(Path(self.settings.base_world)))))
+            if self.settings.execution_space is not None:
+                changed |= (hashlib.sha256(_read_file(Path(self.settings.execution_space))).hexdigest()
+                            != self.execution_space_sha256)
+                assert self.execution_space is not None
+                self.execution_space.checked(self.workbench)
         except (OSError, ValueError, KeyError):
             changed = True
         if changed:
@@ -140,8 +184,9 @@ class DesignerWorkbench:
         try:
             if name not in self.tools:
                 raise ToolInputError("unavailable_tool", "Use the advertised designer tools.")
-            mutating = name in {"train_policy", "policy_status", "activate_policy", "submit_spec"}
-            if self.policy_manager is not None and mutating:
+            mutating = name in {"train_policy", "policy_status", "activate_policy", "submit_spec",
+                                "prepare_candidate", "run_candidate", "run_status", "compare_runs"}
+            if mutating:
                 with self.store.lease("designer-mutation:" + self.settings.session_id):
                     self._assert_context()
                     result = getattr(self, name)(**arguments)
@@ -178,7 +223,7 @@ class DesignerWorkbench:
                 break
             page.append(entry)
         end = offset + len(page)
-        result = {"student_setup": PUBLIC_SETUP, "factors": page, "total": len(names),
+        result: dict[str, Any] = {"student_setup": PUBLIC_SETUP, "factors": page, "total": len(names),
                 "next_offset": end if end < len(names) else None, "corpus_ids": self.settings.corpus_ids,
                 "spec_format": {"changes": [{"factor": "<listed factor>", "value": "<exact listed value>"}]},
                 "locked": ["model", "population", "persona", "skills", "mcp", "tasks", "wiki_docs", "internet",
@@ -192,7 +237,50 @@ class DesignerWorkbench:
                                        "policy_id": "<approved or activated public policy handle>"})
             result["locked"] = ["raw_model_config", "persona", "skills", "mcp", "tasks", "wiki_docs", "internet",
                                 "judge", "observe", "budgets", "free_text"]
+        if self.structure_space is not None:
+            result["structure_catalog_tool"] = "mesocosm_structure_catalog"
+            result["locked"] = [name for name in result["locked"] if name != "population"]
+            result["spec_format"]["structure"] = "Optional population, visibility, work, reviews and execution graphs"
+        if self.execution_manager is not None:
+            result["development_execution"] = self.execution_manager.capabilities()
         return result
+
+    def structure_catalog(self) -> dict[str, Any]:
+        self._assert_context()
+        if self.structure_space is None:
+            raise ToolInputError("unavailable_tool", "Use the advertised designer tools.")
+        return self.structure_space.capabilities()
+
+    def _executions(self):
+        if self.execution_manager is None:
+            raise ToolInputError("unavailable_tool", "Use the advertised designer tools.")
+        return self.execution_manager
+
+    def prepare_candidate(self, spec: dict[str, Any]) -> dict[str, Any]:
+        self._assert_context()
+        self._assert_open()
+        checked, validation_id = self._check_spec(spec)
+        if not checked["valid"]:
+            return {"prepared": False, "check": checked}
+        assert validation_id is not None
+        return self._executions().prepare_candidate(validation_id)
+
+    async def run_candidate(self, candidate_id: str, request_id: str, repetitions: int = 1) -> dict[str, Any]:
+        self._assert_context()
+        self._assert_open()
+        return await self._executions().run_candidate(candidate_id, request_id, repetitions)
+
+    async def run_status(self, run_id: str,
+                         action: Literal["inspect", "advance", "fetch", "cancel", "resubmit"] = "inspect",
+                         since_version: str | None = None) -> dict[str, Any]:
+        self._assert_context()
+        if action in {"advance", "resubmit"}:
+            self._assert_open()
+        return await self._executions().run_status(run_id, action, since_version)
+
+    def compare_runs(self, baseline_run_id: str, candidate_run_id: str) -> dict[str, Any]:
+        self._assert_context()
+        return self._executions().compare_runs(baseline_run_id, candidate_run_id)
 
     def policy_catalog(self, offset: int = 0, limit: int = 10) -> dict[str, Any]:
         self._assert_context()
@@ -207,8 +295,10 @@ class DesignerWorkbench:
         return result
 
     async def policy_status(self, policy_job_id: str,
-                            action: Literal["inspect", "cancel"] = "inspect") -> dict[str, Any]:
+                            action: Literal["inspect", "cancel", "start"] = "inspect") -> dict[str, Any]:
         self._assert_context()
+        if action == "start":
+            self._assert_open()
         result = await self._policies().policy_status(policy_job_id, action)
         self._assert_context()
         return result
@@ -246,24 +336,49 @@ class DesignerWorkbench:
     def _check_spec(self, spec: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
         self._assert_context()
         try:
-            parsed = (MutableDesignerSpec if self.policy_manager is not None else DesignerSpec).model_validate(spec)
+            parsed = designer_spec_type(
+                self.policy_manager is not None, self.structure_space is not None).model_validate(spec)
         except ValidationError:
             return {"valid": False, "issues": [{"field": "spec", "code": "invalid_shape",
                     "message": ("Supply approved changes and optionally policy_id or complete agent_policies."
                                 if self.policy_manager is not None else
-                                "Supply only changes, each containing factor and value; at most 40 changes.")}]}, None
+                                "Supply changes, each containing factor and value; at most 40 changes.") +
+                               (" Optional structure requires approved population and three separate graphs."
+                                if self.structure_space is not None else "")}]}, None
         issues = self.allowlist.issues(parsed)
         fingerprint = digest(_spec_value(parsed))
         if issues:
             return {"valid": False, "spec_sha256": fingerprint, "issues": issues}, None
         try:
-            bindings = (self._policies().bindings(parsed.policy_id, parsed.agent_policies, self.agent_ids)
+            base_world, changes = self.settings.base_world, parsed.model_dump()["changes"]
+            expected_source_sha256 = self.base_world_sha256
+            agent_ids, composition, configuration_args = self.agent_ids, None, {}
+            structure = getattr(parsed, "structure", None)
+            if structure is not None:
+                assert self.structure_space is not None
+                composition = self.structure_space.compose(Path(base_world), structure, changes)
+                if composition["source_sha256"] != self.base_world_sha256:
+                    raise ToolInputError("study_context_changed", "The source world changed during composition.")
+                composition_id = self.store.put("designer_composition", composition)
+                path = self.store.directory("experiments", composition_id) / "world.json"
+                expected_bytes = (canonical(composition["manifest"]) + "\n").encode()
+                with self.store.lease("designer-composition:" + composition_id):
+                    if path.exists():
+                        if path.is_symlink() or _read_file(path) != expected_bytes:
+                            raise ToolInputError("study_context_changed", "The frozen composition changed.")
+                    else:
+                        write_json(path, composition["manifest"])
+                base_world, changes = str(path), []
+                expected_source_sha256 = hashlib.sha256(expected_bytes).hexdigest()
+                agent_ids = composition["agent_ids"]
+                configuration_args = {"roles": composition["roles"]}
+            bindings = (self._policies().bindings(parsed.policy_id, parsed.agent_policies, agent_ids)
                         if isinstance(parsed, MutableDesignerSpec) else {})
             configured = self.workbench.configure_experiment(
-                self.settings.base_world, self.settings.behavior_id, parsed.model_dump()["changes"], **bindings)
+                base_world, self.settings.behavior_id, changes, **configuration_args, **bindings)
             self._assert_context()
             experiment = self.workbench.store.get(configured["experiment_id"], "experiment")
-            if experiment["source_manifest_sha256"] != self.base_world_sha256:
+            if experiment["source_manifest_sha256"] != expected_source_sha256:
                 raise ToolInputError("study_context_changed", "The fixed study setup changed during validation. "
                                      "Restore the original operator setup or start a new designer session.")
             if experiment.get("agent_deployments") != bindings.get("agent_deployments"):
@@ -272,19 +387,23 @@ class DesignerWorkbench:
             validation = self.workbench.validate_experiment(configured["experiment_id"])
             self._assert_context()
             if isinstance(parsed, MutableDesignerSpec) and bindings != self._policies().bindings(
-                    parsed.policy_id, parsed.agent_policies, self.agent_ids):
+                    parsed.policy_id, parsed.agent_policies, agent_ids):
                 raise ToolInputError("study_context_changed", "The selected policy binding changed during validation. "
                                      "Start a new designer session after the operator inspects the setup.")
             validation_id = self.store.put("designer_validation", {"spec_sha256": fingerprint,
                                            "context_sha256": self.context_sha256,
                                            "configuration": configured, "validation": validation,
                                            **({"policy_bindings": bindings}
-                                              if self.policy_manager is not None else {})})
+                                              if self.policy_manager is not None else {}),
+                                           **({"composition": composition, "agent_ids": agent_ids}
+                                              if composition is not None else {})})
             if not validation["valid"]:
                 raise ValueError(json.dumps(validation))
         except Exception as exc:
             self.store.put("designer_diagnostic", {"spec_sha256": fingerprint, "message": str(exc)})
             if isinstance(exc, ToolInputError):
+                if exc.issues and getattr(parsed, "structure", None) is not None:
+                    return {"valid": False, "spec_sha256": fingerprint, "issues": exc.issues[:8]}, None
                 raise
             # Paths, rubric and locked base values in native exceptions remain private.
             public_issues = self.allowlist.native_issues(parsed)
@@ -304,7 +423,8 @@ class DesignerWorkbench:
         # The session is supplied by the operator, never selectable by a designer.
         # A transaction enforces a single final even with concurrent MCP calls.
         self._assert_context()
-        parsed_model = (MutableDesignerSpec if self.policy_manager is not None else DesignerSpec).model_validate(spec)
+        parsed_model = designer_spec_type(
+                self.policy_manager is not None, self.structure_space is not None).model_validate(spec)
         parsed = _spec_value(parsed_model)
         value = {"spec": parsed, "spec_sha256": digest(parsed), "context_sha256": self.context_sha256}
         key = "designer-final:" + self.settings.session_id
@@ -321,7 +441,8 @@ class DesignerWorkbench:
         self._assert_context()
         if isinstance(parsed_model, MutableDesignerSpec):
             validation = self.store.get(validation_id, "designer_validation")
-            bindings = self._policies().bindings(parsed_model.policy_id, parsed_model.agent_policies, self.agent_ids)
+            bindings = self._policies().bindings(parsed_model.policy_id, parsed_model.agent_policies,
+                                                  validation.get("agent_ids", self.agent_ids))
             experiment = self.workbench.store.get(validation["configuration"]["experiment_id"], "experiment")
             if (bindings != validation["policy_bindings"]
                     or experiment.get("agent_deployments") != bindings.get("agent_deployments")):

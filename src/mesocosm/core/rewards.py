@@ -42,6 +42,9 @@ def outcome_records(events: list[Event]) -> dict[str, Any]:
         if event.kind == "harness.session":
             outcomes[event.agent_id, task] = {"agent_id": event.agent_id, "task": task,
                                               "status": "incomplete", "reward": None, "error": None}
+        elif event.kind == "structure.work_completed":
+            outcomes[event.agent_id, task] = {"agent_id": event.agent_id, "task": task,
+                                              "status": "completed_ungraded", "reward": None, "error": None}
         elif event.kind == "verifier.reward":
             outcomes[event.agent_id, task] = {"agent_id": event.agent_id, "task": task,
                                               "status": "verified", "reward": event.data.get("reward"),

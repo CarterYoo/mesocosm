@@ -394,7 +394,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if assignments is not None:
             known = set(st.agent_ips.values())
             if (not isinstance(assignments, dict) or set(assignments) != known
-                    or any(not isinstance(targets, list) or not targets
+                    or any(not isinstance(targets, list)
+                           or not targets and (st.peer_review or {}).get("protocol") != "graph"
                            or any(not isinstance(target, str) or target not in known or target == sender
                                   for target in targets) or len(set(targets)) != len(targets)
                            for sender, targets in assignments.items())):
@@ -601,7 +602,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         artifact_reader(request)
         if not 1 <= limit <= LIST_MAX or offset < 0:
             raise HTTPException(400, "invalid page bounds")
-        available = list(reversed(artifacts.records.values()))
+        available = [item for item in reversed(artifacts.records.values())
+                     if st.access is None or st.access.artifact_allows(who(request)[0], item["source_agent"])]
         page = available[offset:offset + limit]
         visible = [shown(artifacts.visible(item), "author") for item in page]
         record(request, "board", "artifact_read_list", count=len(page), total=len(available), offset=offset,
@@ -617,6 +619,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         publication = artifacts.records.get(artifact_id)
         if publication is None:
             raise HTTPException(404, "artifact file not found")
+        if st.access is not None and not st.access.artifact_allows(who(request)[0], publication["source_agent"]):
+            record(request, "board", "access_denied", operation="read", status=403, artifact_id=artifact_id)
+            raise HTTPException(403, "access denied")
         file = publication["files"].get(file_path)
         if file is None:
             raise HTTPException(404, "artifact file not found")

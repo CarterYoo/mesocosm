@@ -26,6 +26,7 @@ from mesocosm.core.episode_controls import AssignmentSpec, FeedbackSpec, Reputat
 from mesocosm.core.history import HistorySpec
 from mesocosm.core.sampling import SamplingSpec
 from mesocosm.core.serving import ServingIdentity
+from mesocosm.core.structure import StructureSpec, structure_errors
 
 SUPPORTED_HARNESSES = {"opencode"}
 # Conditions the platform enforces today, and where. M3 extends this table.
@@ -291,7 +292,7 @@ class PeerReviewSpec(ManifestModel):
     episode, a shared reward when verdicts match the peers' actual correctness, and runner feedback between
     episodes. The channel's caps are `services.chat.max_chars` / `max_messages`."""
     enabled: bool = False
-    protocol: Literal["legacy", "ratings"] = "legacy"
+    protocol: Literal["legacy", "ratings", "graph"] = "legacy"
     topology: Literal["all", "ring", "random_ring"] = Field(
         default="all", description="Review everyone, the next manifest member, or a seeded reshuffled ring per episode")
     matching_seed: int = 0
@@ -302,13 +303,13 @@ class PeerReviewSpec(ManifestModel):
     @model_validator(mode="before")
     @classmethod
     def _caps_moved_to_chat(cls, data: object) -> object:
-        if isinstance(data, dict) and data.get("protocol") == "ratings":
+        if isinstance(data, dict) and data.get("protocol") in {"ratings", "graph"}:
             ignored = {key for key, default in {"verdict_review": True, "reward_feedback": True,
                                                 "reward_per_verdict": 10}.items()
                        if key in data and data[key] != default}
             if ignored:
                 raise ValueError(f"rejected_unsupported: {sorted(ignored)} only apply to legacy peer review; "
-                                 "ratings uses rewards and learning settings")
+                                 "ratings/graph use their declared measurement and execution contracts")
         if isinstance(data, dict) and ({"max_chars", "max_messages"} & set(data)):
             raise ValueError("the channel caps live in services.chat (max_chars, max_messages) since ADR-0027")
         return data
@@ -498,6 +499,7 @@ class WorldManifest(ManifestModel):
     artifacts: ArtifactSpec = Field(default_factory=ArtifactSpec)
     reputation: ReputationSpec = Field(default_factory=ReputationSpec)
     task_assignment: AssignmentSpec = Field(default_factory=AssignmentSpec)
+    structure: StructureSpec | None = None
     isolate_agents: bool = Field(default=False, description="Put every agent on its own sandbox network so agents "
                                  "cannot reach each other; only the gateway and control span all of them")
     services: ServicesSpec = Field(default_factory=ServicesSpec)
@@ -525,6 +527,7 @@ class WorldManifest(ManifestModel):
                 raise ValueError("model sampling/serving identity requires unique model ids "
                                  "before catalog construction")
         errors = research_profile_errors(self)
+        errors.extend(structure_errors(self))
         if errors:
             raise ValueError("\n".join(errors))
         if self.task_services == "shared" and (self.mode != "comparison" or self.memory != "reset"):

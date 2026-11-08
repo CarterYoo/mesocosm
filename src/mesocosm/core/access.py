@@ -40,6 +40,11 @@ class AccessSpec(BaseModel):
     git: dict[str, AccessGrant] = Field(default_factory=dict)
     direct_messages: dict[str, list[str]] = Field(default_factory=dict)
     channels: dict[str, AccessGrant] = Field(default_factory=dict)
+    artifacts: dict[str, list[str]] | None = Field(default=None,
+        description="Optional source-agent to reader grants, in addition to board read permission")
+
+    def artifact_allows(self, agent_id: str, source_agent: str) -> bool:
+        return self.artifacts is None or agent_id in self.artifacts.get(source_agent, [])
 
     def allows(self, agent_id: str, service: str, operation: str, repository: str | None = None) -> bool:
         grants: dict[str, AccessGrant] = {str(key): value for key, value in self.services.items()}
@@ -75,6 +80,9 @@ def validate_access(access: AccessSpec, agent_ids: list[str], repositories: list
     referenced = {agent for grant in grants for agent in grant.read + grant.write}
     referenced.update(access.direct_messages)
     referenced.update(agent for targets in access.direct_messages.values() for agent in targets)
+    if access.artifacts is not None:
+        referenced.update(access.artifacts)
+        referenced.update(agent for targets in access.artifacts.values() for agent in targets)
     if unknown := referenced - known:
         errors.append(f"services.access references unknown agents: {sorted(unknown)}")
     if unknown_repos := set(access.git) - set(repositories):
@@ -87,6 +95,9 @@ def validate_access(access: AccessSpec, agent_ids: list[str], repositories: list
     for sender, recipients in access.direct_messages.items():
         if sender in recipients or len(set(recipients)) != len(recipients):
             errors.append(f"services.access.direct_messages.{sender} must name unique other agents")
+    for source, readers in (access.artifacts or {}).items():
+        if len(set(readers)) != len(readers):
+            errors.append(f"services.access.artifacts.{source} must name unique agents")
     if shared_directory:
         errors.append("rejected_unsupported: services.access with shared_dir; the shared mount bypasses service ACLs")
     return errors
