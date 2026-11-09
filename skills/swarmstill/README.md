@@ -13,7 +13,7 @@ compute still require the user's configured resources and may have their own cos
 Clone Mesocosm, or update an existing checkout:
 
 ```bash
-git clone https://github.com/GRAIL-center/mesocosm.git
+git clone https://github.com/khs1010/mesocosm.git
 cd mesocosm
 ```
 
@@ -86,7 +86,6 @@ analysis or hypothesis draft and mark the isolated designer test unavailable.
 - [Task integrations](https://github.com/GRAIL-center/mesocosm/blob/main/docs/integrations.md)
 - [Capability evidence](https://github.com/GRAIL-center/mesocosm/blob/main/docs/capability-matrix.md)
 - [Fixed-policy populations and collective detector](https://github.com/GRAIL-center/mesocosm/blob/main/docs/fixed-p-study.md)
-- [Designer policy selection and real SFT/LoRA](https://github.com/GRAIL-center/mesocosm/blob/main/docs/designer-policy.md)
 
 Source and runtime licensing follow the repository's
 [license](https://github.com/GRAIL-center/mesocosm/blob/main/LICENSE).

@@ -49,15 +49,6 @@ Mesocosm provides this optional extension through `mesocosm designer serve`; use
 to prepare the reviewed corpus and finite design space. Its installation does
 not supply the external OS sandbox required below.
 
-For editable P, follow the [policy-design guide](https://github.com/GRAIL-center/mesocosm/blob/main/docs/designer-policy.md).
-Discover `mesocosm_policy_catalog`, select approved model/adapter handles, or request real
-SFT/LoRA using `mesocosm_train_policy`. Inspect/cancel an owned attempt with
-`mesocosm_policy_status`; activate its completed artifact using `mesocosm_activate_policy`.
-Only a ready policy handle can enter `policy_id` or an exhaustive `agent_policies` final
-spec. Preserve the declared training budgets and source restrictions. Training completion,
-serving attribution and behavioral reproduction are separate results. This optional mode
-does not permit target instructions through persona, skills or task prose.
-
 Discover the tools and their current limits from that interface. The public
 `mesocosm research call` CLI is a broader trusted-operator interface and cannot be given to
 the designer as an equivalent substitute. There is no assumed `mesocosm designer call`
@@ -82,10 +73,7 @@ Optional structure and development profiles permit a design iteration before fin
 Discover `mesocosm_structure_catalog` and the development limits through capabilities; use
 `prepare_candidate`, `run_candidate`, `run_status` and `compare_runs` only if advertised.
 Original tasks and hidden interventions stay locked. Status polling does not silently fetch,
-retry or advance trials. Worker launch recovery uses `policy_status(action="start")` on the
-same owned queued policy job, never a new training request. A proven pre-admission activation
-failure may retry its retained alias; an uncertain admitted activation requires explicit
-verify-only reconciliation.
+retry or advance trials.
 
 ## Evaluate only what was observed
 
