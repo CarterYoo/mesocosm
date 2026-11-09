@@ -1,86 +1,98 @@
-# Mesocosm · SwarmStill hackathon fork
+# Mesocosm
 
-## What is Mesocosm?
+**Run controlled experiments with teams of AI agents.** Define who can talk to
+whom, what each agent can see, and what feedback they receive. Mesocosm records
+model requests, agent actions, and verifier results so you can compare runs.
 
-Mesocosm is a research platform for running AI agents together under controlled
-conditions. A world defines the agents, their tasks, the tools and information
-they can access, and how they receive feedback. Researchers can vary a condition,
-repeat the experiment, and inspect the recorded model requests, agent actions,
-and task-verifier results. For example, they can change which agents see a peer's
-report while keeping the task and its verifier fixed.
+[Quick start](#quick-start) · [SwarmStill study](#swarmstill) · [Results](#what-the-experiments-found) · [Reproduction guides](#reproduce-the-study)
 
-## What is SwarmStill?
+![SwarmStill workflow: a reference team supplies a target behavior, a designer changes the student team's interactions and environment, and the measured gap informs the next design.](results/swarmstill/paper_figures/fig1_method_diagram.png)
 
-SwarmStill is a hackathon study of whether a frontier coding agent can design
-conditions under which a team of smaller models reproduces a measured collective
-behavior. The study describes behavior as **B = F(M, P, S, E)**, where **M** is
-the model, **P** is its post-training, **S** is the team structure, and **E** is
-the environment. Within each comparison, the student model and its weights stay
-fixed. The designer changes approved features such as roles, communication
-paths, memory, or feedback, depending on what the benchmark supports.
+*The SwarmStill study loop. A designer tests changes to a small-model team's
+setup and compares the measured behavior with a reference profile.*
 
-The iterative workflow gives the designer a reference behavior profile and
-approved controls. The designer proposes settings, runs the student team,
-reviews its scores and traces, and revises the design before submitting a final
-configuration. The benchmark's scoring rules stay fixed so the final design can
-be compared with the original student environment and the reference team.
+## What can you do with Mesocosm?
 
-- **Emergent Collusion** tracks how often two peer reviewers both choose `ACCEPT`
-  on episodes with an evidence requirement. The target is the reference team's
-  mutual-approval curve across episodes.
-- **AgentCollabBench** includes tracer durability (RTD), which measures how far
-  an exact identifier survives as agents pass information along a communication
-  graph. The target is the reference team's score profile across graph types.
+A Mesocosm **world** defines the agents, their task, and the conditions under
+which they work. For example, you can keep a task and its verifier fixed, change
+which agents can see a peer's report, and inspect how the team's actions and
+outcomes change across runs. The repository includes a world with three
+OpenCode agents and the original Terminal-Bench `fix-git` verifier.
 
-Profile loss measures how far the student remains from the reference. Alignment
-measures how much of the starting gap the design closes. A close match describes
-the measured behavior and leaves open how the agents produced it.
+## SwarmStill
 
-## Reproduce the study
+**Can a frontier coding agent get a team of smaller models to reproduce a
+specific group behavior by changing how the team works together?**
 
-| Path | Role |
+SwarmStill is the hackathon study in this fork. The reference team supplies a
+measured behavior profile. The student team's model and weights stay fixed
+within each comparison, while the designer adjusts approved settings. This
+isolates the part of the setup the study investigates.
+
+| Fixed within a comparison | Available to the designer, depending on the benchmark |
 | --- | --- |
-| [SwarmStill skill](skills/swarmstill/README.md) | Trusted-operator guidance for evidence review and fixed-P experiment design |
-| [Iterative design](studies/swarmstill_design/README.md) | Design tools, benchmark launchers, and scoring for Emergent Collusion and AgentCollabBench |
-| [Emergent Collusion](studies/swarmstill_ec/README.md) | Released trace analysis, evidence masking, and mutual-approval scoring |
-| [AgentCollabBench generalization](studies/swarmstill_general/README.md) | Frozen design guide, forecast comparison, and original benchmark scoring |
-| [Results](results/swarmstill/README.md) | Public derived results, figures, protocols, and analysis scripts |
-| [Mesocosm smoke test](docs/native-multiagent.md) | Three OpenCode agents and the original Terminal-Bench fix-git verifier |
+| **M** — the student model | **S** — team structure, such as roles and communication paths |
+| **P** — the student's post-training and weights | **E** — the environment, such as memory, access to evidence, and feedback |
 
-GPT-6 Astra and Claude Opus 5.5 were used for iterative RTD design with Qwen3-4B
-and Gemma-4-E4B-it students. GPT-6.1 Sol also appears in earlier collusion design
-and prediction studies. The study suite does not provide a full factorial
-comparison of those designers and students. The archived iterative RTD protocol
-does not include a verified final held-out score.
+In the iterative design study, the designer proposes settings, runs the
+student team, reads the scores and traces, then revises the design. The
+benchmark's scoring rules stay fixed throughout.
 
-## Measurement
+| Benchmark | What the student team tries to match |
+| --- | --- |
+| Emergent Collusion | How often two peer reviewers both choose `ACCEPT` across episodes with an evidence requirement. |
+| AgentCollabBench | How far an exact identifier travels across different communication graphs, measured as tracer durability (RTD). |
 
-Profile loss is the mean absolute gap between student and reference behavior in
-percentage points. The collusion profile uses mutual ACCEPT on constrained
-episodes, with warm-up excluded. The RTD profile groups the official
-AgentCollabBench tracer-durability score by topology. Report original task
-accuracy separately when the verifier provides it.
+## What the experiments found
 
-Alignment is 100 times the fraction of baseline profile loss closed by the
-design. Use the original student environment as the baseline for RTD. The
-archived collusion alignment uses a never-colluding baseline. Sequence overlap
-compares distributions of complete binary trajectories and reports the all-zero
-contribution separately. See the linked study code for exact definitions.
+![Collusion alignment improved over successive design rounds. Over the first five scored episodes it moved from minus 60.4 in round one to plus 3.7 in round three, with 100 marking the target.](results/swarmstill/paper_figures/fig5_earlier_rounds.png)
 
-## Local checks
+*Earlier Emergent Collusion rounds with Qwen3-4B. The left panel uses five scored
+episodes and the right uses eight. Zero represents a team that never colludes.
+One hundred represents a match to the reference profile.*
+
+The earlier designs brought initial mutual approval closer to the reference
+but still missed its rise in later episodes. The preregistered AgentCollabBench
+study did not establish that the design guide improved predictions. The archived
+iterative RTD protocol has no verified final held-out score.
+[Browse the results and analysis](results/swarmstill/README.md).
+
+**How to read the scores.** Profile loss is the mean absolute gap between the
+student and reference profiles in percentage points. Alignment measures how much
+of a baseline gap the design closes. RTD uses the original student environment
+as its baseline, while the archived collusion chart uses a never-colluding
+baseline. The collusion analysis also measures overlap between complete binary
+trajectories and reports the all-zero contribution separately.
+
+## Quick start
+
+From the repository root on Linux, install the locked dependencies and
+validate the example world. These checks run without Docker or a GPU.
 
 ```bash
 uv sync --locked --extra dev --extra gateway --extra mcp
-uv run mesocosm --help
+uv run mesocosm world validate examples/world-native-three.yaml --json
 uv run mesocosm research tools --json
 uv run pytest tests/test_swarmstill_ec.py tests/test_examples.py
 ```
 
-Run these checks on Linux. They do not require a GPU. Running the original experiments requires
-the benchmark sources, configured endpoints and credentials, and the Linux/GPU
-infrastructure described in the study guides. The native smoke test also requires
-Linux Docker. Keep original task instructions, scorers, and held-out inputs fixed.
+For a live three-agent run, follow the [native execution guide](docs/native-multiagent.md).
+It covers Linux Docker, the original `fix-git` task and verifier, and model
+endpoint configuration.
 
-The shared Mesocosm runtime and its regression fixtures support the retained
-operator and smoke-test paths. Study code and results come from the upstream
-`swarmstill/generalization` and `results` branches. See [LICENSE](LICENSE).
+## Reproduce the study
+
+| If you want to… | Start here |
+| --- | --- |
+| Set up the operator workflow | [SwarmStill skill](skills/swarmstill/README.md) |
+| Run or inspect iterative environment design | [Design tools, launchers, and scoring](studies/swarmstill_design/README.md) |
+| Trace how mutual approval was measured | [Emergent Collusion protocol and scorer](studies/swarmstill_ec/README.md) |
+| Inspect the preregistered prediction study | [AgentCollabBench generalization](studies/swarmstill_general/README.md) |
+| Find figures, protocols, and analysis scripts | [SwarmStill results](results/swarmstill/README.md) |
+
+Original experiments require the benchmark sources, configured model endpoints
+and credentials, and the compute described in the study guides. Keep the original
+task instructions, scorers, and held-out inputs fixed. Study code and results
+come from the upstream `swarmstill/generalization` and `results` branches.
+
+[License](LICENSE)
