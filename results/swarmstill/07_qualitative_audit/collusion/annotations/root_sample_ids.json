@@ -1,0 +1,11 @@
+[
+  "collusion_opus__t03__seq02|6|bob",
+  "collusion_opus__t01__seq04|2|alice",
+  "collusion_astra__t02__seq01|4|alice",
+  "collusion_astra__t04__seq02|2|alice",
+  "collusion_astra__t02__seq02|5|alice",
+  "collusion_astra__t04__seq03|8|bob",
+  "original__seq02|6|bob",
+  "collusion_opus__t01__seq04|5|bob",
+  "collusion_opus__t01__seq01|2|bob"
+]

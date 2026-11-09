@@ -1,0 +1,2689 @@
+{
+  "files": [
+    {
+      "coverage": "Generated natural-language agent-message extract only; not the complete original designer session.",
+      "event_types": {
+        "agent_message": 18
+      },
+      "kind": "generated_natural_language_event_extract",
+      "original_bytes_sha256": "5c0811550b32a673e3829d32d794ac5f5e7e1db497e691ce87f8d710bfd7294b",
+      "published_path": "designer_event_extracts/collusion_astra_natural_language.jsonl.gz",
+      "recorded_timestamps": [],
+      "records": 18,
+      "sanitized_gzip_bytes_sha256": "e7fcd2233e0bf150e89ba1cbc750828575db282b44ba9070d87a42a834678b1e",
+      "sanitized_json_bytes_sha256": "8bd5eaf598d4bfa5bd10494225739f14559e28fc91e5a6fb5800e876b5527643",
+      "source_artifact": "designer/collusion_astra_natural_language.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215005.7713618,
+        "ctime_ns": 1794215005771474574,
+        "mtime_ns": 1794215005771474574
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "coverage": "Generated natural-language agent-message extract only; not the complete original designer session.",
+      "event_types": {
+        "agent_message": 110
+      },
+      "kind": "generated_natural_language_event_extract",
+      "original_bytes_sha256": "4c90484ea0e7b26af5427b98e9298949693ba13a005d8de90c8d466565d41749",
+      "published_path": "designer_event_extracts/cpr_astra_natural_language.jsonl.gz",
+      "recorded_timestamps": [],
+      "records": 110,
+      "sanitized_gzip_bytes_sha256": "9ff61f87d67485900227a9c5a87b851e2349c5591ea2090ecbcf7c159b320993",
+      "sanitized_json_bytes_sha256": "d1825f1d2a3dcf916550fcf7ff5e7d62bcbbf4e7d4edba23088697e2c4005daf",
+      "source_artifact": "designer/cpr_astra_natural_language.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215005.776055,
+        "ctime_ns": 1794215005776134613,
+        "mtime_ns": 1794215005776134613
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "coverage": "Generated natural-language agent-message extract only; not the complete original designer session.",
+      "event_types": {
+        "agent_message": 173
+      },
+      "kind": "generated_natural_language_event_extract",
+      "original_bytes_sha256": "6ae465b6bd6b0372c534021d0ee85691536dc90b287cfe5b691f4078a6df1ced",
+      "published_path": "designer_event_extracts/idr_astra_natural_language.jsonl.gz",
+      "recorded_timestamps": [],
+      "records": 173,
+      "sanitized_gzip_bytes_sha256": "591bc3b156bfba2f29dba8b142809f2c01c5c22e4fb5ccf3957e3ab6aa94ac0c",
+      "sanitized_json_bytes_sha256": "0f10592d2f447e6c77d7b9a210245138e82f0ed32fc0dc5837358f714beec346",
+      "source_artifact": "designer/idr_astra_natural_language.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215005.7836955,
+        "ctime_ns": 1794215005783826566,
+        "mtime_ns": 1794215005783826566
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "coverage": "Generated natural-language agent-message extract only; not the complete original designer session.",
+      "event_types": {
+        "agent_message": 134
+      },
+      "kind": "generated_natural_language_event_extract",
+      "original_bytes_sha256": "dccbccfb58baae02f71b34665d03d85c19b37feae6adc18d14ab111eb3173114",
+      "published_path": "designer_event_extracts/rtd_astra_natural_language.jsonl.gz",
+      "recorded_timestamps": [],
+      "records": 134,
+      "sanitized_gzip_bytes_sha256": "159812a9816aa3a28638c840de631558c8016c61f0f5dac460542b27ee17990b",
+      "sanitized_json_bytes_sha256": "b81e212ad3c6b6c48d2b37f0120f2a66dcc58c5fdb2d52ec1e6734f4f77b5cce",
+      "source_artifact": "designer/rtd_astra_natural_language.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215005.773861,
+        "ctime_ns": 1794215005773973406,
+        "mtime_ns": 1794215005773973406
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "ffdd67b402a925bc395d34b670ccd99024ea00916813a2231c24bc2ac93a2740",
+      "published_path": "designer_workspace_snapshots/collusion_astra/specs/final-environment.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "f0b5d5af8f8782d811b96a7805086e2808bb6d5d88f5858d7c1961a241c513d4",
+      "sanitized_json_bytes_sha256": "b6738b0d75e9b55a5d0cfd78c82b7e645c3a11021d6c1abb12c4c513533dc234",
+      "source_artifact": "collusion_astra/final-environment.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794212867.6456127,
+        "ctime_ns": 1794212867645684953,
+        "mtime_ns": 1794212867645684953
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "b533c595efdaedfba40d9236945371b2b28cd0c1032d7d03f7b2092d389d1b8a",
+      "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-01.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "c85603940f0fe0ec6faee611f7f3d743866c220e95241c6e3c05b31c79d149df",
+      "sanitized_json_bytes_sha256": "9d05be2bbce84f1e8c7da39c1c6457b06316b1831f29d1497587c533aa9c599c",
+      "source_artifact": "collusion_astra/test-01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794200792.8401096,
+        "ctime_ns": 1794200792840194202,
+        "mtime_ns": 1794200792840194202
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "8dfc306e83f54dfd765b0678d7b4bd0ecb00d2095b5093e988a52a98af234bd5",
+      "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-02.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "b9aecc898aea431ec5a4e7a74810833b218c2dde041fa6c3bebb0e25f306534a",
+      "sanitized_json_bytes_sha256": "6721917a180feb063a36cbd25e5e2f9de305ec473f54b27f8ee1ad0fd7856a89",
+      "source_artifact": "collusion_astra/test-02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203711.448866,
+        "ctime_ns": 1794203711448955751,
+        "mtime_ns": 1794203711448955751
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "8cc7602dd2fd94a080bf26e3712cdeeac049628c0c8ec341f3fadbeca306cdae",
+      "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-03.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "1712327f56f8c69d95ae409ff8d688673a0c2ae63d5bab45a0caa9f061a57949",
+      "sanitized_json_bytes_sha256": "86e58ce8ea0147b03468cba0315023be00905835f8357e3f6f0e03dd420a2014",
+      "source_artifact": "collusion_astra/test-03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794204435.213982,
+        "ctime_ns": 1794204435214061135,
+        "mtime_ns": 1794204435214061135
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3af51863b80950f6a44614ca92208fce000f2a31922d7f9436347072fbedf496",
+      "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-04.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "cd36a2daebfd52f8bb039aeb7e2d48bdad5b5872120c6c9b1d0d9781f575bb66",
+      "sanitized_json_bytes_sha256": "3afff93e5def0df20f129e6fc89d0553dda23cf2f05c182810f557489c14d79a",
+      "source_artifact": "collusion_astra/test-04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206668.1029818,
+        "ctime_ns": 1794206668103078928,
+        "mtime_ns": 1794206668103078928
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "f90cc0249de0a63a562ba863cb6c14be89f92d6166d224f6b66f5021ea76e2dd",
+      "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-05.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "75ff4cbcf5572ceafa4cc2df380a94686d09847bc1122b08f6946cdec6e621ca",
+      "sanitized_json_bytes_sha256": "6b32d5fd318206d6e6e62ab0be7f522e938e71a2ae322b9f3e264cd69ee75f2e",
+      "source_artifact": "collusion_astra/test-05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794211277.7927456,
+        "ctime_ns": 1794211277792847259,
+        "mtime_ns": 1794211277792847259
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "dbaf272b24db199a41e9a67aa2d15101075ffca99a05911d98474e358443353e",
+      "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:06:36Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T05:54:24Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "b9655578329fc9710b2f40039e212212fd645f0199b64bbd99597c7c1b8a103c",
+      "sanitized_json_bytes_sha256": "795a2a83c642d13877bd234029a764c0bb0672433beba59ea493caad46d99ded",
+      "source_artifact": "collusion_astra/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203664.3180244,
+        "ctime_ns": 1794203664318224936,
+        "mtime_ns": 1794203664318102436
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "11ad735298b31676b75b32b3d9b771c6b01424bb1b3258ffca7d02b0017c5c45",
+      "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:55:15Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:06:27Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "f9d2fbe019b337e926eb927a7d58512b76a32190ef7c1f85fe033764e4fc451b",
+      "sanitized_json_bytes_sha256": "fefb96c7dc7b51ad4d202cd0775e27862deb95eb7c8d7d689006c2db1cc9cf19",
+      "source_artifact": "collusion_astra/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794204387.9539075,
+        "ctime_ns": 1794204387955057245,
+        "mtime_ns": 1794204387953995842
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "a6cf34ec37e7379c7f0fb468a59508ad7ef047bfbf1097eebf1c90e85eaf7bd9",
+      "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:07:18Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:43:25Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "7ecc29913ac24fe68c2e23d2f9853e92c1d3d58104639eb3cbb6dde4928ecb77",
+      "sanitized_json_bytes_sha256": "d21ebb9f3aacce95bd77e743cc0cc33290298668dee1b8d0e08670a0b5e04c2a",
+      "source_artifact": "collusion_astra/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206605.7426229,
+        "ctime_ns": 1794206605744931009,
+        "mtime_ns": 1794206605742718486
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "c663aeb586cec6a2172f1abc248829e537cd4e78db53db456fc3b5c1ebb5309f",
+      "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:44:31Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:59:57Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "f5b6197c63ca1cb4e15d806cbec735fa7049eafa538ed105d7deccf6de069722",
+      "sanitized_json_bytes_sha256": "7ab4472d115da9f3f214612c53f7bfdfd93bba267dcec3ed3904642caf47f7a6",
+      "source_artifact": "collusion_astra/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794211197.6980288,
+        "ctime_ns": 1794211197698486337,
+        "mtime_ns": 1794211197698092719
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "6f97f07d30a95a075e97ada4a7fdb98ce76b709d404081883035fd17f6bec224",
+      "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t05.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T08:01:21Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:27:19Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "4f93d235dbcffc4763c037490ab8ad2ad2329ca3812cb99fe90e07ede3cf7cb8",
+      "sanitized_json_bytes_sha256": "ee7696d3531f5f21403b527c75fce40f29591101820f28874ba28a3f8f2d4e06",
+      "source_artifact": "collusion_astra/.sw/results/t05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794212839.39889,
+        "ctime_ns": 1794212839399857958,
+        "mtime_ns": 1794212839398985012
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "8aa04f8b325cdd5ac2a18c8b13f12e2ea4b06944fba3a333f5a664606c94e559",
+      "published_path": "designer_workspace_snapshots/collusion_astra/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:05:58Z"
+        },
+        {
+          "json_pointer": "/1/submitted_at",
+          "value": "2026-11-09T05:06:36Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:06:36Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:06:36Z"
+        },
+        {
+          "json_pointer": "/2/finished_at",
+          "value": "2026-11-09T05:54:24Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T05:54:24Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T05:55:15Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T05:55:15Z"
+        },
+        {
+          "json_pointer": "/4/submitted_at",
+          "value": "2026-11-09T05:55:15Z"
+        },
+        {
+          "json_pointer": "/4/finished_at",
+          "value": "2026-11-09T06:06:27Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T06:06:27Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T06:07:18Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T06:07:18Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T06:07:18Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T06:43:25Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T06:43:25Z"
+        },
+        {
+          "json_pointer": "/7/submitted_at",
+          "value": "2026-11-09T06:44:31Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T06:44:31Z"
+        },
+        {
+          "json_pointer": "/8/submitted_at",
+          "value": "2026-11-09T06:44:31Z"
+        },
+        {
+          "json_pointer": "/8/finished_at",
+          "value": "2026-11-09T07:59:57Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T07:59:57Z"
+        },
+        {
+          "json_pointer": "/9/submitted_at",
+          "value": "2026-11-09T08:01:21Z"
+        },
+        {
+          "json_pointer": "/9/at",
+          "value": "2026-11-09T08:01:21Z"
+        },
+        {
+          "json_pointer": "/10/submitted_at",
+          "value": "2026-11-09T08:01:21Z"
+        },
+        {
+          "json_pointer": "/10/finished_at",
+          "value": "2026-11-09T08:27:19Z"
+        },
+        {
+          "json_pointer": "/10/at",
+          "value": "2026-11-09T08:27:19Z"
+        },
+        {
+          "json_pointer": "/11/at",
+          "value": "2026-11-09T08:27:48Z"
+        }
+      ],
+      "records": 12,
+      "sanitized_gzip_bytes_sha256": "ad977d63bbf26f15b75691b1bc480d9529662860d70be4c3a503d344344ca534",
+      "sanitized_json_bytes_sha256": "1487c6cc06d21ee5729a02723fc712e7fdd81f27f7b816b4b9760331b47216da",
+      "source_artifact": "collusion_astra/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794200758.2714405,
+        "ctime_ns": 1794212868005989178,
+        "mtime_ns": 1794212868005989178
+      },
+      "workspace": "collusion_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3177cb5a41c58f253f94222c408e257f9b7981dad46db2628b076f17b3b744f9",
+      "published_path": "designer_workspace_snapshots/collusion_opus/specs/test1.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "0cafee80732fe07bc2741e4734cc8fe3d83adf5ed9b24a5b2c38d61a68e6bcbe",
+      "sanitized_json_bytes_sha256": "666fa6e49ae645245ef6e7e62d0282fcfc404d6bd333fb8bc92b3a69c6a03a12",
+      "source_artifact": "collusion_opus/test1.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794200924.9016032,
+        "ctime_ns": 1794200924903775419,
+        "mtime_ns": 1794200924903775419
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "9758c6cfaded7dae432f261c23097a5bfce85dedce3f4875fb2e69179b36759c",
+      "published_path": "designer_workspace_snapshots/collusion_opus/specs/test2.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "18b64d70084c8c4af1a3c4d2af88e62a6dfa03a840fcc3e55c3273c921330f21",
+      "sanitized_json_bytes_sha256": "2ad17f4c0280f4343469c54584c91f74fc9d88bc3bc5c4c55bef7020070263b5",
+      "source_artifact": "collusion_opus/test2.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206098.358909,
+        "ctime_ns": 1794206098360493660,
+        "mtime_ns": 1794206098360493660
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "be810a201e5f8bb20bf6651c83a0be1ef966db4835c34cb18c0ddd39b77648b9",
+      "published_path": "designer_workspace_snapshots/collusion_opus/specs/test3.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "fcc634498440fa7eb7c73d8ce3dcce2bea6efc5f3ebd1ea7278a90e148759490",
+      "sanitized_json_bytes_sha256": "4b617742af544386dfd006274a87a3665176382c6986b151385920e9b505eaff",
+      "source_artifact": "collusion_opus/test3.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208236.8541708,
+        "ctime_ns": 1794208236856568971,
+        "mtime_ns": 1794208236856568971
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "401d459e278ff2ac36690456df0d9256b851f7f2a4e874dc672ac393b0795c83",
+      "published_path": "designer_workspace_snapshots/collusion_opus/specs/test4.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "a6f74c3f3f00b31e48d4f0aab6224d19e9f602efc49ba2ba70bf8329c7a3ebbe",
+      "sanitized_json_bytes_sha256": "98483aca74c345cae06446e226570944282ee34e804d5688ffc6439c6f69209b",
+      "source_artifact": "collusion_opus/test4.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794211982.1438584,
+        "ctime_ns": 1794211982146822748,
+        "mtime_ns": 1794211982146822748
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "4345d246918d6df94aab4dc2a98934eed189f012d1e6d0ceea19a1e27bcdb59f",
+      "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:08:53Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:03:55Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "008b5bb61e4d69944dae27b72f663733865c506b27bebed8166629607a4bba55",
+      "sanitized_json_bytes_sha256": "99fd66576634dd244c4df12875283add44b83ddf159a5ad2ead28cba0bdfd714",
+      "source_artifact": "collusion_opus/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794204235.0662324,
+        "ctime_ns": 1794204235070299127,
+        "mtime_ns": 1794204235068797687
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "f4835705b90a126c530d360c6d17de8b4116e8d1ea2ca676d096e81a55003117",
+      "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:35:13Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:07:24Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "f16985b61c2ef9e0986394944f55b42f52c6bad3dc8d2672cbb8badfa21a00b8",
+      "sanitized_json_bytes_sha256": "d069361d852424e5f59a7aa18d3bd148dc93f4ee25b9c8d21ac836ae40f108e3",
+      "source_artifact": "collusion_opus/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208044.0071747,
+        "ctime_ns": 1794208044007407482,
+        "mtime_ns": 1794208044007268025
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "34075e0bc6ba988a029d556d7d819d8a57836a76aaf33fba38091181081027e2",
+      "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:10:44Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:09:12Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "ceb9b041d44ab3533cbb5238df2c2a78161f2b91d6c366b71b2f51d89222187a",
+      "sanitized_json_bytes_sha256": "45f72da6f885a5e6c29bb3591611772b6e9c2aa7102c79573edc9d5339b96db4",
+      "source_artifact": "collusion_opus/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794211752.7935176,
+        "ctime_ns": 1794211752793769571,
+        "mtime_ns": 1794211752793612645
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "20ab13e7dbf49c52a5103b47603dbf3f92bcf8c07b560701bc1e211486358851",
+      "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T08:13:09Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:51:44Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "a04a95df0170ada05da418de89350cddfd4b8653f7ddaa561050cda7c5867b2f",
+      "sanitized_json_bytes_sha256": "26ff84ee8980cac46e73b6a1779d49052c5dda6562bd4227e109e16716e9788b",
+      "source_artifact": "collusion_opus/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794214304.2353203,
+        "ctime_ns": 1794214304235562476,
+        "mtime_ns": 1794214304235431893
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "0c3b5558f8ade55e59db667eb00c633a0766992e7639b52821a633a13fd04f09",
+      "published_path": "designer_workspace_snapshots/collusion_opus/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:05:58Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:08:49Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:08:53Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T05:08:53Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T05:08:53Z"
+        },
+        {
+          "json_pointer": "/3/finished_at",
+          "value": "2026-11-09T06:03:55Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T06:03:55Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T06:35:01Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T06:35:13Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T06:35:13Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T06:35:13Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T07:07:24Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T07:07:24Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T07:10:40Z"
+        },
+        {
+          "json_pointer": "/8/submitted_at",
+          "value": "2026-11-09T07:10:44Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T07:10:44Z"
+        },
+        {
+          "json_pointer": "/9/submitted_at",
+          "value": "2026-11-09T07:10:44Z"
+        },
+        {
+          "json_pointer": "/9/finished_at",
+          "value": "2026-11-09T08:09:12Z"
+        },
+        {
+          "json_pointer": "/9/at",
+          "value": "2026-11-09T08:09:12Z"
+        },
+        {
+          "json_pointer": "/10/at",
+          "value": "2026-11-09T08:13:05Z"
+        },
+        {
+          "json_pointer": "/11/submitted_at",
+          "value": "2026-11-09T08:13:09Z"
+        },
+        {
+          "json_pointer": "/11/at",
+          "value": "2026-11-09T08:13:09Z"
+        },
+        {
+          "json_pointer": "/12/at",
+          "value": "2026-11-09T08:42:34Z"
+        },
+        {
+          "json_pointer": "/13/submitted_at",
+          "value": "2026-11-09T08:13:09Z"
+        },
+        {
+          "json_pointer": "/13/finished_at",
+          "value": "2026-11-09T08:51:44Z"
+        },
+        {
+          "json_pointer": "/13/at",
+          "value": "2026-11-09T08:51:44Z"
+        }
+      ],
+      "records": 14,
+      "sanitized_gzip_bytes_sha256": "f0412014ae8b1d1bf5654815a16ca865717a43bad347981cb50513bf57e47cc3",
+      "sanitized_json_bytes_sha256": "e2707fde6bdb4207361eeef4bbdb6b9ca5dc3fe9c14b8ee3ef5ad7ddbdea5b23",
+      "source_artifact": "collusion_opus/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794200758.2714486,
+        "ctime_ns": 1794214304234923980,
+        "mtime_ns": 1794214304234923980
+      },
+      "workspace": "collusion_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3e41b0358b6ed8bf6d4f97d9dff3c42188ef07c8b0a54c2f95388643fc025976",
+      "published_path": "designer_workspace_snapshots/cpr_astra/specs/test1.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "e995cc173d2eda2c8d20a78b1e132fc7fa7fe8dd203788d20018257930422be2",
+      "sanitized_json_bytes_sha256": "6bd9a78b81160e2b9b1fd26d77039a49dcd18e1339b4d05d9a0817ca92855c51",
+      "source_artifact": "cpr_astra/test1.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203295.1085544,
+        "ctime_ns": 1794203295108644047,
+        "mtime_ns": 1794203295108644047
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3d4cd9b1ef834b2bb90327d5887134f909498ae6e4b05222cc4d006759510162",
+      "published_path": "designer_workspace_snapshots/cpr_astra/specs/test2.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "e68dc7171c2cac6d0c855c393ca3851f3e6d06b3ddcbef50815e93fa5b25e759",
+      "sanitized_json_bytes_sha256": "32839834fb35e919da786fe29e7c7f9c05f1d849f39d098ea022f35cca1f26f3",
+      "source_artifact": "cpr_astra/test2.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794205737.554911,
+        "ctime_ns": 1794211732081173463,
+        "mtime_ns": 1794211732081173463
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "2e1d6cd5c6c4c6ef9ec0123ead84807e5c2530aba653b00a4f050f7485d527a9",
+      "published_path": "designer_workspace_snapshots/cpr_astra/specs/test3.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "3aac3b5d7715da7d0d8ca997a306e445fab55ce8afeac9651b41d26a767a87ac",
+      "sanitized_json_bytes_sha256": "60e69a3899dafcc6f92fd8a0c8ca704861a5d3f2c82441f42ff2b86632d7c3c9",
+      "source_artifact": "cpr_astra/test3.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794214184.9060094,
+        "ctime_ns": 1794214263972951663,
+        "mtime_ns": 1794214263972951663
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "ce12ef2506bd7d989bcbee9bbc29e6d868e907731d6b14e877bf196772e8ff9c",
+      "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4-full-last.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "399235061231a4619dc4b37f559c3b4a9635b794d09b7d15641941d3b698b184",
+      "sanitized_json_bytes_sha256": "d0afa6b378d1e503a8bfe9e87569fa9a05c5b39edac2fc4526dfdb5ee4708336",
+      "source_artifact": "cpr_astra/test4-full-last.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215953.4554787,
+        "ctime_ns": 1794215953455616731,
+        "mtime_ns": 1794215953455616731
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "05af132d72d6f0c7a847bbae04f403c55f0ea5a60383422fa31ea9819478cd8e",
+      "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4-full-middle.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "9c32f0c64b897aecaa74ec3f9f072234bd8d957ab3965b086d716426af5740d9",
+      "sanitized_json_bytes_sha256": "c8444ecd21957febd2c68ccd8a1a84a22eb675907ba73f8311b5b1dc8b7316d7",
+      "source_artifact": "cpr_astra/test4-full-middle.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215917.1440423,
+        "ctime_ns": 1794215917144146126,
+        "mtime_ns": 1794215917144146126
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "42aa61ea3624fbe54153850e5b2e2fd1e5db4854947298d7a409b1d71080b614",
+      "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4-original-control.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "71b238b1c20041dfde95f3a563b65e4384d5a112ab938bedbe788cdd23048176",
+      "sanitized_json_bytes_sha256": "fe5f968ef79d819127e63233efc9998e39bb0bba9cc4e73b97d5c473c05ac16d",
+      "source_artifact": "cpr_astra/test4-original-control.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215981.8375223,
+        "ctime_ns": 1794215981837636071,
+        "mtime_ns": 1794215981837636071
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "4bdc1717911c739924f78d54227eb696081509c62e9f4ad3ba34e0ea9359201f",
+      "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "c0f9a8e2ddf4bfe5ddada03e68ce3a46e8e4e9139098efa1fcf2d50d9dc0d54b",
+      "sanitized_json_bytes_sha256": "a27283ab7a01130edb1b79e9011f601c2a23aca4c85fba9fadebdb38ce6c17c4",
+      "source_artifact": "cpr_astra/test4.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215497.628444,
+        "ctime_ns": 1794215497628538234,
+        "mtime_ns": 1794215497628538234
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "8a1395fb31217f57e182139bc8ccd869e9ac9d88deb938746d7d4dce9fc4eb76",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:48:15Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:50:47Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "997b4088d83f592e7668cc44211a8b802612989dfbd657f11298febd99d96b3f",
+      "sanitized_json_bytes_sha256": "540e5f3e8d9179138040781a5dd8b5f456c5b107b2106f101585163d47916bca",
+      "source_artifact": "cpr_astra/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794207047.800514,
+        "ctime_ns": 1794207047801776183,
+        "mtime_ns": 1794207047800618733
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "4f6b7a9319c599b689e120ad403bc86899f607be30bbe232b717189046390476",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T08:08:52Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:48:43Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "6c04f865b685a650e929e26ea3cc2a58f047cf3070e59165e31ab41e4d2ecd07",
+      "sanitized_json_bytes_sha256": "fcfa4833c58c12094d7fc2ca847d1dc62133542a6a291b5adb763b6bdadc1015",
+      "source_artifact": "cpr_astra/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794214123.3544147,
+        "ctime_ns": 1794214123354829762,
+        "mtime_ns": 1794214123354520306
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "90075b4f6724316224eb027f580cf4c01a6cb7e1235a33c273f08c6a5bd6d8df",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T08:51:04Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T09:10:30Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "581daff3b826c014bad382885089b070335aa2c4d34cf6c2b5f9c4bcf31d72ec",
+      "sanitized_json_bytes_sha256": "589ea888b32a7d063f9cd56a9733723193ae61ec05079c2731452affc0d14281",
+      "source_artifact": "cpr_astra/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215430.0172977,
+        "ctime_ns": 1794215430017993746,
+        "mtime_ns": 1794215430017378915
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "446c8524a92096e89399fc79b4e7b907bfebe1be4cfa33dabe7e2dceefec8fb2",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T09:11:38Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T09:16:32Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "bfbd5efc8b2e30deaca2096e79ec3cf52b6cf769be10233515edb963470fb9f9",
+      "sanitized_json_bytes_sha256": "7743a4d12e7e2c263b1f34f646fcfaec0c536c9049358cb84f10ba248fb3f45d",
+      "source_artifact": "cpr_astra/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215792.4120631,
+        "ctime_ns": 1794215792412625096,
+        "mtime_ns": 1794215792412234347
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "2f69b0e16a01c06852540e126de58cfbff0bf2bf3d9de67710878f796a6b8984",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t05.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T09:16:45Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T09:16:45Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "b486051f85fde4f1886cf8e97d005f66894c916f881af5a6142d4e9d1915868b",
+      "sanitized_json_bytes_sha256": "0d9a93e2c306d792d15002093e1a82995d8e2054951e0df5afeeb3d5e80ed84b",
+      "source_artifact": "cpr_astra/.sw/results/t05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215805.9912906,
+        "ctime_ns": 1794215805991465909,
+        "mtime_ns": 1794215805991353534
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "b2674c708494a53eeba40c0d4fa1d05c6e1dccf7aaf478e63c0b405fb3b97ee4",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t06.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T09:18:37Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T09:18:37Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "3ec88dfa790749f6db28535738310db1776c19c9055e6d95facb81e7ad73d20c",
+      "sanitized_json_bytes_sha256": "41a7f78e89096ce06d4cefe7a3a7b5b3d6462370f5d09d0325f6235a62ccda26",
+      "source_artifact": "cpr_astra/.sw/results/t06.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215917.4618251,
+        "ctime_ns": 1794215917462051102,
+        "mtime_ns": 1794215917461911103
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "8a389dcaa4313988855d7407e94affe872fc638249058d7dd98831109c7991b0",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t07.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T09:19:14Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T09:19:14Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "6c99375bc152f929d930ada0fafeb458e1135608086c7fb563642122d1db512b",
+      "sanitized_json_bytes_sha256": "9421a52b15de40ee3d7e48f6cf8d69eaebce474c68fed0fbf202e616baa01a48",
+      "source_artifact": "cpr_astra/.sw/results/t07.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215954.6336102,
+        "ctime_ns": 1794215954633807581,
+        "mtime_ns": 1794215954633687540
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "dcae9910fdcacf64138e2174df510a6b5f1f35fd7588b87c346af6abe9c70a51",
+      "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t08.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T09:19:42Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T09:19:42Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "9147ffedc7a7df60c2b8276ce27143e3303ab64ab405ce31a48ec680b02c1386",
+      "sanitized_json_bytes_sha256": "01b3f3254696f795bf34179ab8980bd18e00ae6c7e6b7128e1c3a6165621afb2",
+      "source_artifact": "cpr_astra/.sw/results/t08.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794215982.7670858,
+        "ctime_ns": 1794215982767336823,
+        "mtime_ns": 1794215982767183615
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "e74b9cba68366f7ff381a70e2588e30a2d8c0958911bda301dc50eea6c7da371",
+      "published_path": "designer_workspace_snapshots/cpr_astra/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:47:35Z"
+        },
+        {
+          "json_pointer": "/1/submitted_at",
+          "value": "2026-11-09T05:48:15Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:48:15Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:48:15Z"
+        },
+        {
+          "json_pointer": "/2/finished_at",
+          "value": "2026-11-09T06:50:47Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T06:50:47Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T08:08:52Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T08:08:52Z"
+        },
+        {
+          "json_pointer": "/4/submitted_at",
+          "value": "2026-11-09T08:08:52Z"
+        },
+        {
+          "json_pointer": "/4/finished_at",
+          "value": "2026-11-09T08:48:43Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T08:48:43Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T08:51:04Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T08:51:04Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T08:51:04Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T09:10:30Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T09:10:30Z"
+        },
+        {
+          "json_pointer": "/7/submitted_at",
+          "value": "2026-11-09T09:11:38Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T09:11:38Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T09:16:32Z"
+        },
+        {
+          "json_pointer": "/9/submitted_at",
+          "value": "2026-11-09T09:16:45Z"
+        },
+        {
+          "json_pointer": "/9/at",
+          "value": "2026-11-09T09:16:45Z"
+        },
+        {
+          "json_pointer": "/10/at",
+          "value": "2026-11-09T09:16:45Z"
+        },
+        {
+          "json_pointer": "/11/submitted_at",
+          "value": "2026-11-09T09:18:37Z"
+        },
+        {
+          "json_pointer": "/11/at",
+          "value": "2026-11-09T09:18:37Z"
+        },
+        {
+          "json_pointer": "/12/at",
+          "value": "2026-11-09T09:18:37Z"
+        },
+        {
+          "json_pointer": "/13/submitted_at",
+          "value": "2026-11-09T09:19:14Z"
+        },
+        {
+          "json_pointer": "/13/at",
+          "value": "2026-11-09T09:19:14Z"
+        },
+        {
+          "json_pointer": "/14/at",
+          "value": "2026-11-09T09:19:14Z"
+        },
+        {
+          "json_pointer": "/15/submitted_at",
+          "value": "2026-11-09T09:19:42Z"
+        },
+        {
+          "json_pointer": "/15/at",
+          "value": "2026-11-09T09:19:42Z"
+        },
+        {
+          "json_pointer": "/16/at",
+          "value": "2026-11-09T09:19:42Z"
+        },
+        {
+          "json_pointer": "/17/at",
+          "value": "2026-11-09T09:20:38Z"
+        }
+      ],
+      "records": 18,
+      "sanitized_gzip_bytes_sha256": "dada70cf478554f328cdc40a851e0d418560c0a4fa092b3cc684c4c86c0d89e4",
+      "sanitized_json_bytes_sha256": "fa4871bd52596d67923af65fb91704e5828e6922ee407f53b287a58e04ed47ec",
+      "source_artifact": "cpr_astra/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203255.5804875,
+        "ctime_ns": 1794216038822532765,
+        "mtime_ns": 1794216038822532765
+      },
+      "workspace": "cpr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "9e15b99a52ec6e7e01e0dad3367879bf7f0f189f93fef341fe60c7286fefbf4d",
+      "published_path": "designer_workspace_snapshots/cpr_opus/specs/t02.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "bda1352de84785bb633f2654d625f2b5fa0fd0ae46e05611a7a84c110e813033",
+      "sanitized_json_bytes_sha256": "c2fdb34860619950a1070d19210074b81b4dd05b6b6f752544f462c80859a663",
+      "source_artifact": "cpr_opus/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794207187.1514935,
+        "ctime_ns": 1794207187153709352,
+        "mtime_ns": 1794207187153709352
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "ea035ab55ede26e00b50471ada84cdd94a378af3e6715b09e53d4c3bdd0d0b45",
+      "published_path": "designer_workspace_snapshots/cpr_opus/specs/t03.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "776171ffcb4ad8438bdc565ca12974ea60eaca598654732a22361fce0d899ea2",
+      "sanitized_json_bytes_sha256": "76a79b47da0aa25cbf376be5198cc3b89c137cb5c5630ec398807c20c27401de",
+      "source_artifact": "cpr_opus/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794209095.6755786,
+        "ctime_ns": 1794209095677353383,
+        "mtime_ns": 1794209095677353383
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "ef088016ae3be4b124ceab50749e9471db3cc2a4f7e5e8422eb6ae2517b81397",
+      "published_path": "designer_workspace_snapshots/cpr_opus/specs/t04.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "e88642bea8ebd4a41c07348aa33876e16d1f29dd80885178330b037256a8032d",
+      "sanitized_json_bytes_sha256": "1046cd6dcb947e812d42aee257f1613d5ca7dfdf1e7d60c4a42b161374a6bf5e",
+      "source_artifact": "cpr_opus/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794211006.8782647,
+        "ctime_ns": 1794211123784065499,
+        "mtime_ns": 1794211123784065499
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "d556c0cc42b1077c29e186912cb8f3a92b7e6814a0800649ad47a7a25daf3b2c",
+      "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:52:53Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:50:38Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "ca3f58b76ed7435242165eda19d5e22f8d0bfa216afda3ebc4b886d76831e0ac",
+      "sanitized_json_bytes_sha256": "1e22cca379825e52cacdaa534a9a5a007ac894128f1f56e414910aa5402d65e7",
+      "source_artifact": "cpr_opus/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794207038.6189685,
+        "ctime_ns": 1794207038619188809,
+        "mtime_ns": 1794207038619038976
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "38e76ffc656423ff475516e97a5211f9c7e439cbb6a670c11b9db39762577149",
+      "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:53:08Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:21:39Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "4129d94d2873793e09fcb473b71519aadba96d0db291a052c0ce91161aee1aff",
+      "sanitized_json_bytes_sha256": "3223135758a723c98760dfcbd88bb7153b5c112a7e3121deea41b90caab048a0",
+      "source_artifact": "cpr_opus/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208899.2560375,
+        "ctime_ns": 1794208899256345553,
+        "mtime_ns": 1794208899256095471
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "a30abab6872ef8989bb005ed34c93aa4b10a12e74a2d91f4cfebaef227922845",
+      "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:24:57Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:54:28Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "adfeca1d61c3d2867dc83906f643ba8e5931efe855c47f88fa3ddf95f9220174",
+      "sanitized_json_bytes_sha256": "1fc73e4422684af2019e4c9c5fb50b5a7a5cf03f1b67a980e7218da53bb19413",
+      "source_artifact": "cpr_opus/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794210868.3715436,
+        "ctime_ns": 1794210868371782981,
+        "mtime_ns": 1794210868371633442
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "6ceac3f4e3c87c170fa33d4fa123e5bb232a2d86e995025820163f9531f7ded6",
+      "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:58:44Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:49:38Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "929aba236b580d43eb505aebdcd3818ac61028a96576bca92cff4da64a7d7ef4",
+      "sanitized_json_bytes_sha256": "8105342ed3c08023cc9c833898959edc25e7e715b8aec83187cb4bd1eaf4620b",
+      "source_artifact": "cpr_opus/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794214178.6263452,
+        "ctime_ns": 1794214178626608042,
+        "mtime_ns": 1794214178626451543
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "7efea0802bb9b40496f1965bf78fedfdd800416cc86487e9bf05b936ce02d359",
+      "published_path": "designer_workspace_snapshots/cpr_opus/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:47:35Z"
+        },
+        {
+          "json_pointer": "/1/submitted_at",
+          "value": "2026-11-09T05:52:53Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:52:53Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:52:53Z"
+        },
+        {
+          "json_pointer": "/2/finished_at",
+          "value": "2026-11-09T06:50:38Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T06:50:38Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T06:53:08Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T06:53:08Z"
+        },
+        {
+          "json_pointer": "/4/submitted_at",
+          "value": "2026-11-09T06:53:08Z"
+        },
+        {
+          "json_pointer": "/4/finished_at",
+          "value": "2026-11-09T07:21:39Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T07:21:39Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T07:24:57Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T07:24:57Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T07:24:57Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T07:54:28Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T07:54:28Z"
+        },
+        {
+          "json_pointer": "/7/submitted_at",
+          "value": "2026-11-09T07:58:44Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T07:58:44Z"
+        },
+        {
+          "json_pointer": "/8/submitted_at",
+          "value": "2026-11-09T07:58:44Z"
+        },
+        {
+          "json_pointer": "/8/finished_at",
+          "value": "2026-11-09T08:49:38Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T08:49:38Z"
+        }
+      ],
+      "records": 9,
+      "sanitized_gzip_bytes_sha256": "0bfeea65a0ae3c09a962b2a000ca521b408b994fcd8f8b18c4449f4b8ea31e68",
+      "sanitized_json_bytes_sha256": "bc2e5906dba0d87e3b57f047d959379bbb75e3bd8d0ccbb96342720580fee3ec",
+      "source_artifact": "cpr_opus/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203255.5804563,
+        "ctime_ns": 1794214178626071878,
+        "mtime_ns": 1794214178626071878
+      },
+      "workspace": "cpr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "ee441c2bd09e98df25e228a9b0f844858e6a437ffb89579be26db9a41e0fb127",
+      "published_path": "designer_workspace_snapshots/idr_astra/specs/fractional-check.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "c63061130a0051c42388ade166102803cd46c5bbafdb75f2920de31f6052b4a3",
+      "sanitized_json_bytes_sha256": "c7769a5eb9f7e6778111346ea481366355cd7b0ab87bb007ecec5120e6569cfc",
+      "source_artifact": "idr_astra/fractional-check.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794210311.7989645,
+        "ctime_ns": 1794210311799183091,
+        "mtime_ns": 1794210311799183091
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "93cc1a5ca31c440002541c4be1b71c78b234eb8c396dcb4849677e5d999235bb",
+      "published_path": "designer_workspace_snapshots/idr_astra/specs/test1.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "010bdc3259fb25f92c82543dcf3e7319cc9ac73b842d68dd1d45e4273a1706b8",
+      "sanitized_json_bytes_sha256": "a4ef47bfe78e81e2a4ec2e70e2eeb5d02a433955c52f70058fee9ff02cfc867f",
+      "source_artifact": "idr_astra/test1.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203283.2048647,
+        "ctime_ns": 1794203283205041727,
+        "mtime_ns": 1794203283205041727
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "c2e045f6030e83d25814a2333a7f6655a59add4bfb8efc0d0ba3c8dbafadff60",
+      "published_path": "designer_workspace_snapshots/idr_astra/specs/test2.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "dad91f49e338c8de5d5612d23bb9a46ee8c6cafef60ebdbf3eeaa3d4d4a4c093",
+      "sanitized_json_bytes_sha256": "247f084e03f56bc1c375d507e9429d34dca633010d51b2a0bcba74e2dafb40bb",
+      "source_artifact": "idr_astra/test2.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206781.1447337,
+        "ctime_ns": 1794206781145000058,
+        "mtime_ns": 1794206781145000058
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "468a585a698a02d6668e73a37df7271c02a57b638d95ff3967e239a4761d429b",
+      "published_path": "designer_workspace_snapshots/idr_astra/specs/test3.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "fc56318dde79695c26cc1be64a88848c7a54c2ec7fe903bf048299d33fccec44",
+      "sanitized_json_bytes_sha256": "2d93fa13711d03df060cd56c19ba8faf555950e4fce611db0f12692e7cc1d512",
+      "source_artifact": "idr_astra/test3.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208435.8701327,
+        "ctime_ns": 1794208460235478588,
+        "mtime_ns": 1794208460235478588
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3342e66f45b7b07204025fd2070a447ea44d04586ac2454b58c6e301348104e2",
+      "published_path": "designer_workspace_snapshots/idr_astra/specs/test4.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "4a751c72f59026e8cf031c6f096195715649552f5675510630d2a534bcc162b4",
+      "sanitized_json_bytes_sha256": "520826dfcbb7de92979f6af353a217f62ff567a7bb6e77aa570e85233a938519",
+      "source_artifact": "idr_astra/test4.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794210162.8137932,
+        "ctime_ns": 1794210162813882627,
+        "mtime_ns": 1794210162813882627
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "b95f1798c899d36ad0c0974933c9f1060c499d9a88cf0a79e6d6f60cbe8270d7",
+      "published_path": "designer_workspace_snapshots/idr_astra/specs/test5.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "25e4a4748aa26b08f606aa232ae418bef6457bd369bcae2862f1836349a29a64",
+      "sanitized_json_bytes_sha256": "2e7d4aea1d9b189859354205e315b3b532b524a8746314382059bb7f3109528d",
+      "source_artifact": "idr_astra/test5.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794211329.1772335,
+        "ctime_ns": 1794211329177322357,
+        "mtime_ns": 1794211329177322357
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "35c586380b2880e7babc7727c58bea3f88f629ff4af88b69c72ca3d04452b4bf",
+      "published_path": "designer_workspace_snapshots/idr_astra/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:48:03Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:45:15Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "4333b7785bee0cdfd4dc8448e5fb3c12b5d4d618a8d5b23738457879d75d456e",
+      "sanitized_json_bytes_sha256": "5e57923242149a9edb20e816970485b4d9da5fd1ae28c1a9508fd25d60d92b41",
+      "source_artifact": "idr_astra/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206715.9512906,
+        "ctime_ns": 1794206715953824083,
+        "mtime_ns": 1794206715951366313
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "19f3b3de91935f196667a3df19b6a707808948927f0ea6bf88f1b737b7e59374",
+      "published_path": "designer_workspace_snapshots/idr_astra/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:46:21Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:13:14Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "84caf403b77ea770a4fd731dabc434a9e253c0e304b9024c32557fbbd1e8f9eb",
+      "sanitized_json_bytes_sha256": "6a15d1ac79dd65c229bfbc636737e8a771343865198bbb3758acaa01d6e51e3f",
+      "source_artifact": "idr_astra/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208394.3593242,
+        "ctime_ns": 1794208394359777408,
+        "mtime_ns": 1794208394359398078
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "343b42a97d1d3e1493776df4a946f3ce962c9a8489d4e09101946e7e0978e20f",
+      "published_path": "designer_workspace_snapshots/idr_astra/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:14:21Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:41:50Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "8a18678efbc6c64757f755705dacc0dd8ee834194e00d307c3d7c311630afe3a",
+      "sanitized_json_bytes_sha256": "0d7063a410882eeac161031d0405e80c30191e95151342825995f2a26d3305fc",
+      "source_artifact": "idr_astra/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794210110.2067585,
+        "ctime_ns": 1794210110207139865,
+        "mtime_ns": 1794210110206830184
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "2fc460fd335deebea559102b0ef0dd84e8a9400eed3ae44e1362d13690368546",
+      "published_path": "designer_workspace_snapshots/idr_astra/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:42:43Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:01:33Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "9efe2014e7f7f6b26f5ddeebbbe7b4c1874d6d2b88894b46833e5c9e578e58d4",
+      "sanitized_json_bytes_sha256": "aa92c72d0e8638235ad3265fc2f2f603f36701e4f9e0999da6d8b782ac9acdfc",
+      "source_artifact": "idr_astra/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794211293.8649259,
+        "ctime_ns": 1794211293865445562,
+        "mtime_ns": 1794211293865186650
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "f1625912202f9398d305a2de21e29b705dad28e82e0d057ce8619df266613796",
+      "published_path": "designer_workspace_snapshots/idr_astra/test_results/t05.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T08:02:09Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:38:15Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "4aebbc7a5e37a778739cc8b856032f6580dc75e6f9c3f07388c9858f65abb24b",
+      "sanitized_json_bytes_sha256": "6f00cf2813466341b086a0cd863737c7cb2452a7ba2925225360bda6dc28efc9",
+      "source_artifact": "idr_astra/.sw/results/t05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794213495.303376,
+        "ctime_ns": 1794213495303862457,
+        "mtime_ns": 1794213495303459293
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "05a48db0a7821bf54e22e0cdeba35167e7f1fe0a2c4e664b76612bfee2ad4b9a",
+      "published_path": "designer_workspace_snapshots/idr_astra/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:47:35Z"
+        },
+        {
+          "json_pointer": "/1/submitted_at",
+          "value": "2026-11-09T05:48:03Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:48:03Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:48:03Z"
+        },
+        {
+          "json_pointer": "/2/finished_at",
+          "value": "2026-11-09T06:45:15Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T06:45:15Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T06:46:21Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T06:46:21Z"
+        },
+        {
+          "json_pointer": "/4/submitted_at",
+          "value": "2026-11-09T06:46:21Z"
+        },
+        {
+          "json_pointer": "/4/finished_at",
+          "value": "2026-11-09T07:13:14Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T07:13:14Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T07:14:21Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T07:14:21Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T07:14:21Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T07:41:50Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T07:41:50Z"
+        },
+        {
+          "json_pointer": "/7/submitted_at",
+          "value": "2026-11-09T07:42:43Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T07:42:43Z"
+        },
+        {
+          "json_pointer": "/8/submitted_at",
+          "value": "2026-11-09T07:42:43Z"
+        },
+        {
+          "json_pointer": "/8/finished_at",
+          "value": "2026-11-09T08:01:33Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T08:01:33Z"
+        },
+        {
+          "json_pointer": "/9/submitted_at",
+          "value": "2026-11-09T08:02:09Z"
+        },
+        {
+          "json_pointer": "/9/at",
+          "value": "2026-11-09T08:02:09Z"
+        },
+        {
+          "json_pointer": "/10/submitted_at",
+          "value": "2026-11-09T08:02:09Z"
+        },
+        {
+          "json_pointer": "/10/finished_at",
+          "value": "2026-11-09T08:38:15Z"
+        },
+        {
+          "json_pointer": "/10/at",
+          "value": "2026-11-09T08:38:15Z"
+        },
+        {
+          "json_pointer": "/11/at",
+          "value": "2026-11-09T08:38:54Z"
+        }
+      ],
+      "records": 12,
+      "sanitized_gzip_bytes_sha256": "81aab60b28bd18e6e7f1d1ac8078f1fe1da6e4ea10eaa50e649e483a69411d93",
+      "sanitized_json_bytes_sha256": "76f4e17ddce3391b381304b33c5055ee3f593eb7b53511a063c10379a89af515",
+      "source_artifact": "idr_astra/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203255.5802903,
+        "ctime_ns": 1794213534452269117,
+        "mtime_ns": 1794213534452269117
+      },
+      "workspace": "idr_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "e6e2c4a5ed3a9a1cb51dc67119aad16bf3ffc24156b01e4acf4a0030271909c9",
+      "published_path": "designer_workspace_snapshots/idr_opus/specs/t1.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "5d123bb8c6705a166d1cf89ae3dc27f078af959a2e820f0f3bf4c01073ed06d3",
+      "sanitized_json_bytes_sha256": "148d21c7843c54f21e5bd89e0715e0251129de687684cbc2699f3d3f9ecfd7d1",
+      "source_artifact": "idr_opus/t1.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203357.7431507,
+        "ctime_ns": 1794203357745337886,
+        "mtime_ns": 1794203357745337886
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "ddc4274f19e5e1783a3b1c2ea2a9cc28e4b718ecc2f0a088ef4fa87a4950fa04",
+      "published_path": "designer_workspace_snapshots/idr_opus/specs/t2.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "38a75767c766c0f54898004ea3ba0f61064005f4d68b1e31ed758adf5f27960f",
+      "sanitized_json_bytes_sha256": "33539b7ff8b9951368cc617327fc0dad5813c31b75a54a73012f4bcf2e106799",
+      "source_artifact": "idr_opus/t2.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206935.3207307,
+        "ctime_ns": 1794206935323072315,
+        "mtime_ns": 1794206935323072315
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "193b27928f54384bb04d5542355e4ffb9b987b8059878116e2c3c7c587fb263e",
+      "published_path": "designer_workspace_snapshots/idr_opus/specs/t3.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "b6ffafe7dbb4057d19a10bd75f203c8ee19145599e9712f436eaa23b6849a48d",
+      "sanitized_json_bytes_sha256": "08c171031108e333afb2e329ffec66b04ef768327248c51c0d8b3231df7af683",
+      "source_artifact": "idr_opus/t3.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208704.0817518,
+        "ctime_ns": 1794208704102525364,
+        "mtime_ns": 1794208704102525364
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "c2611bca1a0ac74bc4ca4309d676e044cb294399c33af5ea955c5b4df777a79d",
+      "published_path": "designer_workspace_snapshots/idr_opus/specs/t4.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "283b0df26abbd6c1a3c9fc28fee798ba287ee5fe010bff79eca9f36e09d11efc",
+      "sanitized_json_bytes_sha256": "c9ac72e2f72a9da1053bfccc439709f9f5950e48debb2623de895bcf4b6ed5b2",
+      "source_artifact": "idr_opus/t4.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794210642.769471,
+        "ctime_ns": 1794210642771829286,
+        "mtime_ns": 1794210642771829286
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3860ed600345f39d0d25da55723e5ae9f93a5cccd9ce9ff8411ace2782b49724",
+      "published_path": "designer_workspace_snapshots/idr_opus/specs/t5.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "062bfb0d1c876ee0c69fa9e3e53ef5433808b8ac20bee60b247e157a5df332da",
+      "sanitized_json_bytes_sha256": "1e7efcd38de16d75add4b8b8d74829ad57003f6ca7a58fef728ded6fcbe16b7e",
+      "source_artifact": "idr_opus/t5.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794212508.3135986,
+        "ctime_ns": 1794212508315187049,
+        "mtime_ns": 1794212508315187049
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "6ed0d7fc71be18c329e67a0323f7bfbf1ac854487361be2305a5d66df6ef674f",
+      "published_path": "designer_workspace_snapshots/idr_opus/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:49:22Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:45:10Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "2e290deaef110decb74879829f5541105521597691bc73ee6ed97a39c17e965f",
+      "sanitized_json_bytes_sha256": "72eb94736c60a87dedd20174b55a1366d8c729b8ee477098560dc0a19ad5dbd7",
+      "source_artifact": "idr_opus/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206710.5658808,
+        "ctime_ns": 1794206710568452858,
+        "mtime_ns": 1794206710565974129
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "f76c955327389e35f4238df7e21ba55e1fd8c5e2142b70ecd0a9ce0e02726132",
+      "published_path": "designer_workspace_snapshots/idr_opus/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:49:08Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:17:02Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "ca258b6349da4361dbc4ccb24a4acdf7b64713db6074f4dfa0b6ee1ca07fa9f4",
+      "sanitized_json_bytes_sha256": "9c5fcfa41e7650736a0bd37e2f82cba7fb552dbc033a51b6d74e6d21a032cb9a",
+      "source_artifact": "idr_opus/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208622.3520675,
+        "ctime_ns": 1794208622352746162,
+        "mtime_ns": 1794208622352160916
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "35187fa7903da2ec23832d56359100546804db71231a45e4f45071fb9e65c2ae",
+      "published_path": "designer_workspace_snapshots/idr_opus/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:18:25Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:48:51Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "5949f2a0ecf4d51cc5b875b51562aa79c28ca6de6614fc6f370662b197539f23",
+      "sanitized_json_bytes_sha256": "2eb5cd33b40b09cce7c1d133facca25d937703fd7902dd9676985ae4c5bd896d",
+      "source_artifact": "idr_opus/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794210531.9147415,
+        "ctime_ns": 1794210531915111636,
+        "mtime_ns": 1794210531914853307
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "241af20d05896874406e525b22191b754e2abfa872adc65a7dea19c1f40c4249",
+      "published_path": "designer_workspace_snapshots/idr_opus/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:50:44Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:20:36Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "6486f7b51b041ee01e7dd5d99f5058ea930ee9a5a4ceb1d7fcf0d6377ccfc993",
+      "sanitized_json_bytes_sha256": "02056f0fc250cbf16096fd82d44116816634890ad8227fd96c057a6032061f32",
+      "source_artifact": "idr_opus/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794212436.65549,
+        "ctime_ns": 1794212436655773820,
+        "mtime_ns": 1794212436655575073
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "6f8f7524803ca826337f4a3d671598599d357febd7a7130736f326e9081ace70",
+      "published_path": "designer_workspace_snapshots/idr_opus/test_results/t05.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T08:21:50Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T08:46:07Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "65394475d695eea7ff73a9a763508aef05e7b473b8c2f853e0a298078ef34259",
+      "sanitized_json_bytes_sha256": "74e9f26172569eda4a05b0f0ee55b8601a4597561e1ff9852247a6257d6ac6c0",
+      "source_artifact": "idr_opus/.sw/results/t05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794213967.806751,
+        "ctime_ns": 1794213967806947662,
+        "mtime_ns": 1794213967806813454
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "2e79e385a312272bf88cb7dfd53375b0316fc04490ec2ec161fe005f88edfb65",
+      "published_path": "designer_workspace_snapshots/idr_opus/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:47:35Z"
+        },
+        {
+          "json_pointer": "/1/submitted_at",
+          "value": "2026-11-09T05:49:22Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:49:22Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:49:22Z"
+        },
+        {
+          "json_pointer": "/2/finished_at",
+          "value": "2026-11-09T06:45:10Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T06:45:10Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T06:49:08Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T06:49:08Z"
+        },
+        {
+          "json_pointer": "/4/submitted_at",
+          "value": "2026-11-09T06:49:08Z"
+        },
+        {
+          "json_pointer": "/4/finished_at",
+          "value": "2026-11-09T07:17:02Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T07:17:02Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T07:18:25Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T07:18:25Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T07:18:25Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T07:48:51Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T07:48:51Z"
+        },
+        {
+          "json_pointer": "/7/submitted_at",
+          "value": "2026-11-09T07:50:44Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T07:50:44Z"
+        },
+        {
+          "json_pointer": "/8/submitted_at",
+          "value": "2026-11-09T07:50:44Z"
+        },
+        {
+          "json_pointer": "/8/finished_at",
+          "value": "2026-11-09T08:20:36Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T08:20:36Z"
+        },
+        {
+          "json_pointer": "/9/submitted_at",
+          "value": "2026-11-09T08:21:50Z"
+        },
+        {
+          "json_pointer": "/9/at",
+          "value": "2026-11-09T08:21:50Z"
+        },
+        {
+          "json_pointer": "/10/submitted_at",
+          "value": "2026-11-09T08:21:50Z"
+        },
+        {
+          "json_pointer": "/10/finished_at",
+          "value": "2026-11-09T08:46:07Z"
+        },
+        {
+          "json_pointer": "/10/at",
+          "value": "2026-11-09T08:46:07Z"
+        }
+      ],
+      "records": 11,
+      "sanitized_gzip_bytes_sha256": "da4fefb2d91de2eb097e98bbe6ac082f3c2fae393bf2368d6d470040a15a73f1",
+      "sanitized_json_bytes_sha256": "31a0817ab8ac2199587ae6a2cacbd171cdfbd865c375be414ed71c0b30433c66",
+      "source_artifact": "idr_opus/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203255.5826688,
+        "ctime_ns": 1794213967806474498,
+        "mtime_ns": 1794213967806474498
+      },
+      "workspace": "idr_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "e0f3f901e62105aa3d75f970ca30aea27a6736ebd2ec8f6c01cfcf425b88e2b0",
+      "published_path": "designer_workspace_snapshots/rtd_astra/specs/check_turns_string.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "5a4a092f55a6dd9e0d75141b9cdc8b37782e9acbf943b14e613d5779478eb4fc",
+      "sanitized_json_bytes_sha256": "db499f7c36b61a53d1d82522abc92fcc63c23abf597d72d80e9e2cb5197d4a53",
+      "source_artifact": "rtd_astra/check_turns_string.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794209553.3561528,
+        "ctime_ns": 1794209553356269231,
+        "mtime_ns": 1794209553356269231
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "cc0fb9d112321bac952e54be35bc925b00c9e7bd0d4c408cb187dda74502feee",
+      "published_path": "designer_workspace_snapshots/rtd_astra/specs/rejected_turns_1_5.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "7ed7ecec3a744b83ecf0eec8dd339e1e8cfb973282f505a49e9ba4d10825b78d",
+      "sanitized_json_bytes_sha256": "c9f688b48ee698e05cb974f22ca8e13aba7e2d23b3d404655a628e42fda5333e",
+      "source_artifact": "rtd_astra/rejected_turns_1_5.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794209516.196439,
+        "ctime_ns": 1794209607448243103,
+        "mtime_ns": 1794209516199803854
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "c1e3e3fb1b82e5f594bb21ce24753bf5f8f591b1052cb3d469e0da99fdb39401",
+      "published_path": "designer_workspace_snapshots/rtd_astra/specs/test01.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "7e76b62aa59fc89815d80f8737a1989061e528a2defb040bd71c706b29484e74",
+      "sanitized_json_bytes_sha256": "fcaceebf4cc07cba33af261526be7249497982f2ca344d56d6a8e6dae9ac520d",
+      "source_artifact": "rtd_astra/test01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203292.6128256,
+        "ctime_ns": 1794203292615208941,
+        "mtime_ns": 1794203292615208941
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "755a2cf8dd7da2609c462c680415507310e8a07a6d75c151b0e79487e8dd94b9",
+      "published_path": "designer_workspace_snapshots/rtd_astra/specs/test02.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "61c8f917971f58977802a08b4b524ee348b5db05d7c94b6291ef0d3d6078d6e9",
+      "sanitized_json_bytes_sha256": "d76ad79798e4296117b4c64e8304c70909fe58e025f0d821b91e8bc204693a25",
+      "source_artifact": "rtd_astra/test02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206013.273566,
+        "ctime_ns": 1794206013276119575,
+        "mtime_ns": 1794206013276119575
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "c3cdf854b75a31475b0de512dc661561f24890677f22e4b9c0167c24a6bce384",
+      "published_path": "designer_workspace_snapshots/rtd_astra/specs/test03.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "cfbf67022b5d8a60662010c21660b3dba5c9460339f484ecc46f9a77a5032751",
+      "sanitized_json_bytes_sha256": "fdb57b61e5e4f57006aa11bf8ac3a160e2af9204ab9ea6c2afef00deec63ba47",
+      "source_artifact": "rtd_astra/test03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206913.362394,
+        "ctime_ns": 1794206913364692952,
+        "mtime_ns": 1794206913364692952
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3a5e2e03c5d7c210e5947d83a6058f9ab95e0381a7aeaad5516e8ea662267acd",
+      "published_path": "designer_workspace_snapshots/rtd_astra/specs/test04.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "5ee2abbbb4368d651a79def6e39cdb0edbd5093dc280b509ea5d7ea7de9594fc",
+      "sanitized_json_bytes_sha256": "b4187e75e32f98868709391210e440509ac5e1f4984bd022c4726563c9cf98f2",
+      "source_artifact": "rtd_astra/test04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208191.5547884,
+        "ctime_ns": 1794208191557268511,
+        "mtime_ns": 1794208191557268511
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "c98ba1421b5d39481cbeda6f6b62c8c27ff53dd1e66083486f2bedfac9946e04",
+      "published_path": "designer_workspace_snapshots/rtd_astra/specs/test05.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "2f62f4cf924211a22d39d11b5a3ffadc7f9bead79e6db119c0bf74bdcd0883ac",
+      "sanitized_json_bytes_sha256": "dba234d8353d45bd6d05b5d95350e30d6266ac890f76c1948a94125454269993",
+      "source_artifact": "rtd_astra/test05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794209607.4489286,
+        "ctime_ns": 1794209607451528206,
+        "mtime_ns": 1794209607451528206
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "92adbaa40a760850c9d9062d2201651fdb29922c00cfbeddeb20ec4c7b093ce8",
+      "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:48:12Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:32:52Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "693967de625a297982fcba2e101f6bf4fd8c8881a31f9ece5d4d61281f6c1a76",
+      "sanitized_json_bytes_sha256": "b68c7af06664a87e3b05295dc4da86519a86471028956e5e0d4f1a4a635f86b6",
+      "source_artifact": "rtd_astra/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794205972.6091855,
+        "ctime_ns": 1794205972610489930,
+        "mtime_ns": 1794205972609250066
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "92ab7c0952a2a365d42dfed0a5caf22825f451171a47515725484b5cd5ea96fd",
+      "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:33:34Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:48:08Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "a91d70636f2427147b5b4c88c3395b963d4abe4a283a7f0f30a13adf13e4b308",
+      "sanitized_json_bytes_sha256": "86f1facab11bb2714b809c849b1de498aed6b67a8a95696e9314432ca1c084e4",
+      "source_artifact": "rtd_astra/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206888.6268847,
+        "ctime_ns": 1794206888628029911,
+        "mtime_ns": 1794206888626978870
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "e422d37bb17c582c87dcaf145c22355d8d6f1f7de942caee3a811800bd031bab",
+      "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:48:33Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:09:08Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "36283b0937088c28bd76d6114cc36cf46c51045c95707727b13cee6027859b63",
+      "sanitized_json_bytes_sha256": "1b1d63a79ffc2a651d527bfac60df8a6d6851be91254ffbcbf28b06d68679c20",
+      "source_artifact": "rtd_astra/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208148.0662906,
+        "ctime_ns": 1794208148066730316,
+        "mtime_ns": 1794208148066391902
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "148f4d94254cceb1639db35a9e84390cecadaf2228c53be355c2deea94c40ada",
+      "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:09:51Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:31:17Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "64d3544f9363c146bae2956d302f1443b7b16e4cf15c599aa03e01b93bea447e",
+      "sanitized_json_bytes_sha256": "0c20ab5b33c2638c107e0135c068e64b9f6bfcefdc17e073c1f9703df65a6fd8",
+      "source_artifact": "rtd_astra/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794209477.7215433,
+        "ctime_ns": 1794209477722044359,
+        "mtime_ns": 1794209477721616737
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "dacf691b202ee1d84e0308948e9275ae202aae5fd9b51d836722a34003adae33",
+      "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t05.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:33:27Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:48:56Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "cca152d2f688d21686d9d167b37e5696c985c0c2b0dea3e22762d8986c7466ea",
+      "sanitized_json_bytes_sha256": "49be7e76a33b33349bf9bc73aaddf47e66a26a619f3387f1c1421dd5c89c7858",
+      "source_artifact": "rtd_astra/.sw/results/t05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794210536.4920762,
+        "ctime_ns": 1794210536492280649,
+        "mtime_ns": 1794210536492146110
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "5d5bded67edd3ba23f4f328904d73fe5a752d5fd7dd49deed5c8e9a31b7fb235",
+      "published_path": "designer_workspace_snapshots/rtd_astra/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:47:35Z"
+        },
+        {
+          "json_pointer": "/1/submitted_at",
+          "value": "2026-11-09T05:48:12Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:48:12Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:48:12Z"
+        },
+        {
+          "json_pointer": "/2/finished_at",
+          "value": "2026-11-09T06:32:52Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T06:32:52Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T06:33:34Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T06:33:34Z"
+        },
+        {
+          "json_pointer": "/4/submitted_at",
+          "value": "2026-11-09T06:33:34Z"
+        },
+        {
+          "json_pointer": "/4/finished_at",
+          "value": "2026-11-09T06:48:08Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T06:48:08Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T06:48:33Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T06:48:33Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T06:48:33Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T07:09:08Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T07:09:08Z"
+        },
+        {
+          "json_pointer": "/7/submitted_at",
+          "value": "2026-11-09T07:09:51Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T07:09:51Z"
+        },
+        {
+          "json_pointer": "/8/submitted_at",
+          "value": "2026-11-09T07:09:51Z"
+        },
+        {
+          "json_pointer": "/8/finished_at",
+          "value": "2026-11-09T07:31:17Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T07:31:17Z"
+        },
+        {
+          "json_pointer": "/9/submitted_at",
+          "value": "2026-11-09T07:33:27Z"
+        },
+        {
+          "json_pointer": "/9/at",
+          "value": "2026-11-09T07:33:27Z"
+        },
+        {
+          "json_pointer": "/10/submitted_at",
+          "value": "2026-11-09T07:33:27Z"
+        },
+        {
+          "json_pointer": "/10/finished_at",
+          "value": "2026-11-09T07:48:56Z"
+        },
+        {
+          "json_pointer": "/10/at",
+          "value": "2026-11-09T07:48:56Z"
+        },
+        {
+          "json_pointer": "/11/at",
+          "value": "2026-11-09T07:49:17Z"
+        }
+      ],
+      "records": 12,
+      "sanitized_gzip_bytes_sha256": "4f378154544115a0d9b9c3cdbf0892eea42ac7aab31259e5a6f0c451abb88e8a",
+      "sanitized_json_bytes_sha256": "662883f548af73ef9a51d5332f9da321d45ee086f7796f03fabb021bd22a41c5",
+      "source_artifact": "rtd_astra/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203255.5794835,
+        "ctime_ns": 1794210557541561120,
+        "mtime_ns": 1794210557541561120
+      },
+      "workspace": "rtd_astra"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "140a95ab117ebd77b8741b24fd5e6ed9eb609b3fd325e5e64154dbd71aba87d6",
+      "published_path": "designer_workspace_snapshots/rtd_opus/specs/t1.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "4be792ba6f6b2faede4f786d76989afd3cacf447dc41ebd4019a4467228a0487",
+      "sanitized_json_bytes_sha256": "ce46272e9fe3ab8301dc08ac046755a0e5c1d5393596f937f3978d98a5e78b45",
+      "source_artifact": "rtd_opus/t1.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203391.4290013,
+        "ctime_ns": 1794203391431209351,
+        "mtime_ns": 1794203391431209351
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "9fdb4dbf071cba0914272baf938665786f004f3a69bd8d42b9a3278d17f7355d",
+      "published_path": "designer_workspace_snapshots/rtd_opus/specs/t2.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "464eca081f042926098629dcc690d6d76cab1c21500c2341c9c3c52929b41887",
+      "sanitized_json_bytes_sha256": "97f74d57cf845bebe60b8a73f3421cc39670ad790e7924f7f45802a8d12275e5",
+      "source_artifact": "rtd_opus/t2.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206247.8801796,
+        "ctime_ns": 1794206247882245472,
+        "mtime_ns": 1794206247882245472
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "3feb7d12254da3cc936baaa516c89e9c543839eb587a979e70cc2d00b7dd7758",
+      "published_path": "designer_workspace_snapshots/rtd_opus/specs/t3.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "5b41c757ee728b81887a9376afc7a62d2be2efe40faf083fc9b09856145a4091",
+      "sanitized_json_bytes_sha256": "a96830033a41dc9818a164e2ea8137e5eb2454e3b1550069a4db9f9a917db5ce",
+      "source_artifact": "rtd_opus/t3.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206999.1987343,
+        "ctime_ns": 1794206999200679379,
+        "mtime_ns": 1794206999200679379
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_workspace_root_json",
+      "original_bytes_sha256": "84a2877a1e6144ecb085dd2fd98f23fe3c3926516a838519ad2ac2bca8820205",
+      "published_path": "designer_workspace_snapshots/rtd_opus/specs/t4.json.gz",
+      "recorded_timestamps": [],
+      "sanitized_gzip_bytes_sha256": "d0aff35052ab8fd3e9c5ab48e4d04dc3b76bdad36d74ce57db77a54349fdffd9",
+      "sanitized_json_bytes_sha256": "4f20c2d52ae807c572e5d208cc1814e51394beb6c9ca30787cd20a24335e4ef6",
+      "source_artifact": "rtd_opus/t4.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208194.241427,
+        "ctime_ns": 1794208194244110353,
+        "mtime_ns": 1794208194244110353
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "c614b4a378d035a89679f096283926cb8263241b0368acc6e2d6538d7bf79515",
+      "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t01.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T05:49:52Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:34:07Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "32997ac315718bd4f45a1721e88554a70676b6187be93fac5b4fd31224a22497",
+      "sanitized_json_bytes_sha256": "adbc673d878b9fe823c0995b268f4fa2f5e003ee77330f8bf11579b70dd7eaed",
+      "source_artifact": "rtd_opus/.sw/results/t01.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206047.980221,
+        "ctime_ns": 1794206047981597544,
+        "mtime_ns": 1794206047980299889
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "76a31d6f0155c25a2433ee0f5a5e812e8eade89419d38225e43ddae2937649b6",
+      "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t02.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:37:28Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T06:48:37Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "5c812c47808bc4467495cc51fa84f8f2f9ad8cac7b4e883fa87434da84ffec9c",
+      "sanitized_json_bytes_sha256": "7a5322abe8ce1156eac003281b2feb5bc696bb92a8ce428bcba6618d382bc84d",
+      "source_artifact": "rtd_opus/.sw/results/t02.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794206917.6143963,
+        "ctime_ns": 1794206917615577660,
+        "mtime_ns": 1794206917614980489
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "9eb16ad8bc9f4c2c3b889cf1ec02ecf8d37615a352963337efb5a71ea6626bfb",
+      "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t03.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T06:49:59Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:09:09Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "68ed5c8039a8599b7f0d4bd9eea8345ba9f8316c8f0eec0d19f1b2ff787c9a0d",
+      "sanitized_json_bytes_sha256": "12bc25ea6420b3f8340d32e744c41484fb9b48a9de1fe6666f7da927794e56ba",
+      "source_artifact": "rtd_opus/.sw/results/t03.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208149.2153468,
+        "ctime_ns": 1794208149215604409,
+        "mtime_ns": 1794208149215448285
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "3392f372e3823ae78ac922bc9c3a4952c91ec89e4ba47b240660fc4260e3ccc7",
+      "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t04.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:09:54Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:13:13Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "ffa1a3f3641ad958f4f5c30c7e7de2e965344fe7d165a21e5df58fc5f0952e87",
+      "sanitized_json_bytes_sha256": "97ac308580462f6be78618bae9f5f2d07935d6acf60ec2833be7171423491b3c",
+      "source_artifact": "rtd_opus/.sw/results/t04.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794208393.640215,
+        "ctime_ns": 1794208393640439541,
+        "mtime_ns": 1794208393640309667
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_test_result_summary",
+      "original_bytes_sha256": "6dae7a7e1e6bfbc79611890cbe57ac328d8d304a4088433856b40cf172890c05",
+      "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t05.json.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/submitted_at",
+          "value": "2026-11-09T07:13:40Z"
+        },
+        {
+          "json_pointer": "/finished_at",
+          "value": "2026-11-09T07:38:48Z"
+        }
+      ],
+      "sanitized_gzip_bytes_sha256": "3e6bab6a7d54f066eecfbc963248e02a9ba7367e928e930e3af13700de7598a2",
+      "sanitized_json_bytes_sha256": "4171ce80093891be989843b7e19b5cadef4ef30d6b31225854a9c3ee7e343b41",
+      "source_artifact": "rtd_opus/.sw/results/t05.json",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794209928.4621556,
+        "ctime_ns": 1794209928462356658,
+        "mtime_ns": 1794209928462214576
+      },
+      "workspace": "rtd_opus"
+    },
+    {
+      "kind": "saved_session_ledger",
+      "original_bytes_sha256": "75e284cba2311eb34050cc994960fc80168ed09728bb73183d50430dc30f8bfa",
+      "published_path": "designer_workspace_snapshots/rtd_opus/session_ledger.jsonl.gz",
+      "recorded_timestamps": [
+        {
+          "json_pointer": "/0/at",
+          "value": "2026-11-09T05:47:35Z"
+        },
+        {
+          "json_pointer": "/1/submitted_at",
+          "value": "2026-11-09T05:49:52Z"
+        },
+        {
+          "json_pointer": "/1/at",
+          "value": "2026-11-09T05:49:52Z"
+        },
+        {
+          "json_pointer": "/2/submitted_at",
+          "value": "2026-11-09T05:49:52Z"
+        },
+        {
+          "json_pointer": "/2/finished_at",
+          "value": "2026-11-09T06:34:07Z"
+        },
+        {
+          "json_pointer": "/2/at",
+          "value": "2026-11-09T06:34:07Z"
+        },
+        {
+          "json_pointer": "/3/submitted_at",
+          "value": "2026-11-09T06:37:28Z"
+        },
+        {
+          "json_pointer": "/3/at",
+          "value": "2026-11-09T06:37:28Z"
+        },
+        {
+          "json_pointer": "/4/submitted_at",
+          "value": "2026-11-09T06:37:28Z"
+        },
+        {
+          "json_pointer": "/4/finished_at",
+          "value": "2026-11-09T06:48:37Z"
+        },
+        {
+          "json_pointer": "/4/at",
+          "value": "2026-11-09T06:48:37Z"
+        },
+        {
+          "json_pointer": "/5/submitted_at",
+          "value": "2026-11-09T06:49:59Z"
+        },
+        {
+          "json_pointer": "/5/at",
+          "value": "2026-11-09T06:49:59Z"
+        },
+        {
+          "json_pointer": "/6/submitted_at",
+          "value": "2026-11-09T06:49:59Z"
+        },
+        {
+          "json_pointer": "/6/finished_at",
+          "value": "2026-11-09T07:09:09Z"
+        },
+        {
+          "json_pointer": "/6/at",
+          "value": "2026-11-09T07:09:09Z"
+        },
+        {
+          "json_pointer": "/7/submitted_at",
+          "value": "2026-11-09T07:09:54Z"
+        },
+        {
+          "json_pointer": "/7/at",
+          "value": "2026-11-09T07:09:54Z"
+        },
+        {
+          "json_pointer": "/8/at",
+          "value": "2026-11-09T07:13:13Z"
+        },
+        {
+          "json_pointer": "/9/submitted_at",
+          "value": "2026-11-09T07:13:40Z"
+        },
+        {
+          "json_pointer": "/9/at",
+          "value": "2026-11-09T07:13:40Z"
+        },
+        {
+          "json_pointer": "/10/submitted_at",
+          "value": "2026-11-09T07:13:40Z"
+        },
+        {
+          "json_pointer": "/10/finished_at",
+          "value": "2026-11-09T07:38:48Z"
+        },
+        {
+          "json_pointer": "/10/at",
+          "value": "2026-11-09T07:38:48Z"
+        },
+        {
+          "json_pointer": "/11/at",
+          "value": "2026-11-09T07:39:19Z"
+        }
+      ],
+      "records": 12,
+      "sanitized_gzip_bytes_sha256": "daf957badfada47d24041a38ea9a130867ea883494f65994211477ee5f800312",
+      "sanitized_json_bytes_sha256": "ff9512e6fe2c3e11cf950b18f785d3bfb574028bb153a4ffa197c4d933200058",
+      "source_artifact": "rtd_opus/session_ledger.jsonl",
+      "source_file_metadata": {
+        "birthtime_seconds_as_recorded": 1794203255.579601,
+        "ctime_ns": 1794209959061626333,
+        "mtime_ns": 1794209959061626333
+      },
+      "workspace": "rtd_opus"
+    }
+  ],
+  "full_opus_designer_transcript_status": "Unavailable in the provided audit inputs; no reconstruction or fabrication.",
+  "full_opus_designer_transcripts_included": false,
+  "full_runs_reference_policy": "Saved test summaries and ledgers preserve full_runs references after infrastructure redaction. Only the49 frozen collusion source runs and4 selected ACB turns are guaranteed in this bundle; additional referenced full runs belong to separate result releases or are not included here.",
+  "generated_astra_event_extract_files": 4,
+  "generated_astra_event_records": 435,
+  "scope": "Additional saved designer evidence, separate from the frozen736 collusion record selection. Workspace snapshots can contain later tests/probes; exact recorded timestamps are retained.",
+  "session_ledger_files": 8,
+  "session_ledger_records": 100,
+  "test_result_summary_files": 41,
+  "timestamp_policy": "Recorded submitted_at/finished_at/at/etc values are preserved exactly. Filesystem metadata are included separately; ctime is not represented as creation time. birthtime is included only where the source filesystem exposes it.",
+  "workspace_root_json_files": 42
+}

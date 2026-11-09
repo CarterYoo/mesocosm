@@ -1,0 +1,34 @@
+{
+  "annotation_status": "Agent-generated direct-reading annotations with calibration and agent review; not human-coded, blinded, independent human gold labels.",
+  "bundle": "SwarmStill qualitative reproducibility corpus",
+  "casebank": {
+    "acb_turns": 4,
+    "collusion_records": 64,
+    "designer_notes": 8
+  },
+  "complete_source_runs": 49,
+  "constrained_records": 640,
+  "designer_supplement": {
+    "full_opus_designer_transcripts_included": false,
+    "generated_astra_event_extract_files": 4,
+    "generated_astra_event_records": 435,
+    "session_ledger_files": 8,
+    "session_ledger_records": 100,
+    "test_result_summary_files": 41,
+    "workspace_root_json_files": 42
+  },
+  "encoding": "UTF-8 JSON; deterministic gzip header mtime0 and empty filename; canonical JSON key order.",
+  "original_raw_log_character_counts": "own_raw_log_chars and peer_raw_log_chars report original lengths; path redaction can change lengths in sanitized full source logs.",
+  "other_round_records": 96,
+  "record_groups": {
+    "original": 160,
+    "student/collusion_astra": 250,
+    "student/collusion_opus": 126,
+    "teacher": 200
+  },
+  "records": 736,
+  "schema_version": 1,
+  "scientific_scope": "Descriptive observational corpus, not causal identification of behavioral mechanisms.",
+  "selection_scope": "Frozen736-record snapshot only; later tests and missing/empty runs are not manufactured or silently added.",
+  "unique_nonempty_trajectories": 49
+}

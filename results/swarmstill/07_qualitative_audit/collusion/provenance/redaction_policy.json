@@ -1,0 +1,24 @@
+{
+  "credential_metadata_fields_redacted": 0,
+  "endpoint_metadata_fields_redacted": 78,
+  "no_blanket_redaction": [
+    "password/token words",
+    "synthetic test passwords",
+    "example.com addresses",
+    "function names",
+    "SQL task queries",
+    "benchmark role/injection content"
+  ],
+  "original_value_policy": "Public audit events contain SHA256 fingerprints and replacement text, never the original sensitive values.",
+  "redaction_event_count": 4229,
+  "rules": [
+    "Known local source references become portable paths or source IDs.",
+    "Benchmark checkout root becomes <BENCHMARK_ROOT>; runtime installation root becomes <RUNTIME_ROOT>.",
+    "Inference endpoint configuration values become <REDACTED_ENDPOINT>.",
+    "Explicit authentication credential metadata values, if present, become <REDACTED_CREDENTIAL>.",
+    "Any residual local home or private scratch path is replaced by a nonidentifying placeholder.",
+    "Saved design-workspace and source-archive root paths become <DESIGN_WORKSPACE_ROOT> and <SOURCE_ARCHIVE_ROOT>."
+  ],
+  "scientific_content_policy": "Preserve complete task text, model outputs, queries, test examples, synthetic email addresses/passwords, private benchmark raw logs, actions, feedback and reflections. Only explicit infrastructure metadata and machine-specific root/reference paths are changed.",
+  "version": 1
+}

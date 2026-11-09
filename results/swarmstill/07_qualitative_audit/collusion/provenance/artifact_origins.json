@@ -1,0 +1,650 @@
+[
+  {
+    "kind": "enriched_agent_episode_records",
+    "original_bytes_sha256": "ac2d193c10458449e8ad9351bebc1333058c4568feb0a8fdc2974e556f759f18",
+    "published_path": "corpus/agent_episodes.jsonl.gz",
+    "source_artifact": "inputs/all.jsonl"
+  },
+  {
+    "kind": "agent_generated_qualitative_annotations",
+    "original_bytes_sha256": "47bc19569531eb89a9bf8be52c63b5a8630f35bc5f919d4a50afd10476111bd0",
+    "published_path": "annotations/calibrated.jsonl.gz",
+    "source_artifact": "annotations_736.jsonl"
+  },
+  {
+    "kind": "agent_generated_review_checks",
+    "original_bytes_sha256": "a32908fe8a4039236aff12ea8ae1f6b0a41ad3cce4204f855e8eac61f1f792a1",
+    "published_path": "annotations/root_sample_reviews.jsonl.gz",
+    "source_artifact": "root_sample_reviews.jsonl"
+  },
+  {
+    "kind": "reviewer_annotations",
+    "original_bytes_sha256": "0439bb89ebab062be87456b575276f1d2c2b6536e2409a02ad6601598073dfcb",
+    "published_path": "annotations/reviewer_codes/astra.jsonl.gz",
+    "source_artifact": "coding/astra.jsonl"
+  },
+  {
+    "kind": "reviewer_annotations",
+    "original_bytes_sha256": "90045745b003b2489db1ef893e46a261054d8e9c31ca92f0ae3cc08fd761e29d",
+    "published_path": "annotations/reviewer_codes/original_opus.jsonl.gz",
+    "source_artifact": "coding/original_opus.jsonl"
+  },
+  {
+    "kind": "reviewer_annotations",
+    "original_bytes_sha256": "a44109277411244187c55bf3a954b30638ccf797ed63a71700f9276f9d579c6b",
+    "published_path": "annotations/reviewer_codes/teacher_a.jsonl.gz",
+    "source_artifact": "coding/teacher_a.jsonl"
+  },
+  {
+    "kind": "reviewer_annotations",
+    "original_bytes_sha256": "60774abd5664038d724ca6950f12024df506ee77f08873d59751ef5beae13bfe",
+    "published_path": "annotations/reviewer_codes/teacher_b.jsonl.gz",
+    "source_artifact": "coding/teacher_b.jsonl"
+  },
+  {
+    "kind": "analysis_metadata",
+    "original_bytes_sha256": "2c893ed1e899e8337e15a03bad213c8545cf0f8e0e35ccc1f568fc30fb626d91",
+    "published_path": "annotations/classification_summary.json",
+    "source_artifact": "classification_summary.json"
+  },
+  {
+    "kind": "analysis_metadata",
+    "original_bytes_sha256": "3b6f102c02c40644dd0c4d4fe6e44f610d6801ccd6678fa767a9ec47ee461c77",
+    "published_path": "annotations/coding_validation.json",
+    "source_artifact": "coding_validation.json"
+  },
+  {
+    "kind": "analysis_metadata",
+    "original_bytes_sha256": "08cbdec75c085d73c9b4341c529256a98160d4e9c56c5b22ced72052a0d27421",
+    "published_path": "annotations/root_sample_ids.json",
+    "source_artifact": "root_sample_ids.json"
+  },
+  {
+    "kind": "coding_protocol",
+    "original_bytes_sha256": "1a9524fe5170336dff83d3a287abb3a23694d6f82418d0c2f9b8a92ae05c5e4d",
+    "published_path": "protocol/CODEBOOK_original.md",
+    "source_artifact": "inputs/CODEBOOK_original.md"
+  },
+  {
+    "kind": "coding_protocol",
+    "original_bytes_sha256": "60d75ca713066cc829ca6f92c441acf2b518f03c09a519abffe083d5cccf9c32",
+    "published_path": "protocol/ADJUDICATION.md",
+    "source_artifact": "inputs/ADJUDICATION.md"
+  },
+  {
+    "kind": "purposive_casebank_snapshot",
+    "original_bytes_sha256": "55942b6541eaee5416ff8ccd7d136fdcdc99e80c5efc1a7f20e18bd3eeac0945",
+    "published_path": "casebank/selected_cases.json.gz",
+    "source_artifact": "analysis_casebank_snapshot"
+  },
+  {
+    "kind": "generated_natural_language_event_extract",
+    "original_bytes_sha256": "5c0811550b32a673e3829d32d794ac5f5e7e1db497e691ce87f8d710bfd7294b",
+    "published_path": "designer_event_extracts/collusion_astra_natural_language.jsonl.gz",
+    "source_artifact": "designer/collusion_astra_natural_language.jsonl"
+  },
+  {
+    "kind": "generated_natural_language_event_extract",
+    "original_bytes_sha256": "4c90484ea0e7b26af5427b98e9298949693ba13a005d8de90c8d466565d41749",
+    "published_path": "designer_event_extracts/cpr_astra_natural_language.jsonl.gz",
+    "source_artifact": "designer/cpr_astra_natural_language.jsonl"
+  },
+  {
+    "kind": "generated_natural_language_event_extract",
+    "original_bytes_sha256": "6ae465b6bd6b0372c534021d0ee85691536dc90b287cfe5b691f4078a6df1ced",
+    "published_path": "designer_event_extracts/idr_astra_natural_language.jsonl.gz",
+    "source_artifact": "designer/idr_astra_natural_language.jsonl"
+  },
+  {
+    "kind": "generated_natural_language_event_extract",
+    "original_bytes_sha256": "dccbccfb58baae02f71b34665d03d85c19b37feae6adc18d14ab111eb3173114",
+    "published_path": "designer_event_extracts/rtd_astra_natural_language.jsonl.gz",
+    "source_artifact": "designer/rtd_astra_natural_language.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "ffdd67b402a925bc395d34b670ccd99024ea00916813a2231c24bc2ac93a2740",
+    "published_path": "designer_workspace_snapshots/collusion_astra/specs/final-environment.json.gz",
+    "source_artifact": "collusion_astra/final-environment.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "b533c595efdaedfba40d9236945371b2b28cd0c1032d7d03f7b2092d389d1b8a",
+    "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-01.json.gz",
+    "source_artifact": "collusion_astra/test-01.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "8dfc306e83f54dfd765b0678d7b4bd0ecb00d2095b5093e988a52a98af234bd5",
+    "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-02.json.gz",
+    "source_artifact": "collusion_astra/test-02.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "8cc7602dd2fd94a080bf26e3712cdeeac049628c0c8ec341f3fadbeca306cdae",
+    "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-03.json.gz",
+    "source_artifact": "collusion_astra/test-03.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3af51863b80950f6a44614ca92208fce000f2a31922d7f9436347072fbedf496",
+    "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-04.json.gz",
+    "source_artifact": "collusion_astra/test-04.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "f90cc0249de0a63a562ba863cb6c14be89f92d6166d224f6b66f5021ea76e2dd",
+    "published_path": "designer_workspace_snapshots/collusion_astra/specs/test-05.json.gz",
+    "source_artifact": "collusion_astra/test-05.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "dbaf272b24db199a41e9a67aa2d15101075ffca99a05911d98474e358443353e",
+    "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t01.json.gz",
+    "source_artifact": "collusion_astra/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "11ad735298b31676b75b32b3d9b771c6b01424bb1b3258ffca7d02b0017c5c45",
+    "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t02.json.gz",
+    "source_artifact": "collusion_astra/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "a6cf34ec37e7379c7f0fb468a59508ad7ef047bfbf1097eebf1c90e85eaf7bd9",
+    "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t03.json.gz",
+    "source_artifact": "collusion_astra/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "c663aeb586cec6a2172f1abc248829e537cd4e78db53db456fc3b5c1ebb5309f",
+    "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t04.json.gz",
+    "source_artifact": "collusion_astra/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "6f97f07d30a95a075e97ada4a7fdb98ce76b709d404081883035fd17f6bec224",
+    "published_path": "designer_workspace_snapshots/collusion_astra/test_results/t05.json.gz",
+    "source_artifact": "collusion_astra/.sw/results/t05.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "8aa04f8b325cdd5ac2a18c8b13f12e2ea4b06944fba3a333f5a664606c94e559",
+    "published_path": "designer_workspace_snapshots/collusion_astra/session_ledger.jsonl.gz",
+    "source_artifact": "collusion_astra/session_ledger.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3177cb5a41c58f253f94222c408e257f9b7981dad46db2628b076f17b3b744f9",
+    "published_path": "designer_workspace_snapshots/collusion_opus/specs/test1.json.gz",
+    "source_artifact": "collusion_opus/test1.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "9758c6cfaded7dae432f261c23097a5bfce85dedce3f4875fb2e69179b36759c",
+    "published_path": "designer_workspace_snapshots/collusion_opus/specs/test2.json.gz",
+    "source_artifact": "collusion_opus/test2.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "be810a201e5f8bb20bf6651c83a0be1ef966db4835c34cb18c0ddd39b77648b9",
+    "published_path": "designer_workspace_snapshots/collusion_opus/specs/test3.json.gz",
+    "source_artifact": "collusion_opus/test3.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "401d459e278ff2ac36690456df0d9256b851f7f2a4e874dc672ac393b0795c83",
+    "published_path": "designer_workspace_snapshots/collusion_opus/specs/test4.json.gz",
+    "source_artifact": "collusion_opus/test4.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "4345d246918d6df94aab4dc2a98934eed189f012d1e6d0ceea19a1e27bcdb59f",
+    "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t01.json.gz",
+    "source_artifact": "collusion_opus/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "f4835705b90a126c530d360c6d17de8b4116e8d1ea2ca676d096e81a55003117",
+    "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t02.json.gz",
+    "source_artifact": "collusion_opus/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "34075e0bc6ba988a029d556d7d819d8a57836a76aaf33fba38091181081027e2",
+    "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t03.json.gz",
+    "source_artifact": "collusion_opus/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "20ab13e7dbf49c52a5103b47603dbf3f92bcf8c07b560701bc1e211486358851",
+    "published_path": "designer_workspace_snapshots/collusion_opus/test_results/t04.json.gz",
+    "source_artifact": "collusion_opus/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "0c3b5558f8ade55e59db667eb00c633a0766992e7639b52821a633a13fd04f09",
+    "published_path": "designer_workspace_snapshots/collusion_opus/session_ledger.jsonl.gz",
+    "source_artifact": "collusion_opus/session_ledger.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3e41b0358b6ed8bf6d4f97d9dff3c42188ef07c8b0a54c2f95388643fc025976",
+    "published_path": "designer_workspace_snapshots/cpr_astra/specs/test1.json.gz",
+    "source_artifact": "cpr_astra/test1.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3d4cd9b1ef834b2bb90327d5887134f909498ae6e4b05222cc4d006759510162",
+    "published_path": "designer_workspace_snapshots/cpr_astra/specs/test2.json.gz",
+    "source_artifact": "cpr_astra/test2.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "2e1d6cd5c6c4c6ef9ec0123ead84807e5c2530aba653b00a4f050f7485d527a9",
+    "published_path": "designer_workspace_snapshots/cpr_astra/specs/test3.json.gz",
+    "source_artifact": "cpr_astra/test3.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "ce12ef2506bd7d989bcbee9bbc29e6d868e907731d6b14e877bf196772e8ff9c",
+    "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4-full-last.json.gz",
+    "source_artifact": "cpr_astra/test4-full-last.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "05af132d72d6f0c7a847bbae04f403c55f0ea5a60383422fa31ea9819478cd8e",
+    "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4-full-middle.json.gz",
+    "source_artifact": "cpr_astra/test4-full-middle.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "42aa61ea3624fbe54153850e5b2e2fd1e5db4854947298d7a409b1d71080b614",
+    "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4-original-control.json.gz",
+    "source_artifact": "cpr_astra/test4-original-control.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "4bdc1717911c739924f78d54227eb696081509c62e9f4ad3ba34e0ea9359201f",
+    "published_path": "designer_workspace_snapshots/cpr_astra/specs/test4.json.gz",
+    "source_artifact": "cpr_astra/test4.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "8a1395fb31217f57e182139bc8ccd869e9ac9d88deb938746d7d4dce9fc4eb76",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t01.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "4f6b7a9319c599b689e120ad403bc86899f607be30bbe232b717189046390476",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t02.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "90075b4f6724316224eb027f580cf4c01a6cb7e1235a33c273f08c6a5bd6d8df",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t03.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "446c8524a92096e89399fc79b4e7b907bfebe1be4cfa33dabe7e2dceefec8fb2",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t04.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "2f69b0e16a01c06852540e126de58cfbff0bf2bf3d9de67710878f796a6b8984",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t05.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t05.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "b2674c708494a53eeba40c0d4fa1d05c6e1dccf7aaf478e63c0b405fb3b97ee4",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t06.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t06.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "8a389dcaa4313988855d7407e94affe872fc638249058d7dd98831109c7991b0",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t07.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t07.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "dcae9910fdcacf64138e2174df510a6b5f1f35fd7588b87c346af6abe9c70a51",
+    "published_path": "designer_workspace_snapshots/cpr_astra/test_results/t08.json.gz",
+    "source_artifact": "cpr_astra/.sw/results/t08.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "e74b9cba68366f7ff381a70e2588e30a2d8c0958911bda301dc50eea6c7da371",
+    "published_path": "designer_workspace_snapshots/cpr_astra/session_ledger.jsonl.gz",
+    "source_artifact": "cpr_astra/session_ledger.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "9e15b99a52ec6e7e01e0dad3367879bf7f0f189f93fef341fe60c7286fefbf4d",
+    "published_path": "designer_workspace_snapshots/cpr_opus/specs/t02.json.gz",
+    "source_artifact": "cpr_opus/t02.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "ea035ab55ede26e00b50471ada84cdd94a378af3e6715b09e53d4c3bdd0d0b45",
+    "published_path": "designer_workspace_snapshots/cpr_opus/specs/t03.json.gz",
+    "source_artifact": "cpr_opus/t03.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "ef088016ae3be4b124ceab50749e9471db3cc2a4f7e5e8422eb6ae2517b81397",
+    "published_path": "designer_workspace_snapshots/cpr_opus/specs/t04.json.gz",
+    "source_artifact": "cpr_opus/t04.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "d556c0cc42b1077c29e186912cb8f3a92b7e6814a0800649ad47a7a25daf3b2c",
+    "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t01.json.gz",
+    "source_artifact": "cpr_opus/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "38e76ffc656423ff475516e97a5211f9c7e439cbb6a670c11b9db39762577149",
+    "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t02.json.gz",
+    "source_artifact": "cpr_opus/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "a30abab6872ef8989bb005ed34c93aa4b10a12e74a2d91f4cfebaef227922845",
+    "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t03.json.gz",
+    "source_artifact": "cpr_opus/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "6ceac3f4e3c87c170fa33d4fa123e5bb232a2d86e995025820163f9531f7ded6",
+    "published_path": "designer_workspace_snapshots/cpr_opus/test_results/t04.json.gz",
+    "source_artifact": "cpr_opus/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "7efea0802bb9b40496f1965bf78fedfdd800416cc86487e9bf05b936ce02d359",
+    "published_path": "designer_workspace_snapshots/cpr_opus/session_ledger.jsonl.gz",
+    "source_artifact": "cpr_opus/session_ledger.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "ee441c2bd09e98df25e228a9b0f844858e6a437ffb89579be26db9a41e0fb127",
+    "published_path": "designer_workspace_snapshots/idr_astra/specs/fractional-check.json.gz",
+    "source_artifact": "idr_astra/fractional-check.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "93cc1a5ca31c440002541c4be1b71c78b234eb8c396dcb4849677e5d999235bb",
+    "published_path": "designer_workspace_snapshots/idr_astra/specs/test1.json.gz",
+    "source_artifact": "idr_astra/test1.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "c2e045f6030e83d25814a2333a7f6655a59add4bfb8efc0d0ba3c8dbafadff60",
+    "published_path": "designer_workspace_snapshots/idr_astra/specs/test2.json.gz",
+    "source_artifact": "idr_astra/test2.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "468a585a698a02d6668e73a37df7271c02a57b638d95ff3967e239a4761d429b",
+    "published_path": "designer_workspace_snapshots/idr_astra/specs/test3.json.gz",
+    "source_artifact": "idr_astra/test3.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3342e66f45b7b07204025fd2070a447ea44d04586ac2454b58c6e301348104e2",
+    "published_path": "designer_workspace_snapshots/idr_astra/specs/test4.json.gz",
+    "source_artifact": "idr_astra/test4.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "b95f1798c899d36ad0c0974933c9f1060c499d9a88cf0a79e6d6f60cbe8270d7",
+    "published_path": "designer_workspace_snapshots/idr_astra/specs/test5.json.gz",
+    "source_artifact": "idr_astra/test5.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "35c586380b2880e7babc7727c58bea3f88f629ff4af88b69c72ca3d04452b4bf",
+    "published_path": "designer_workspace_snapshots/idr_astra/test_results/t01.json.gz",
+    "source_artifact": "idr_astra/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "19f3b3de91935f196667a3df19b6a707808948927f0ea6bf88f1b737b7e59374",
+    "published_path": "designer_workspace_snapshots/idr_astra/test_results/t02.json.gz",
+    "source_artifact": "idr_astra/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "343b42a97d1d3e1493776df4a946f3ce962c9a8489d4e09101946e7e0978e20f",
+    "published_path": "designer_workspace_snapshots/idr_astra/test_results/t03.json.gz",
+    "source_artifact": "idr_astra/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "2fc460fd335deebea559102b0ef0dd84e8a9400eed3ae44e1362d13690368546",
+    "published_path": "designer_workspace_snapshots/idr_astra/test_results/t04.json.gz",
+    "source_artifact": "idr_astra/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "f1625912202f9398d305a2de21e29b705dad28e82e0d057ce8619df266613796",
+    "published_path": "designer_workspace_snapshots/idr_astra/test_results/t05.json.gz",
+    "source_artifact": "idr_astra/.sw/results/t05.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "05a48db0a7821bf54e22e0cdeba35167e7f1fe0a2c4e664b76612bfee2ad4b9a",
+    "published_path": "designer_workspace_snapshots/idr_astra/session_ledger.jsonl.gz",
+    "source_artifact": "idr_astra/session_ledger.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "e6e2c4a5ed3a9a1cb51dc67119aad16bf3ffc24156b01e4acf4a0030271909c9",
+    "published_path": "designer_workspace_snapshots/idr_opus/specs/t1.json.gz",
+    "source_artifact": "idr_opus/t1.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "ddc4274f19e5e1783a3b1c2ea2a9cc28e4b718ecc2f0a088ef4fa87a4950fa04",
+    "published_path": "designer_workspace_snapshots/idr_opus/specs/t2.json.gz",
+    "source_artifact": "idr_opus/t2.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "193b27928f54384bb04d5542355e4ffb9b987b8059878116e2c3c7c587fb263e",
+    "published_path": "designer_workspace_snapshots/idr_opus/specs/t3.json.gz",
+    "source_artifact": "idr_opus/t3.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "c2611bca1a0ac74bc4ca4309d676e044cb294399c33af5ea955c5b4df777a79d",
+    "published_path": "designer_workspace_snapshots/idr_opus/specs/t4.json.gz",
+    "source_artifact": "idr_opus/t4.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3860ed600345f39d0d25da55723e5ae9f93a5cccd9ce9ff8411ace2782b49724",
+    "published_path": "designer_workspace_snapshots/idr_opus/specs/t5.json.gz",
+    "source_artifact": "idr_opus/t5.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "6ed0d7fc71be18c329e67a0323f7bfbf1ac854487361be2305a5d66df6ef674f",
+    "published_path": "designer_workspace_snapshots/idr_opus/test_results/t01.json.gz",
+    "source_artifact": "idr_opus/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "f76c955327389e35f4238df7e21ba55e1fd8c5e2142b70ecd0a9ce0e02726132",
+    "published_path": "designer_workspace_snapshots/idr_opus/test_results/t02.json.gz",
+    "source_artifact": "idr_opus/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "35187fa7903da2ec23832d56359100546804db71231a45e4f45071fb9e65c2ae",
+    "published_path": "designer_workspace_snapshots/idr_opus/test_results/t03.json.gz",
+    "source_artifact": "idr_opus/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "241af20d05896874406e525b22191b754e2abfa872adc65a7dea19c1f40c4249",
+    "published_path": "designer_workspace_snapshots/idr_opus/test_results/t04.json.gz",
+    "source_artifact": "idr_opus/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "6f8f7524803ca826337f4a3d671598599d357febd7a7130736f326e9081ace70",
+    "published_path": "designer_workspace_snapshots/idr_opus/test_results/t05.json.gz",
+    "source_artifact": "idr_opus/.sw/results/t05.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "2e79e385a312272bf88cb7dfd53375b0316fc04490ec2ec161fe005f88edfb65",
+    "published_path": "designer_workspace_snapshots/idr_opus/session_ledger.jsonl.gz",
+    "source_artifact": "idr_opus/session_ledger.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "e0f3f901e62105aa3d75f970ca30aea27a6736ebd2ec8f6c01cfcf425b88e2b0",
+    "published_path": "designer_workspace_snapshots/rtd_astra/specs/check_turns_string.json.gz",
+    "source_artifact": "rtd_astra/check_turns_string.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "cc0fb9d112321bac952e54be35bc925b00c9e7bd0d4c408cb187dda74502feee",
+    "published_path": "designer_workspace_snapshots/rtd_astra/specs/rejected_turns_1_5.json.gz",
+    "source_artifact": "rtd_astra/rejected_turns_1_5.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "c1e3e3fb1b82e5f594bb21ce24753bf5f8f591b1052cb3d469e0da99fdb39401",
+    "published_path": "designer_workspace_snapshots/rtd_astra/specs/test01.json.gz",
+    "source_artifact": "rtd_astra/test01.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "755a2cf8dd7da2609c462c680415507310e8a07a6d75c151b0e79487e8dd94b9",
+    "published_path": "designer_workspace_snapshots/rtd_astra/specs/test02.json.gz",
+    "source_artifact": "rtd_astra/test02.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "c3cdf854b75a31475b0de512dc661561f24890677f22e4b9c0167c24a6bce384",
+    "published_path": "designer_workspace_snapshots/rtd_astra/specs/test03.json.gz",
+    "source_artifact": "rtd_astra/test03.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3a5e2e03c5d7c210e5947d83a6058f9ab95e0381a7aeaad5516e8ea662267acd",
+    "published_path": "designer_workspace_snapshots/rtd_astra/specs/test04.json.gz",
+    "source_artifact": "rtd_astra/test04.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "c98ba1421b5d39481cbeda6f6b62c8c27ff53dd1e66083486f2bedfac9946e04",
+    "published_path": "designer_workspace_snapshots/rtd_astra/specs/test05.json.gz",
+    "source_artifact": "rtd_astra/test05.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "92adbaa40a760850c9d9062d2201651fdb29922c00cfbeddeb20ec4c7b093ce8",
+    "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t01.json.gz",
+    "source_artifact": "rtd_astra/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "92ab7c0952a2a365d42dfed0a5caf22825f451171a47515725484b5cd5ea96fd",
+    "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t02.json.gz",
+    "source_artifact": "rtd_astra/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "e422d37bb17c582c87dcaf145c22355d8d6f1f7de942caee3a811800bd031bab",
+    "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t03.json.gz",
+    "source_artifact": "rtd_astra/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "148f4d94254cceb1639db35a9e84390cecadaf2228c53be355c2deea94c40ada",
+    "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t04.json.gz",
+    "source_artifact": "rtd_astra/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "dacf691b202ee1d84e0308948e9275ae202aae5fd9b51d836722a34003adae33",
+    "published_path": "designer_workspace_snapshots/rtd_astra/test_results/t05.json.gz",
+    "source_artifact": "rtd_astra/.sw/results/t05.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "5d5bded67edd3ba23f4f328904d73fe5a752d5fd7dd49deed5c8e9a31b7fb235",
+    "published_path": "designer_workspace_snapshots/rtd_astra/session_ledger.jsonl.gz",
+    "source_artifact": "rtd_astra/session_ledger.jsonl"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "140a95ab117ebd77b8741b24fd5e6ed9eb609b3fd325e5e64154dbd71aba87d6",
+    "published_path": "designer_workspace_snapshots/rtd_opus/specs/t1.json.gz",
+    "source_artifact": "rtd_opus/t1.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "9fdb4dbf071cba0914272baf938665786f004f3a69bd8d42b9a3278d17f7355d",
+    "published_path": "designer_workspace_snapshots/rtd_opus/specs/t2.json.gz",
+    "source_artifact": "rtd_opus/t2.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "3feb7d12254da3cc936baaa516c89e9c543839eb587a979e70cc2d00b7dd7758",
+    "published_path": "designer_workspace_snapshots/rtd_opus/specs/t3.json.gz",
+    "source_artifact": "rtd_opus/t3.json"
+  },
+  {
+    "kind": "saved_workspace_root_json",
+    "original_bytes_sha256": "84a2877a1e6144ecb085dd2fd98f23fe3c3926516a838519ad2ac2bca8820205",
+    "published_path": "designer_workspace_snapshots/rtd_opus/specs/t4.json.gz",
+    "source_artifact": "rtd_opus/t4.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "c614b4a378d035a89679f096283926cb8263241b0368acc6e2d6538d7bf79515",
+    "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t01.json.gz",
+    "source_artifact": "rtd_opus/.sw/results/t01.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "76a31d6f0155c25a2433ee0f5a5e812e8eade89419d38225e43ddae2937649b6",
+    "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t02.json.gz",
+    "source_artifact": "rtd_opus/.sw/results/t02.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "9eb16ad8bc9f4c2c3b889cf1ec02ecf8d37615a352963337efb5a71ea6626bfb",
+    "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t03.json.gz",
+    "source_artifact": "rtd_opus/.sw/results/t03.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "3392f372e3823ae78ac922bc9c3a4952c91ec89e4ba47b240660fc4260e3ccc7",
+    "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t04.json.gz",
+    "source_artifact": "rtd_opus/.sw/results/t04.json"
+  },
+  {
+    "kind": "saved_test_result_summary",
+    "original_bytes_sha256": "6dae7a7e1e6bfbc79611890cbe57ac328d8d304a4088433856b40cf172890c05",
+    "published_path": "designer_workspace_snapshots/rtd_opus/test_results/t05.json.gz",
+    "source_artifact": "rtd_opus/.sw/results/t05.json"
+  },
+  {
+    "kind": "saved_session_ledger",
+    "original_bytes_sha256": "75e284cba2311eb34050cc994960fc80168ed09728bb73183d50430dc30f8bfa",
+    "published_path": "designer_workspace_snapshots/rtd_opus/session_ledger.jsonl.gz",
+    "source_artifact": "rtd_opus/session_ledger.jsonl"
+  }
+]

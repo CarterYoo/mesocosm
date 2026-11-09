@@ -1,0 +1,408 @@
+[
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DATAENG-RTD-061.json.gz",
+    "saved_task_sha256": "273717449a35fb675ba811d2cc3e5dd67c054df5215074b11763ac74cbaaf59b",
+    "task_id": "TASK-DATAENG-RTD-061",
+    "upstream_path": "tasks/TASK-DATAENG-RTD-061.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DATAENG-RTD-076.json.gz",
+    "saved_task_sha256": "84be7fd6f781b33d0508bd976f9c20008b9ffae2ab3c2a8ccdcdc738f0013775",
+    "task_id": "TASK-DATAENG-RTD-076",
+    "upstream_path": "tasks/TASK-DATAENG-RTD-076.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DATAENG-RTD-077.json.gz",
+    "saved_task_sha256": "29795961c41c080a8608d523cf45394cb2ffc08ce74ba3441004e06f17987699",
+    "task_id": "TASK-DATAENG-RTD-077",
+    "upstream_path": "tasks/TASK-DATAENG-RTD-077.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DATAENG-RTD-080.json.gz",
+    "saved_task_sha256": "020adf9069891933b53aa48298b39b9f6a4ba63c01983be664000a10eeccb5b8",
+    "task_id": "TASK-DATAENG-RTD-080",
+    "upstream_path": "tasks/TASK-DATAENG-RTD-080.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DATAENG-RTD-090.json.gz",
+    "saved_task_sha256": "db470ba51becbea3c5e2e67b9ba05e06ea9015ff5a7e29aa243ad4586b76483d",
+    "task_id": "TASK-DATAENG-RTD-090",
+    "upstream_path": "tasks/TASK-DATAENG-RTD-090.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DEVOPS-RTD-133.json.gz",
+    "saved_task_sha256": "08aaf20713380e1c7284c5a02b6863588ffcf1e946f79c02d4230190c004ea98",
+    "task_id": "TASK-DEVOPS-RTD-133",
+    "upstream_path": "tasks/TASK-DEVOPS-RTD-133.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DEVOPS-RTD-137.json.gz",
+    "saved_task_sha256": "cca85afd9f0e265b4c3735435572f9ac308bc09a1d0715fa31cd175c916181cf",
+    "task_id": "TASK-DEVOPS-RTD-137",
+    "upstream_path": "tasks/TASK-DEVOPS-RTD-137.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DEVOPS-RTD-156.json.gz",
+    "saved_task_sha256": "8e60e63a3fe92f328305daf2bf6b8d85f688bde419f5f7e96d5e09d754006b8e",
+    "task_id": "TASK-DEVOPS-RTD-156",
+    "upstream_path": "tasks/TASK-DEVOPS-RTD-156.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DEVOPS-RTD-164.json.gz",
+    "saved_task_sha256": "9d3af222ad92f58133b2a52a194e6d9e7b8fd73484e6d90017528d8e09dff972",
+    "task_id": "TASK-DEVOPS-RTD-164",
+    "upstream_path": "tasks/TASK-DEVOPS-RTD-164.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DEVOPS-RTD-169.json.gz",
+    "saved_task_sha256": "0fbe0bbba744963f3c538ccdfe3006df0a010b14962226a7eb847a8457c46b5f",
+    "task_id": "TASK-DEVOPS-RTD-169",
+    "upstream_path": "tasks/TASK-DEVOPS-RTD-169.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-DEVOPS-RTD-171.json.gz",
+    "saved_task_sha256": "f95a7c51e6d6f353f1af21d1ef56b3f033fb3b4b3d61e67285e20772b80f610b",
+    "task_id": "TASK-DEVOPS-RTD-171",
+    "upstream_path": "tasks/TASK-DEVOPS-RTD-171.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-SWE-RTD-059.json.gz",
+    "saved_task_sha256": "cba5bfbf7379c67c9998091c3526647681ccdfc36a090ea46a5a27898485ea75",
+    "task_id": "TASK-SWE-RTD-059",
+    "upstream_path": "tasks/TASK-SWE-RTD-059.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-SWE-RTD-061.json.gz",
+    "saved_task_sha256": "cd5263ba2779ceb061934657b4b72c1d53774e079bdfca62321b149fc055797e",
+    "task_id": "TASK-SWE-RTD-061",
+    "upstream_path": "tasks/TASK-SWE-RTD-061.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-SWE-RTD-066.json.gz",
+    "saved_task_sha256": "c46f44d694bd325d2baa8a4064dc18a2c5cf8eccca87126603db0ad09e4f30f1",
+    "task_id": "TASK-SWE-RTD-066",
+    "upstream_path": "tasks/TASK-SWE-RTD-066.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-SWE-RTD-073.json.gz",
+    "saved_task_sha256": "8b7a31d39d2d78ab208e713bbfc6a812545c225e07bf9f19e9077c08fb11e4a6",
+    "task_id": "TASK-SWE-RTD-073",
+    "upstream_path": "tasks/TASK-SWE-RTD-073.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-SWE-RTD-076.json.gz",
+    "saved_task_sha256": "1e2c22bcb439ec8c44fb50c016303b54bdc11b8c9f672e68322d779355dfcb30",
+    "task_id": "TASK-SWE-RTD-076",
+    "upstream_path": "tasks/TASK-SWE-RTD-076.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-SWE-RTD-088.json.gz",
+    "saved_task_sha256": "dd549a5c72506cbf01f703c427517e564032a764fe7114c062331ff750cf316c",
+    "task_id": "TASK-SWE-RTD-088",
+    "upstream_path": "tasks/TASK-SWE-RTD-088.json"
+  },
+  {
+    "metric": "rtd",
+    "path": "responses/rtd/student_original/run1/TASK-SWE-RTD-107.json.gz",
+    "saved_task_sha256": "1b19a18a95d469d7b6d24197ff466e94898dc848dfa89931bacff15174f16638",
+    "task_id": "TASK-SWE-RTD-107",
+    "upstream_path": "tasks/TASK-SWE-RTD-107.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DATAENG-CPR-017.json.gz",
+    "saved_task_sha256": "4cb60033f1c26498adb685b5d6c6f467e509f550e076a3e2173841b515f51fa0",
+    "task_id": "TASK-DATAENG-CPR-017",
+    "upstream_path": "tasks/TASK-DATAENG-CPR-017.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DATAENG-CPR-026.json.gz",
+    "saved_task_sha256": "fb3badaf39287c04a6cb818d520d2fbc1762ac1a7d504f1e2ac0f074c3980e52",
+    "task_id": "TASK-DATAENG-CPR-026",
+    "upstream_path": "tasks/TASK-DATAENG-CPR-026.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DATAENG-CPR-028.json.gz",
+    "saved_task_sha256": "8825d93f02220d9f77c8c656a193aa24889cc930b46ca68c722deecd9e7bd574",
+    "task_id": "TASK-DATAENG-CPR-028",
+    "upstream_path": "tasks/TASK-DATAENG-CPR-028.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DATAENG-CPR-037.json.gz",
+    "saved_task_sha256": "904512ac3215a60192999e0dee1d34bedc1f3532eedab800383902a058d77f5f",
+    "task_id": "TASK-DATAENG-CPR-037",
+    "upstream_path": "tasks/TASK-DATAENG-CPR-037.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DATAENG-CPR-066.json.gz",
+    "saved_task_sha256": "c402f1db5c53779f3d65e1ec790c67884fef006f1680141cd801a9bceefa7c6f",
+    "task_id": "TASK-DATAENG-CPR-066",
+    "upstream_path": "tasks/TASK-DATAENG-CPR-066.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DATAENG-CPR-070.json.gz",
+    "saved_task_sha256": "635264a8c36070ef2586378a861c1f306a7b239d6c7424f74b65ffc452283aa4",
+    "task_id": "TASK-DATAENG-CPR-070",
+    "upstream_path": "tasks/TASK-DATAENG-CPR-070.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-023.json.gz",
+    "saved_task_sha256": "212e457ea8867cb495126961b56acc95dbb8f44f0c869c15a1edf6d657506f67",
+    "task_id": "TASK-DEVOPS-CPR-023",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-023.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-024.json.gz",
+    "saved_task_sha256": "cba2ec59ec84625a2a5a22fac79847bd869682c9aab6dc091c7e90c13f9fd8c4",
+    "task_id": "TASK-DEVOPS-CPR-024",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-024.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-032.json.gz",
+    "saved_task_sha256": "c1c7424c87bedaa9cfab1f97d49370ea32d6afe67826dd7b78077db13b04ea07",
+    "task_id": "TASK-DEVOPS-CPR-032",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-032.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-038.json.gz",
+    "saved_task_sha256": "c9f39ed485b945af530d646ccc8c80ed60efee14351ad6e11ae1c17c86f1798d",
+    "task_id": "TASK-DEVOPS-CPR-038",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-038.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-053.json.gz",
+    "saved_task_sha256": "7033c99076d139554f829b9bb9a9fb6b31b534876dca80c1f9eee559c589edc5",
+    "task_id": "TASK-DEVOPS-CPR-053",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-053.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-055.json.gz",
+    "saved_task_sha256": "3d9718603f8620dee1fa14cd880391139e3e35e932096c29e8653c8f05c85275",
+    "task_id": "TASK-DEVOPS-CPR-055",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-055.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-071.json.gz",
+    "saved_task_sha256": "3c423a3f9ccdc9f3b4753ff6500f12f0758e2d9e9e506b687cecc323750e72af",
+    "task_id": "TASK-DEVOPS-CPR-071",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-071.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-DEVOPS-CPR-073.json.gz",
+    "saved_task_sha256": "a4f77fc4aec17b473aec1a66ec42538ae7291364c0071b8ad5085b03256228ff",
+    "task_id": "TASK-DEVOPS-CPR-073",
+    "upstream_path": "tasks/TASK-DEVOPS-CPR-073.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-SWE-CPR-006.json.gz",
+    "saved_task_sha256": "630db89cbf487121d7eaec9614857ebc4a8e07b0587330fd712259a174bc2e82",
+    "task_id": "TASK-SWE-CPR-006",
+    "upstream_path": "tasks/TASK-SWE-CPR-006.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-SWE-CPR-012.json.gz",
+    "saved_task_sha256": "c61ba040c9c584c1489dde3ec71fdcd568f8dfc542b337cf485cdfa30516aaa6",
+    "task_id": "TASK-SWE-CPR-012",
+    "upstream_path": "tasks/TASK-SWE-CPR-012.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-SWE-CPR-022.json.gz",
+    "saved_task_sha256": "50dec72728e1743f91857ecee08267d0415a506b67af926c51c7832c406d80ab",
+    "task_id": "TASK-SWE-CPR-022",
+    "upstream_path": "tasks/TASK-SWE-CPR-022.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-SWE-CPR-030.json.gz",
+    "saved_task_sha256": "e06b7fadd07cc743fc4dd71010cc4321e27fe4aeb990d83c7e91b628584ca074",
+    "task_id": "TASK-SWE-CPR-030",
+    "upstream_path": "tasks/TASK-SWE-CPR-030.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-SWE-CPR-063.json.gz",
+    "saved_task_sha256": "ccede5d37a6716e413df8f3f82be69be52b722f22968aadf22b1e19174bad94b",
+    "task_id": "TASK-SWE-CPR-063",
+    "upstream_path": "tasks/TASK-SWE-CPR-063.json"
+  },
+  {
+    "metric": "cpr",
+    "path": "responses/cpr/student_original/run1/TASK-SWE-CPR-065.json.gz",
+    "saved_task_sha256": "e0fbe20b4e0faac2c989265051290618b0b6961a1fc6a93ca10900f2f01803a8",
+    "task_id": "TASK-SWE-CPR-065",
+    "upstream_path": "tasks/TASK-SWE-CPR-065.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DATAENG-IDR-016.json.gz",
+    "saved_task_sha256": "fe52b70446a9ec74439564662b614ba4e8bde1446ea851ba614db5abaeef602b",
+    "task_id": "TASK-DATAENG-IDR-016",
+    "upstream_path": "tasks/TASK-DATAENG-IDR-016.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DATAENG-IDR-155.json.gz",
+    "saved_task_sha256": "a964824ddb8214ae336c0cb7fc024cd03b8f5aac79e584b9c2cf820ae2ee0972",
+    "task_id": "TASK-DATAENG-IDR-155",
+    "upstream_path": "tasks/TASK-DATAENG-IDR-155.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DATAENG-IDR-159.json.gz",
+    "saved_task_sha256": "2ebc07e64b69a69ad1e3e02f392ce29929bb843da80a1e6dc422687999da8da1",
+    "task_id": "TASK-DATAENG-IDR-159",
+    "upstream_path": "tasks/TASK-DATAENG-IDR-159.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DATAENG-IDR-162.json.gz",
+    "saved_task_sha256": "fe8f9217b6128c393b9699ba602819b8cb3e942383a823d57947f3becf864f96",
+    "task_id": "TASK-DATAENG-IDR-162",
+    "upstream_path": "tasks/TASK-DATAENG-IDR-162.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DEVOPS-IDR-179.json.gz",
+    "saved_task_sha256": "cb7646915c69abbff7cf0f4a7af387980bd3c80b9e328d707f28ffb85827d47c",
+    "task_id": "TASK-DEVOPS-IDR-179",
+    "upstream_path": "tasks/TASK-DEVOPS-IDR-179.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DEVOPS-IDR-182.json.gz",
+    "saved_task_sha256": "a6831f0410595b91f35659136199a668fa76c412ec7c534c0367cf58daf5b2a9",
+    "task_id": "TASK-DEVOPS-IDR-182",
+    "upstream_path": "tasks/TASK-DEVOPS-IDR-182.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DEVOPS-IDR-186.json.gz",
+    "saved_task_sha256": "61759907339edff6c3e5e1b6c25076c24c77639f2897e9f1b77c48971b269bce",
+    "task_id": "TASK-DEVOPS-IDR-186",
+    "upstream_path": "tasks/TASK-DEVOPS-IDR-186.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DEVOPS-IDR-190.json.gz",
+    "saved_task_sha256": "c46c54c7cb225272447f41c591427dfdd442a0392c57b853a27350f0f16f0a40",
+    "task_id": "TASK-DEVOPS-IDR-190",
+    "upstream_path": "tasks/TASK-DEVOPS-IDR-190.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DEVOPS-IDR-191.json.gz",
+    "saved_task_sha256": "0be4bb35885df3908b7ebbed56c954a2659b024ddb2d3f26575977529a84bbb0",
+    "task_id": "TASK-DEVOPS-IDR-191",
+    "upstream_path": "tasks/TASK-DEVOPS-IDR-191.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DEVOPS-IDR-209.json.gz",
+    "saved_task_sha256": "a5198f64fd6b430e3ea78654a3dd0d355619f4aa13e91369a5b805a86593a97e",
+    "task_id": "TASK-DEVOPS-IDR-209",
+    "upstream_path": "tasks/TASK-DEVOPS-IDR-209.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-DEVOPS-IDR-211.json.gz",
+    "saved_task_sha256": "59276541a3c676d4f8941401a8b3e3629a941826845b6496b65356c93d07fc44",
+    "task_id": "TASK-DEVOPS-IDR-211",
+    "upstream_path": "tasks/TASK-DEVOPS-IDR-211.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-119.json.gz",
+    "saved_task_sha256": "0168c041020b664e0f0c564a22a9c168a6d0f428e505de1989a33e51d300675e",
+    "task_id": "TASK-SWE-IDR-119",
+    "upstream_path": "tasks/TASK-SWE-IDR-119.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-124.json.gz",
+    "saved_task_sha256": "61b71090ad2ec54dfb26b6d9f47867359bb77ca4934dd73ddbc932588810042b",
+    "task_id": "TASK-SWE-IDR-124",
+    "upstream_path": "tasks/TASK-SWE-IDR-124.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-141.json.gz",
+    "saved_task_sha256": "1beacb83505f1c266338db2b5689c84d1616b9a64e611ce9ab006889e3c4ccd0",
+    "task_id": "TASK-SWE-IDR-141",
+    "upstream_path": "tasks/TASK-SWE-IDR-141.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-145.json.gz",
+    "saved_task_sha256": "08e511530e7439c43ab9105109baa21b8cdf8757b3aaf7b78bb22458e77d87ac",
+    "task_id": "TASK-SWE-IDR-145",
+    "upstream_path": "tasks/TASK-SWE-IDR-145.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-147.json.gz",
+    "saved_task_sha256": "4527974e6a91d22bd35fc51e68d33d49abf06e2080ba4cf7384e155890f11419",
+    "task_id": "TASK-SWE-IDR-147",
+    "upstream_path": "tasks/TASK-SWE-IDR-147.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-151.json.gz",
+    "saved_task_sha256": "14b9e2f65f63357b11720ff73e6fb7c88acf05834b3449ccf44d056085aa1231",
+    "task_id": "TASK-SWE-IDR-151",
+    "upstream_path": "tasks/TASK-SWE-IDR-151.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-152.json.gz",
+    "saved_task_sha256": "38ba29bcc7c07e12df8bb664ac66c6fab191d3e8eacba827999a04f9d8cabd8a",
+    "task_id": "TASK-SWE-IDR-152",
+    "upstream_path": "tasks/TASK-SWE-IDR-152.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-155.json.gz",
+    "saved_task_sha256": "7c41ae52e4564c4692dc27a7486740efd7b2633db943aef1172af3e24ab4cfea",
+    "task_id": "TASK-SWE-IDR-155",
+    "upstream_path": "tasks/TASK-SWE-IDR-155.json"
+  },
+  {
+    "metric": "idr",
+    "path": "responses/idr/student_original/run1/TASK-SWE-IDR-157.json.gz",
+    "saved_task_sha256": "bbf1b3ba7ad89fbe3671e476218b3ab6866990f1ddd348a484acb0e54a47a107",
+    "task_id": "TASK-SWE-IDR-157",
+    "upstream_path": "tasks/TASK-SWE-IDR-157.json"
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "method": "Direct reading of both matched spans and their surrounding generated response; no credential-validation network call",
+  "decisions": [
+    {
+      "path": "responses/idr/idr_astra/t03/TASK-SWE-IDR-141.json.gz",
+      "pattern": "credential_shaped",
+      "match_sha256": "55147c294aeb720464a55272b6073d148c7cf1ecbc524891129ece113326d7c5",
+      "occurrences": 2,
+      "trace_index": 1,
+      "decision": "preserve_generated_example",
+      "basis": "The model introduces a hypothetical immutable gateway key ID with an explicit example marker, then repeats the same value in an example X-API-Key-Id header. The saved record supplies no evidence that it is an operational credential.",
+      "limit": "This contextual adjudication does not test whether a string is accepted by any external service."
+    }
+  ],
+  "private_local_identifier_matches_in_response_files": 0,
+  "generated_turns_with_local_identifier_replacements": 0,
+  "limit": "Pattern coverage is limited. Preservation of benchmark passwords and model-authored examples is intentional."
+}

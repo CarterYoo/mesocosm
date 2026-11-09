@@ -1,0 +1,13 @@
+{
+  "by_reviewer": {
+    "code_astra": 250,
+    "code_astra_teacher_b": 100,
+    "code_original_opus": 286,
+    "verify_acb_teacher": 100
+  },
+  "errors": [],
+  "missing": [],
+  "n_coded": 736,
+  "n_input": 736,
+  "n_unique_coded": 736
+}

@@ -1,0 +1,413 @@
+[
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "salience": "low"
+    },
+    "finished_at": "2026-11-09T06:32:52Z",
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T05:48:12Z",
+    "test": "t01"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "distractors": "half",
+      "salience": "high",
+      "topology": "original",
+      "turns": 1
+    },
+    "finished_at": "2026-11-09T06:48:08Z",
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T06:33:34Z",
+    "test": "t02"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "distractors": "all",
+      "salience": "high",
+      "topology": "original",
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T07:09:08Z",
+    "metric": "rtd",
+    "selected_final": true,
+    "session": "rtd_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T06:48:33Z",
+    "test": "t03"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "distractors": "all",
+      "salience": "high",
+      "topology": "chain",
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T07:31:17Z",
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:09:51Z",
+    "test": "t04"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "distractors": "all",
+      "salience": "low",
+      "topology": "original",
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T07:48:56Z",
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:33:27Z",
+    "test": "t05"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "salience": "low"
+    },
+    "finished_at": "2026-11-09T06:34:07Z",
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T05:49:52Z",
+    "test": "t01"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "topology": "chain"
+    },
+    "finished_at": "2026-11-09T06:48:37Z",
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T06:37:28Z",
+    "test": "t02"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "distractors": "none"
+    },
+    "finished_at": "2026-11-09T07:09:09Z",
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T06:49:59Z",
+    "test": "t03"
+  },
+  {
+    "available_trace_files": 7,
+    "effective_spec": {
+      "topology": "original"
+    },
+    "finished_at": null,
+    "metric": "rtd",
+    "selected_final": false,
+    "session": "rtd_opus",
+    "status": "platform_failure",
+    "submitted_at": "2026-11-09T07:09:54Z",
+    "test": "t04"
+  },
+  {
+    "available_trace_files": 18,
+    "effective_spec": {
+      "topology": "original"
+    },
+    "finished_at": "2026-11-09T07:38:48Z",
+    "metric": "rtd",
+    "selected_final": true,
+    "session": "rtd_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:13:40Z",
+    "test": "t05"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "seed_position": "original",
+      "topology": "root_broadcast",
+      "turns": 1
+    },
+    "finished_at": "2026-11-09T06:50:47Z",
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T05:48:15Z",
+    "test": "t01"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "seed_position": "original",
+      "topology": "chain",
+      "turns": 1
+    },
+    "finished_at": "2026-11-09T08:48:43Z",
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T08:08:52Z",
+    "test": "t02"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "seed_position": "original",
+      "topology": "original",
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T09:10:30Z",
+    "metric": "cpr",
+    "selected_final": true,
+    "session": "cpr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T08:51:04Z",
+    "test": "t03"
+  },
+  {
+    "available_trace_files": 0,
+    "effective_spec": {
+      "seed_position": "middle",
+      "topology": "original",
+      "turns": 1
+    },
+    "finished_at": null,
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_astra",
+    "status": "platform_failure",
+    "submitted_at": "2026-11-09T09:11:38Z",
+    "test": "t04"
+  },
+  {
+    "available_trace_files": 0,
+    "effective_spec": {
+      "seed_position": "middle",
+      "topology": "original",
+      "turns": 1
+    },
+    "finished_at": null,
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_astra",
+    "status": "platform_failure",
+    "submitted_at": "2026-11-09T09:16:45Z",
+    "test": "t05"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "topology": "root_broadcast"
+    },
+    "finished_at": "2026-11-09T06:50:38Z",
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T05:52:53Z",
+    "test": "t01"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T07:21:39Z",
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T06:53:08Z",
+    "test": "t02"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "seed_position": "middle",
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T07:54:28Z",
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:24:57Z",
+    "test": "t03"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "seed_position": "last",
+      "topology": "full"
+    },
+    "finished_at": "2026-11-09T08:49:38Z",
+    "metric": "cpr",
+    "selected_final": false,
+    "session": "cpr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:58:44Z",
+    "test": "t04"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "pressure": "all",
+      "topology": "full",
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T06:45:15Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T05:48:03Z",
+    "test": "t01"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "pressure": "all",
+      "topology": "chain",
+      "turns": 1
+    },
+    "finished_at": "2026-11-09T07:13:14Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T06:46:21Z",
+    "test": "t02"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "pressure": "all",
+      "topology": "root_broadcast",
+      "turns": 1
+    },
+    "finished_at": "2026-11-09T07:41:50Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:14:21Z",
+    "test": "t03"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "pressure": "first",
+      "topology": "root_broadcast",
+      "turns": 1
+    },
+    "finished_at": "2026-11-09T08:01:33Z",
+    "metric": "idr",
+    "selected_final": true,
+    "session": "idr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:42:43Z",
+    "test": "t04"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "pressure": "half",
+      "topology": "root_broadcast",
+      "turns": 1
+    },
+    "finished_at": "2026-11-09T08:38:15Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_astra",
+    "status": "done",
+    "submitted_at": "2026-11-09T08:02:09Z",
+    "test": "t05"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "topology": "full"
+    },
+    "finished_at": "2026-11-09T06:45:10Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T05:49:22Z",
+    "test": "t01"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "turns": 2
+    },
+    "finished_at": "2026-11-09T07:17:02Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T06:49:08Z",
+    "test": "t02"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "topology": "chain"
+    },
+    "finished_at": "2026-11-09T07:48:51Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:18:25Z",
+    "test": "t03"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "topology": "root_broadcast"
+    },
+    "finished_at": "2026-11-09T08:20:36Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T07:50:44Z",
+    "test": "t04"
+  },
+  {
+    "available_trace_files": 20,
+    "effective_spec": {
+      "topology": "root_broadcast"
+    },
+    "finished_at": "2026-11-09T08:46:07Z",
+    "metric": "idr",
+    "selected_final": false,
+    "session": "idr_opus",
+    "status": "done",
+    "submitted_at": "2026-11-09T08:21:50Z",
+    "test": "t05"
+  }
+]

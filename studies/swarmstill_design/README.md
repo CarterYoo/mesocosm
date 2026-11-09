@@ -55,4 +55,6 @@ Hosts and keys come from the environment, never from files: `SWARMSTILL_COLLUSIO
 `SWARMSTILL_ACB_HOST`/`_PORT`, `SWARMSTILL_JUDGE_HOST`/`_PORT` (machine with the judge endpoint at 127.0.0.1:8100),
 `SWARMSTILL_SSH_KEY`, `SWARMSTILL_TEACHER_CORPUS`, `ACB_DOCS`. Requires Python ≥ 3.11 (`uv run`).
 
-Run data (trajectories, ledgers, designer transcripts) is not committed.
+The author-authorized [qualitative audit release](../../results/swarmstill/07_qualitative_audit/README.md)
+contains the explicitly listed saved trajectories, designer materials, provenance and verification commands.
+Other run data and operational logs remain uncommitted.

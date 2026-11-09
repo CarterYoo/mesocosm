@@ -1,0 +1,38 @@
+{
+  "annotation_status": "Agent-generated calibrated annotations; not human gold labels.",
+  "casebank": {
+    "acb_turns": 4,
+    "collusion_records": 64,
+    "designer_notes": 8
+  },
+  "checks": [
+    "exact file inventory and SHA256",
+    "deterministic gzip metadata",
+    "736 unique input/annotation/reviewer keys",
+    "legal annotation labels and uncertainty flags",
+    "exact short quote provenance",
+    "full-run reasoning/reflection/feedback/verdict/channel/failed-send linkage",
+    "casebank 64+4+8 consistency",
+    "designer supplement content hashes and exact recorded timestamps",
+    "recomputed calibrated aggregates",
+    "explicit local infrastructure path and endpoint redaction checks",
+    "standalone verification from a different working directory"
+  ],
+  "constrained_records": 640,
+  "corpus_records": 736,
+  "credential_metadata_fields_found_and_redacted": 0,
+  "designer_supplement": {
+    "astra_agent_messages": 435,
+    "ledger_events": 100,
+    "saved_specs_probes_configs": 42,
+    "session_ledgers": 8,
+    "test_result_summaries": 41
+  },
+  "full_source_runs": 49,
+  "inference_endpoint_fields_redacted": 78,
+  "other_round_records": 96,
+  "records_with_private_task_raw_log": 736,
+  "redaction_event_count": 4229,
+  "source_linked_records": 736,
+  "status": "pass"
+}

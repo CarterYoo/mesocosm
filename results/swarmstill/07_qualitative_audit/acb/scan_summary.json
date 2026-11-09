@@ -1,0 +1,13 @@
+{
+  "generated_characters": 69226816,
+  "review_flags": [
+    {
+      "match_hashes": [
+        "55147c294aeb720464a55272b6073d148c7cf1ecbc524891129ece113326d7c5"
+      ],
+      "matches": 2,
+      "path": "responses/idr/idr_astra/t03/TASK-SWE-IDR-141.json.gz",
+      "pattern": "credential_shaped"
+    }
+  ]
+}

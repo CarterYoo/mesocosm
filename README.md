@@ -110,6 +110,7 @@ endpoint configuration.
 | Trace how mutual approval was measured | [Emergent Collusion protocol and scorer](studies/swarmstill_ec/README.md) |
 | Inspect the preregistered prediction study | [AgentCollabBench generalization](studies/swarmstill_general/README.md) |
 | Find figures, protocols, and analysis scripts | [SwarmStill results](results/swarmstill/README.md) |
+| Inspect failure mechanisms and the released supporting logs | [Qualitative audit and reproducibility bundle](results/swarmstill/07_qualitative_audit/README.md) |
 
 Original experiments require the benchmark sources, configured model endpoints
 and credentials, and the compute described in the study guides. Keep the original

@@ -13,16 +13,18 @@ with the prompts, pre-registrations, hashes and scripts that produced them.
 | `04_framework_guides/` | The design guide, v1 to v4 | done | v4 is the frozen general form used in 05 |
 | `05_generalization_acb/` | Pre-registered test: does guide v4 improve designers' predictions on four AgentCollabBench behaviors and five small models? | done | Not supported: D = +0.38 points [−0.41, 1.18], one-sided p = 0.91 |
 | `06_iterative_design/` | Iterative design: Claude Opus 5.5 and GPT-6 Astra redesign an AgentCollabBench RTD environment over 20 real test runs so Qwen3-4B / Gemma-4-E4B teams match a Qwen3-8B team | running | Protocol and tooling only; results pending |
+| `07_qualitative_audit/` | Post hoc audit of task tracking, evidence delivery, feedback interpretation, teacher/student contrasts and effective design levers | released audit | Five source-linked cases, supporting model logs, annotations, provenance and offline verification; not a causal or prevalence estimate |
 | `scripts/` | Analysis, scoring and figure scripts shared by 01–03 | | |
 
 Each folder has its own README with the method, the files and the numbers as computed at the time.
 
 ## What is not committed, and where it lives
 
-- **Raw runs and trajectories.** Small-model rollouts, agent conversations, AgentCollabBench traces and designer
-  event logs stay on the run machines and in the operator's local scratch space (`pulled/`, `small_runs*/`,
-  `op/runs`, `op/distill/*/events.jsonl`, `gen/backup`). The repository rule is that run data is never committed
-  (`AGENTS.md`, `.gitignore`).
+- **Released audit logs.** The author-authorized [qualitative audit bundle](07_qualitative_audit/README.md)
+  is the reproducibility entry point for the Discussion's five cases. It publishes the explicitly listed
+  research logs with source hashes, scope boundaries and infrastructure redactions. Other raw runs and
+  operational event logs remain outside this repository; this release does not change the default rule
+  for `runs/`, activations or unrelated run data.
 - **Third-party data.** Copies of the Emergent Collusion release (parquet tables, masked trajectories) and of the
   AgentCollabBench task files are not redistributed; scripts and manifests here regenerate them from the originals.
 - **Operational files.** Monitoring ticks, pod health files, pod setup and polling scripts, credentials and host
