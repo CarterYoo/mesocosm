@@ -11,6 +11,16 @@ model requests, agent actions, and verifier results so you can compare runs.
 *The SwarmStill study loop. A designer tests changes to a small-model team's
 setup and compares the measured behavior with a reference profile.*
 
+## Prior work and sprint scope
+
+**Preexisting (before the Swarm Alignment sprint, Nov 6–8, 2026):** the Mesocosm platform itself — the runtime,
+gateways, adapters, CLI and their tests in `src/`, `tests/`, `spike/`, `docs/` and `examples/` — developed since
+October 2026 (last pre-sprint commit 2026-10-25).
+
+**Built during the sprint:** the SwarmStill skill (`skills/swarmstill/`, first commit 2026-11-07), the SwarmStill
+study tools and scorers (`studies/swarmstill_*`), every experiment, analysis and figure under `results/swarmstill/`,
+and the report. Only this sprint work is submitted for judging.
+
 ## What can you do with Mesocosm?
 
 A Mesocosm **world** defines the agents, their task, and the conditions under
