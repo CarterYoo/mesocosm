@@ -66,15 +66,36 @@ trajectories and reports the all-zero contribution separately.
 
 ## Quick start
 
-From the repository root on Linux, install the locked dependencies and
-validate the example world. These checks run without Docker or a GPU.
+Use a **Linux shell** with Git, [uv](https://docs.astral.sh/uv/getting-started/installation/),
+and network access for the initial download. Mesocosm supports Python 3.11–3.13,
+and uv can install a compatible interpreter if needed. On Windows, open a Linux
+distribution under [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/install)
+and install uv there. Running the CLI in PowerShell or with Windows Python fails
+with `ModuleNotFoundError: No module named 'fcntl'` because the CLI uses Unix file locks.
+
+Clone this fork and install the locked dependencies from the repository root.
+If you already cloned it, start in your existing checkout.
 
 ```bash
+git clone https://github.com/khs1010/mesocosm.git
+cd mesocosm
+uv --version
 uv sync --locked --extra dev --extra gateway --extra mcp
+```
+
+Run the local checks in the same shell. They require no Docker, GPU, model API
+credentials, or downloaded Terminal-Bench tasks.
+
+```bash
 uv run mesocosm world validate examples/world-native-three.yaml --json
 uv run mesocosm research tools --json
 uv run pytest tests/test_swarmstill_ec.py tests/test_examples.py
 ```
+
+The first command should return JSON with `"ok": true`. It validates the manifest
+and leaves resolution of the external `fix-git` dataset to live execution. The
+second command prints a JSON tool catalog without starting a job. The last command
+should report passing tests.
 
 For a live three-agent run, follow the [native execution guide](docs/native-multiagent.md).
 It covers Linux Docker, the original `fix-git` task and verifier, and model
