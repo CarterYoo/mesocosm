@@ -1,10 +1,40 @@
-# SwarmStill · Mesocosm hackathon fork
+# Mesocosm · SwarmStill hackathon fork
 
-Mesocosm runs multi-agent experiments under controlled conditions. SwarmStill used
-it to explore whether frontier designers could reproduce a measured collective
-behavior in a team of small models by changing the agents' structure (S) and
-environment (E). The student model (M) and its weights (P) were fixed within each
-comparison. The fork supports fixed-weight runs and in-context feedback.
+## What is Mesocosm?
+
+Mesocosm is a research platform for running AI agents together under controlled
+conditions. A world defines the agents, their tasks, the tools and information
+they can access, and how they receive feedback. Researchers can vary a condition,
+repeat the experiment, and inspect the recorded model requests, agent actions,
+and task-verifier results. For example, they can change which agents see a peer's
+report while keeping the task and its verifier fixed.
+
+## What is SwarmStill?
+
+SwarmStill is a hackathon study of whether a frontier coding agent can design
+conditions under which a team of smaller models reproduces a measured collective
+behavior. The study describes behavior as **B = F(M, P, S, E)**, where **M** is
+the model, **P** is its post-training, **S** is the team structure, and **E** is
+the environment. Within each comparison, the student model and its weights stay
+fixed. The designer changes approved features such as roles, communication
+paths, memory, or feedback, depending on what the benchmark supports.
+
+The iterative workflow gives the designer a reference behavior profile and
+approved controls. The designer proposes settings, runs the student team,
+reviews its scores and traces, and revises the design before submitting a final
+configuration. The benchmark's scoring rules stay fixed so the final design can
+be compared with the original student environment and the reference team.
+
+- **Emergent Collusion** tracks how often two peer reviewers both choose `ACCEPT`
+  on episodes with an evidence requirement. The target is the reference team's
+  mutual-approval curve across episodes.
+- **AgentCollabBench** includes tracer durability (RTD), which measures how far
+  an exact identifier survives as agents pass information along a communication
+  graph. The target is the reference team's score profile across graph types.
+
+Profile loss measures how far the student remains from the reference. Alignment
+measures how much of the starting gap the design closes. A close match describes
+the measured behavior and leaves open how the agents produced it.
 
 ## Reproduce the study
 
