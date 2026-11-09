@@ -16,7 +16,7 @@ from mesocosm.core.manifest import WorldManifest
 from mesocosm.core.records import RunBundle
 from mesocosm.core.run import Components, run_world
 from mesocosm.learning.collect import collect_rollouts
-from mesocosm.learning.controller import RolloutContext
+from mesocosm.learning.rollout import RolloutContext
 
 
 class FixtureHarness:

@@ -7,7 +7,7 @@ import importlib
 import json
 import pathlib
 
-from mesocosm.learning.config import PolicyIdentity, TrainingSpec, policy_id
+from mesocosm.learning.config import PolicyIdentity
 
 
 def checkpoint_sha256(path: str | pathlib.Path, *, adapter: bool = False) -> str:
@@ -35,7 +35,7 @@ def checkpoint_sha256(path: str | pathlib.Path, *, adapter: bool = False) -> str
     return digest.hexdigest()
 
 
-def resolve_base(spec: TrainingSpec | PolicyIdentity, *, local_files_only: bool = False) -> pathlib.Path:
+def resolve_base(spec: PolicyIdentity, *, local_files_only: bool = False) -> pathlib.Path:
     local = pathlib.Path(spec.base_model).expanduser()
     if local.is_dir():
         return local.resolve()
@@ -44,13 +44,6 @@ def resolve_base(spec: TrainingSpec | PolicyIdentity, *, local_files_only: bool 
                                              local_files_only=local_files_only,
                                              allow_patterns=["*.json", "*.safetensors", "*.model", "*.jinja",
                                                              "merges.txt", "vocab.txt"]))
-
-
-def initial_policy(spec: TrainingSpec) -> PolicyIdentity:
-    digest = checkpoint_sha256(resolve_base(spec))
-    return PolicyIdentity(id=policy_id(spec.base_model, spec.base_revision, digest, None, spec.dtype),
-                          model=spec.initial_model, base_model=spec.base_model,
-                          base_revision=spec.base_revision, base_sha256=digest, dtype=spec.dtype)
 
 
 def write_json(path: pathlib.Path, value: object) -> None:

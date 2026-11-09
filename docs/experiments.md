@@ -67,11 +67,6 @@ can contain control credentials and task data; keep them in ignored local run st
 | Repeated interaction | `history`, `reputation`, `services.peer_review.topology` | Bounded original observations, disclosed participant measurements, and fixed/seeded review relationships. See the variable manual for distinct information treatments. |
 | Work and output availability | `task_assignment`, `artifacts` | Measured cohort selection and immutable publication of actual output files. These change opportunities or available information, not the original tasks. |
 
-Weight-updating RL uses the separate [`mesocosm train run` controller](training.md), which alternates
-complete worlds with verified REINFORCE/LoRA updates. The per-world `learning` field describes context
-feedback; `learning.mode: rl` is still rejected. `history` implements bounded replay into fresh reset
-sessions, not a complete agent-state restore or guaranteed forgetting across shared services.
-
 ### Incentives and independent performance
 
 With `rewards.enabled: true`, the selected comparison participants finish each task in lockstep.

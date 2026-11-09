@@ -9,7 +9,7 @@ Reviewed on **2026-10-24**. Links pin the versions reviewed; some papers have ne
 The conditions derived below include both implemented controls and further research ideas. The
 [variable manual](experimental-variables.md) maps mechanisms to current configuration fields, while
 the [variable audit](variable-audit.md) examines existing controls and their confounds. Consult
-[research controls](research-controls.md), [experiments](experiments.md), [training](training.md), and
+[research controls](research-controls.md), [experiments](experiments.md), [training](https://github.com/khs1010/mesocosm/blob/b6652daab8ab868e8f76eca045233a1f93540150/docs/training.md), and
 the [capability matrix](capability-matrix.md) for precise limits. Consult
 [native acceptance](native-acceptance.md) for execution evidence. A configuration field, a unit test,
 and a successful run with three actual agents establish different things.

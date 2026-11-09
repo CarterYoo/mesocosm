@@ -34,7 +34,7 @@ TRANSCRIPT_MAX_FILES = 10_000
 
 TOOLS = (
     "inspect_transcript", "define_behavior", "list_factors", "configure_experiment", "validate_experiment",
-    "prepare_dataset", "submit_training", "run_experiment", "get_job_status", "snapshot_experiment",
+    "prepare_dataset", "run_experiment", "get_job_status", "snapshot_experiment",
     "fork_experiment", "evaluate_candidate", "compare_candidates", "export_reproducer",
     "deploy_policy", "evaluate_run", "plan_factorial", "advance_factorial", "report_factorial",
     "describe_tool", "read_record", "read_events", "list_records", "evaluate_collective",
@@ -484,60 +484,6 @@ class ResearchWorkbench:
         self.store.audit("dataset.prepared", {"dataset_id": identifier})
         return {"dataset_id": identifier, "counts": manifest["counts"], "manifest": manifest}
 
-    def submit_training(self, dataset_id: str, config: dict[str, Any], idempotency_key: str,
-                        start: bool = True, resume_job_id: str | None = None) -> dict[str, Any]:
-        """Queue real local SFT/LoRA; local pinned models only, no cloud allocation."""
-        from mesocosm.reproduction.dataset import load_dataset
-        from mesocosm.reproduction.jobs import start_worker
-        from mesocosm.reproduction.training import SFTConfig, training_source_pins
-
-        manifest = self.store.get(dataset_id, "dataset")
-        dataset_path = self.store.directory("datasets", dataset_id)
-        if load_dataset(dataset_path)[0] != manifest:
-            raise ValueError("stored dataset identity mismatch")
-        specification = SFTConfig.model_validate(config).model_dump(mode="json")
-        if bool(specification["resume"]) != bool(resume_job_id):
-            raise ValueError("resume requires both resume=true and a prior job ID")
-        sources = training_source_pins()
-        args = {"dataset_id": dataset_id, "config": specification, "start": start,
-                "resume_job_id": resume_job_id, "training_sources": sources}
-        cached = self.store.begin(idempotency_key, "submit_training", args)
-        if cached is not None:
-            return cached
-        identifier = "job-" + digest({"key": idempotency_key, "tool": "submit_training", "args": args})
-        directory = self.store.directory("jobs", identifier)
-        output = directory / "output"
-        try:
-            directory.mkdir(parents=True, mode=0o700)
-            elapsed_floor = 0.0
-            if resume_job_id:
-                prior = self.store.job(resume_job_id)
-                if (prior["kind"] != "training" or prior["dataset_id"] != dataset_id
-                        or prior["status"] not in {"cancelled", "failed", "interrupted"}
-                        or not prior.get("elapsed_seconds")):
-                    raise ValueError("resume requires a stopped training job with measured elapsed time")
-                if prior.get("training_sources") != sources:
-                    raise ValueError("resume training source code changed")
-                previous_config = {**prior["config"], "resume": True}
-                if previous_config != specification:
-                    raise ValueError("resume configuration must match the original job")
-                shutil.copytree(pathlib.Path(prior["output_path"]), output, symlinks=False)
-                elapsed_floor = prior.get("elapsed_floor_seconds", 0.0) + prior["elapsed_seconds"]
-            record = {"kind": "training", "status": "queued", "dataset_id": dataset_id,
-                      "dataset_path": str(dataset_path), "config": specification, "output_path": str(output),
-                      "training_sources": sources,
-                      "resume_job_id": resume_job_id, "elapsed_floor_seconds": elapsed_floor,
-                      "created_at": time.time()}
-            self.store.save_job(identifier, record, new=True)
-            result = {"job_id": identifier, "status": "queued", "automatic_cloud_allocation": False}
-            self.store.finish(idempotency_key, result)
-        except Exception as exc:
-            self.store.finish(idempotency_key, None, type(exc).__name__)
-            raise
-        if start:
-            start_worker(self.store)
-        return result
-
     async def run_experiment(self, experiment_id: str, idempotency_key: str, worker: str,
                              token_env: str = "MESOCOSM_WORKER_TOKEN") -> dict[str, Any]:
         """Submit the frozen package exactly once to an existing Linux execution worker."""
@@ -644,23 +590,9 @@ class ResearchWorkbench:
                 raise ValueError("preflight failed before submission; declare a new attempt after repair")
             return job
         if job["kind"] == "training":
-            if action in {"fetch", "resubmit"}:
-                raise ValueError("training results are local; use explicit resume for another attempt")
-            if action == "start":
-                from mesocosm.reproduction.jobs import start_worker
-                start_worker(self.store)
-            if action == "cancel":
-                # The trainer checks this sentinel between batches. No PID is killed.
-                (directory / "cancel.requested").touch(mode=0o600, exist_ok=True)
-                with self.store.connection() as db:
-                    db.execute("BEGIN IMMEDIATE")
-                    row = db.execute("SELECT body FROM jobs WHERE id=?", (job_id,)).fetchone()
-                    current = json.loads(row[0])
-                    if current["status"] == "queued":
-                        current.update(status="cancelled", finished_at=time.time())
-                        db.execute("UPDATE jobs SET body=? WHERE id=?", (json.dumps(current), job_id))
-                self.store.audit("job.cancel_requested", {"job_id": job_id, "mode": "cooperative"})
-            return self.store.job(job_id)
+            if action != "inspect":
+                raise ValueError("historical training jobs are read-only")
+            return job
         if action == "start":
             raise ValueError("remote worker owns its durable queue")
         if job["status"] == "submitting" and not job.get("submission_started") and action == "inspect":

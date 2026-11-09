@@ -47,7 +47,7 @@ def workflow(mutable_setup, tmp_path):  # noqa: F811
 def test_all_optional_tools_have_valid_closed_schemas(workflow):
     _, designer, spec, _ = workflow
     schemas = tool_schemas(True, True, True)
-    assert len(schemas) == len(designer.tools) == 15
+    assert len(schemas) == len(designer.tools) == 12
     assert set(schemas) == set(designer.tools)
     for schema in schemas.values():
         Draft202012Validator.check_schema(schema)
@@ -55,7 +55,6 @@ def test_all_optional_tools_have_valid_closed_schemas(workflow):
     for name in ("check_spec", "submit_spec", "prepare_candidate"):
         Draft202012Validator(schemas[name]).validate({"spec": spec})
     assert set(STRUCTURE_TOOLS + EXECUTION_TOOLS) <= set(schemas)
-    assert schemas["policy_status"]["properties"]["action"]["enum"] == ["inspect", "cancel", "start"]
     assert len(canonical(schemas).encode()) < 32_000
 
 

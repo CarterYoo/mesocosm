@@ -4,7 +4,7 @@ Mesocosm runs multi-agent experiments under controlled conditions. SwarmStill us
 it to explore whether frontier designers could reproduce a measured collective
 behavior in a team of small models by changing the agents' structure (S) and
 environment (E). The student model (M) and its weights (P) were fixed within each
-comparison. Weight updates are future work.
+comparison. The fork supports fixed-weight runs and in-context feedback.
 
 ## Reproduce the study
 

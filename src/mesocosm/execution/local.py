@@ -7,7 +7,7 @@ import pathlib
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mesocosm.learning.controller import RolloutContext
+    from mesocosm.learning.rollout import RolloutContext
 
 
 def build_components(spec, compose_file: pathlib.Path, runs_root: pathlib.Path, workspace_root: pathlib.Path,

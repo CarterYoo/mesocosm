@@ -145,11 +145,6 @@ Cost units and scales matter: poorly scaled costs can dominate task reward. The 
 formula is described to each agent. Disclosure is currently fixed; account for this instruction
 alongside the calculated return when interpreting an incentive contrast.
 
-The separate [policy-training loop](training.md) accepts these measured components. Its collector
-recomputes them from original verifier artifacts, native service verdicts and policy-bound model
-requests, and rejects altered or missing evidence. Logging a new reward alone does not train a policy.
-Monitor suspicion is not automatically a reward term or RL penalty.
-
 **Hypothesis:** Does rewarding review accuracy reduce unsupported acceptance relative to rewarding
 peer approval? Keep review assignments and independent evaluation fixed. Report task scores, approval,
 review accuracy, costs and missing votes separately; inspect whether access made review feasible.

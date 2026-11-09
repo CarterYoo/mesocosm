@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import os
 import sys
@@ -136,8 +135,7 @@ async def test_policy_space_bytes_bind_session_during_calls_and_restarts(mutable
     original = source.read_bytes()
     source.write_bytes(original + b"\n")
     for candidate in (designer, DesignerWorkbench(settings)):
-        for name, args in (("check_spec", {"spec": spec}), ("submit_spec", {"spec": spec}),
-                           ("train_policy", {"recipe_id": "unknown", "request_id": "once"})):
+        for name, args in (("check_spec", {"spec": spec}), ("submit_spec", {"spec": spec})):
             result = await candidate.call(name, args)
             assert result["code"] == "study_context_changed"
             assert "HIDDEN" not in json.dumps(result) and str(source) not in json.dumps(result)
@@ -159,17 +157,6 @@ async def test_frozen_native_binding_must_equal_selected_policy(mutable_setup, m
     assert result["code"] == "study_context_changed"
     with designer.store.connection() as db:
         assert db.execute("SELECT COUNT(*) FROM objects WHERE kind='designer_submission'").fetchone()[0] == 0
-
-
-@pytest.mark.asyncio
-async def test_final_blocks_new_training_and_activation_but_keeps_catalog_readable(mutable_setup):
-    _, designer, _ = mutable_setup
-    assert (await designer.call("submit_spec", {"spec": {"changes": [], "policy_id": "blue"}}))["accepted"]
-    for name, arguments in (("train_policy", {"recipe_id": "unknown", "request_id": "once"}),
-                            ("activate_policy", {"policy_job_id": "unknown"})):
-        result = await designer.call(name, arguments)
-        assert result["code"] == "immutable_submission"
-    assert designer.policy_catalog()["policies"]
 
 
 @pytest.mark.asyncio
@@ -196,9 +183,6 @@ async def test_policy_resolution_cannot_change_during_validation(mutable_setup, 
 async def test_mutable_tool_errors_are_bounded_private_and_every_call_audited(mutable_setup):
     settings, designer, native = mutable_setup
     calls = [("capabilities", {}), ("policy_catalog", {}),
-             ("train_policy", {"recipe_id": "/HIDDEN-operator/path", "request_id": "attempt"}),
-             ("policy_status", {"policy_job_id": native["blue"]}),
-             ("activate_policy", {"policy_job_id": native["red"]}),
              ("read_record", {"record_id": "/HIDDEN-private-store"})]
     for name, arguments in calls:
         response = await designer.call(name, arguments)
@@ -213,51 +197,7 @@ async def test_mutable_tool_errors_are_bounded_private_and_every_call_audited(mu
 
 
 @pytest.mark.asyncio
-async def test_status_inspection_cannot_overwrite_concurrent_activation(mutable_setup, monkeypatch):
-    settings, designer, _ = mutable_setup
-    native_job = "job-" + digest("native-training-race")
-    policy_job = "policy_job-" + digest("designer-training-race")
-    designer.workbench.store.save_job(native_job, {"kind": "training", "status": "running"}, new=True)
-    designer.store.save_job(policy_job, {"kind": "designer_policy", "session_id": settings.session_id,
-        "context_sha256": designer.context_sha256, "training_job_id": native_job, "status": "queued"}, new=True)
-    status_started, release_status = asyncio.Event(), asyncio.Event()
-    activation_entered = False
-
-    async def pending_native_status(job_id, action="inspect"):
-        assert job_id == native_job and action == "inspect"
-        status_started.set()
-        await release_status.wait()
-
-    async def commit_activation(job_id, reconcile=False):
-        nonlocal activation_entered
-        assert job_id == policy_job and not reconcile
-        activation_entered = True
-        value = designer.store.job(job_id)
-        value.update(status="ready", activation_key="activation-committed", policy_id="activated-policy")
-        designer.store.save_job(job_id, value)
-        return {"policy_job_id": job_id, "status": "ready", "policy_id": "activated-policy"}
-
-    monkeypatch.setattr(designer.workbench, "get_job_status", pending_native_status)
-    monkeypatch.setattr(designer.policy_manager, "activate_policy", commit_activation)
-    inspecting = asyncio.create_task(designer.call("policy_status", {"policy_job_id": policy_job}))
-    await asyncio.wait_for(status_started.wait(), timeout=3)
-    try:
-        rejected = await designer.call("activate_policy", {"policy_job_id": policy_job})
-        assert rejected["ok"] is False
-        assert not activation_entered
-    finally:
-        release_status.set()
-        inspected = await inspecting
-    assert inspected["status"] == "running"
-    activated = await designer.call("activate_policy", {"policy_job_id": policy_job})
-    assert activated["status"] == "ready" and activation_entered
-    persisted = designer.store.job(policy_job)
-    assert persisted["activation_key"] == "activation-committed"
-    assert persisted["policy_id"] == activated["policy_id"]
-
-
-@pytest.mark.asyncio
-async def test_mutable_stdio_has_ten_closed_tools_and_native_policy_validation(mutable_setup, tmp_path):
+async def test_mutable_stdio_has_seven_closed_tools_and_native_policy_validation(mutable_setup, tmp_path):
     pytest.importorskip("mcp")
     from jsonschema import Draft202012Validator
     from mcp import ClientSession, StdioServerParameters

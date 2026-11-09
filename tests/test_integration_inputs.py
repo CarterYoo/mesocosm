@@ -16,8 +16,6 @@ from mesocosm.core.manifest import WorldManifest
 from mesocosm.execution import package
 from mesocosm.integrations import registry
 from mesocosm.integrations.tasks import Task
-from mesocosm.learning.config import TrainingSpec
-from mesocosm.learning.controller import training_world
 
 
 @pytest.fixture
@@ -198,22 +196,3 @@ def test_explicit_condition_unlock_is_replaced_with_a_fresh_portable_lock(tmp_pa
     spec = load_experiment(tmp_path / "output/experiment.yaml")
     resolved_base = yaml.safe_load((tmp_path / "output/world.yaml").read_text())
     assert deep_merge(resolved_base, spec.conditions[0].patch)["integration_lock"] == base["integration_lock"]
-
-
-@pytest.mark.parametrize("execution_kind", ["harbor", "foreign-runtime"])
-def test_training_source_support_depends_on_native_execution_contract(tmp_path, alternate_source, execution_kind):
-    path, task = json_world(tmp_path)
-    data = yaml.safe_load(path.read_text())
-    data["rewards"] = {"enabled": True}
-    path.write_text(yaml.safe_dump(data))
-    original = json.loads((task / "problem.json").read_text())
-    (task / "problem.json").write_text(json.dumps({**original, "execution_kind": execution_kind}))
-    spec = TrainingSpec(name="source-training", world=path.name, base_model="test/model",
-                        base_revision="a" * 40, initial_model="model", server_url="http://vllm")
-    if execution_kind != "harbor":
-        with pytest.raises(ValueError, match="Harbor-compatible"):
-            training_world(spec, tmp_path / "training.yaml")
-    else:
-        loaded = training_world(spec, tmp_path / "training.yaml")
-        assert loaded.tasks[0].source == "json-fixture"
-        assert loaded.tasks[0].path == str(task)

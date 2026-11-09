@@ -7,13 +7,10 @@ import pathlib
 
 import httpx
 import pytest
-from test_reproduction_training import local_training_assets  # noqa: F401
 
 from mesocosm.learning.checkpoints import checkpoint_sha256
 from mesocosm.learning.serving import VLLMPolicyServer
-from mesocosm.reproduction.deployment import training_artifact
 from mesocosm.reproduction.service import ResearchWorkbench
-from mesocosm.reproduction.training import run_training
 
 
 @pytest.fixture
@@ -115,93 +112,6 @@ async def test_external_adapter_uncertain_load_reconciles_without_reload_and_reh
     assert calls.count("/v1/load_lora_adapter") == 1
     pathlib.Path(record["external_adapter"]["path"], "adapter_model.safetensors").write_bytes(b"changed")
     with pytest.raises(ValueError, match="hash mismatch"):
-        await bench._verify_deployment(reconciled["deployment_id"])
-
-
-async def test_real_completed_sft_connects_to_deployment_and_uncertain_load_reconciliation(
-    tmp_path, local_training_assets, monkeypatch  # noqa: F811
-):
-    _, config, _, _ = local_training_assets
-    bench = ResearchWorkbench(tmp_path / "research", allowed_servers={"http://127.0.0.1:8000": None})
-    dataset = bench.prepare_dataset(
-        [str(tmp_path / "source.json")],
-        {"split_assignments": {"train-1": "train", "train-2": "train", "development": "development", "test": "test"}},
-    )
-    queued = bench.submit_training(
-        dataset["dataset_id"], {**config, "dtype": "bfloat16", "max_steps": 1}, "train", start=False
-    )
-    job = bench.store.job(queued["job_id"])
-    result = run_training(pathlib.Path(job["dataset_path"]), pathlib.Path(job["output_path"]), job["config"])
-    assert result["optimizer_steps"] == 1 and result["losses"][0]["weight_delta_l2"] > 0
-    job.update(status="completed", result=result)
-    bench.store.save_job(job["job_id"], job)
-    assert training_artifact(bench.store, job["job_id"])["adapter_sha256"] == result["adapter_sha256"]
-    entries = [{"id": "base", "root": config["base_model"], "parent": None}]
-    calls = []
-
-    def handle(request):
-        calls.append(request.url.path)
-        if request.url.path == "/v1/models":
-            return httpx.Response(200, json={"data": entries})
-        if request.url.path == "/server_info":
-            return httpx.Response(
-                200,
-                json={
-                    "vllm_config": {
-                        "model_config": {
-                            "model": config["base_model"],
-                            "revision": "a" * 40,
-                            "dtype": "bfloat16",
-                            "quantization": None,
-                            "hf_overrides": {},
-                            "hf_config": {"head_dtype": "model"},
-                        },
-                        "cache_config": {"cache_dtype": "auto"},
-                        "lora_config": {"lora_dtype": "auto"},
-                    }
-                },
-            )
-        body = json.loads(request.content)
-        if request.url.path == "/v1/load_lora_adapter":
-            entries.append({"id": body["lora_name"], "root": body["lora_path"], "parent": "base"})
-            raise httpx.ReadError("load succeeded but acknowledgement was lost")
-        assert request.url.path == "/v1/completions"
-        return httpx.Response(
-            200,
-            json={
-                "id": "probe",
-                "model": body["model"],
-                "choices": [{"text": "reply", "finish_reason": "length"}],
-                "usage": {"completion_tokens": 1},
-            },
-        )
-
-    monkeypatch.setattr(
-        "mesocosm.learning.serving.VLLMPolicyServer",
-        lambda url, key: VLLMPolicyServer(url, key, transport=httpx.MockTransport(handle)),
-    )
-    args = {
-        "server": "http://127.0.0.1:8000",
-        "model": "base",
-        "base_model": config["base_model"],
-        "base_revision": "a" * 40,
-        "base_sha256": config["base_sha256"],
-        "idempotency_key": "base",
-    }
-    base = await bench.deploy_policy(**args)
-    assert base["status"] == "ready"
-    args.update(model="trained", idempotency_key="trained", training_job_id=job["job_id"])
-    trained = await bench.deploy_policy(**args)
-    assert trained["status"] == "activation_uncertain"
-    assert await bench.deploy_policy(**args) == trained
-    reconciled = await bench.get_job_status(trained["job_id"], "reconcile")
-    assert reconciled["status"] == "ready"
-    assert await bench.get_job_status(trained["job_id"], "reconcile") == reconciled
-    assert calls.count("/v1/load_lora_adapter") == 1
-    assert reconciled["numerical_weight_verification"] == "unverified"
-    await bench._verify_deployment(reconciled["deployment_id"])
-    pathlib.Path(result["adapter_path"], "adapter_model.safetensors").write_bytes(b"changed")
-    with pytest.raises(ValueError, match="changed"):
         await bench._verify_deployment(reconciled["deployment_id"])
 
 

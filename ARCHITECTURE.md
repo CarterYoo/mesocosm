@@ -179,28 +179,8 @@ episodes; no initial trust scores or invented histories are inserted. Work assig
 the default runs all agents on every task, while selective policies first measure every agent once,
 then dispatch smaller cohorts in finite round-robin or measured-performance waves. Unselected agents
 do not execute the task and have no fabricated outcome. Selective dispatch requires individual rewards
-and isolated services and cannot combine with peer review or policy training. Selection changes work
+and isolated services and cannot combine with peer review. Selection changes work
 opportunities and can amplify noisy early scores; it is not an optimizer.
-
-`mesocosm train run` adds an outer policy-training loop around fresh native worlds. It requires at least
-three agents sharing one pinned causal LM, reset memory, measured rewards and complete comparison
-episodes. Each model call is bound to its policy, agent, task, round and harness session before sampling.
-The collector cross-checks original gateway tokens, logprobs, verifier artifacts, reward allocation and
-controller receipts. Missing or inconsistent evidence stops training.
-Compositional incentives are recomputed from original verifier files, native verdict writes and exact
-policy-bound model requests. New metric/assignment provenance uses a v2 rule marker; original scalar
-records retain their earlier interpretation. Bounded history, selective assignment and artifact
-publication are explicitly unsupported in policy training until their rollout contracts are integrated.
-
-One REINFORCE optimizer step updates LoRA weights from each complete batch. The controller hashes the
-saved checkpoint, activates a fresh vLLM alias and uses it in the next world. The final world performs
-evaluation and token-logprob consistency verification without another update. Original scores and
-allocated incentives remain distinct. Context feedback stays disabled in this training profile. See
-the [training guide](docs/training.md) and [ADR-0045](docs/adr/0045-on-policy-world-training.md) for the
-estimator, supported profile and distinction between a real update and demonstrated learning benefit.
-Optional `evaluation_world` runs content-disjoint tasks before and after training without updates.
-Experiment inputs are fingerprinted and checked for drift; `baseline: true` requires a three-agent
-native task profile and declared model revisions, separate from verified serving identity.
 
 ## Observation and judgment
 

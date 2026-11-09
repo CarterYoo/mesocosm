@@ -1,7 +1,7 @@
 # Research-agent workbench
 
-The workbench connects incident evidence, experimental factors, demonstration learning,
-real-world execution and behavior evaluation. It exposes 24 Python/JSON tools over Mesocosm's
+The workbench connects incident evidence, experimental factors,
+real-world execution and behavior evaluation. It exposes Python/JSON tools over Mesocosm's
 existing runtime. It does not insert scripted outcomes into the world.
 
 This is a software interface, not a new claim of successful behavior reproduction. The
@@ -13,9 +13,6 @@ see [From a trained adapter to a measured experiment](verified-research-loop.md)
 serving API attribution separate from numerical weight verification and real-agent acceptance.
 For fixed external adapters, mixed populations and one collective detector for imported teacher
 and lineage-qualified student evidence, see the [fixed-policy study guide](fixed-p-study.md).
-For a designer that may also choose P and perform real SFT/LoRA, see the
-[restricted policy-design guide](designer-policy.md).
-
 ## Start with a frozen question
 
 ```bash
@@ -83,7 +80,6 @@ need an operator-provided serving endpoint; declaring a model revision does not 
 | `configure_experiment` | Applies ordered global/role/agent changes and freezes original executable inputs with the rubric. |
 | `validate_experiment` | Revalidates the frozen package and compatibility. Live model and Docker readiness remain separate. |
 | `prepare_dataset` | Freezes recorded observation/action examples, annotations, selection and group-disjoint splits. |
-| `submit_training` | Queues actual local SFT/LoRA using pinned local model files; no cloud resource is allocated. |
 | `run_experiment` | Submits one frozen candidate to an existing authenticated Linux worker. |
 | `get_job_status` | Inspects, cancels, retrieves results or reconciles an uncertain submission without a new run identity. |
 | `snapshot_experiment` | Verifies and imports an existing closed-run snapshot with explicit filesystem coverage. |
@@ -109,7 +105,7 @@ Configuration changes are pre-run; existing budget conditions remain the support
 ## Bounded agent context
 
 `research tools --json` is a concise index (schema version 2). Call `describe_tool` with
-`{"name":"submit_training"}` for its nested schema rather than loading every schema each turn.
+`{"name":"configure_experiment"}` for its nested schema rather than loading every schema each turn.
 `list_factors` defaults to a 20-item index. Use `prefix` or `names` to select fields, and `detail:true`
 for their complete schemas, constraints and current values. Continue from `next_offset` until `eof`.
 
@@ -174,66 +170,6 @@ Comparisons deduplicate reimported evidence and consolidate fragments of the sam
 Sessions are grouped by incident/source. Descriptive bootstrap intervals use these clusters,
 not tokens as independent samples. Unknown-outcome bounds and missing/conflicting costs are
 reported separately. A single source cannot establish cross-incident generalization.
-
-## Demonstration learning
-
-Install the existing optional `learning` dependencies on the selected training host. Provide
-local base weights and tokenizer; the trainer never downloads them or allocates a GPU.
-
-Input conversation rows contain `id`, `session_id`, optional `incident_id`, `task_id`, `agent_id`,
-an explicit `label` (`normal`, `target`, `recovery`) and `messages`. Native gateway records can also
-be imported with explicit label overrides. An annotation is not a measured behavioral finding.
-
-Each assistant action becomes one example using only its preceding messages. Connected incident,
-task and session groups stay in one split. Explicit split assignments that cut such a group fail.
-Source bytes, selections and hashes are retained. This prevents structural leakage; it cannot
-automatically identify a hidden answer already embedded in a user's input text.
-
-```python
-dataset = workbench.prepare_dataset(
-    sources=["/absolute/path/to/recorded-conversations.jsonl"],
-    config={"seed": 42, "reasoning_policy": "preserve", "max_context_tokens": 4096},
-)
-job = workbench.submit_training(
-    dataset_id=dataset["dataset_id"],
-    idempotency_key="study-a-sft-001",
-    config={
-        "backend": "sft_lora",
-        "base_model": "/absolute/path/to/local-base-model",
-        "base_sha256": "<checkpoint_sha256 of that directory>",
-        "device": "cpu",
-        "max_steps": 100,
-        "max_seconds": 300,
-        "max_train_tokens": 100000,
-        "max_eval_tokens": 10000,
-        "lora_rank": 8,
-        "target_modules": ["q_proj", "v_proj"],
-    },
-)
-```
-
-Obtain the model digest with `mesocosm.learning.checkpoints.checkpoint_sha256(Path(...))`.
-A separate tokenizer also needs a matching tokenizer digest. Templates must preserve supplied
-tool and reasoning information or fail explicitly. Loss applies only to the selected assistant
-action. Context length is checked with the pinned tokenizer; truncation is not silently applied.
-
-Checkpoints retain adapter, optimizer, scheduler, RNG state and data cursor. Resuming is an explicit
-new job referencing a stopped prior job with the same configuration; the original attempt remains
-intact. Reserved training/evaluation token budgets are not refunded after interrupted computation.
-These token budgets count assistant targets, not every forward-pass input token. Setup, input
-hashing and model loading also consume wall time. Training from a CLI invocation can continue after
-the submitting client exits; `start=false` queues without launching a worker.
-
-Queued training runs in an owned child process. A supervisor and an independent child alarm bound
-wall time; a hung model forward cannot bypass the batch-level checks. Cancellation stops the owned
-process group. A lost parent leaves the bounded child holding the execution lease, preventing a
-second worker from repeating its updates. Recovery records an interrupted attempt without retrying
-it. Resumed attempts retain the original time allowance and pinned training implementation sources.
-
-SFT/LoRA updates actual weights. QLoRA, full fine-tuning, preference learning and joint multi-agent
-optimization are currently unsupported in this trainer. The existing verified-world REINFORCE
-implementation remains available through `mesocosm train`; it has a separate rollout contract.
-Tiny random-model unit tests verify gradient and resume mechanics, not research performance.
 
 ## Real execution and retry behavior
 

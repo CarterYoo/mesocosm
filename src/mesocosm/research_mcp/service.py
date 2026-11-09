@@ -20,7 +20,7 @@ from mesocosm.research_mcp.corpus import Corpus, _read_file
 from mesocosm.research_mcp.spec import Allowlist, DesignerSpec, MutableDesignerSpec, StrictObject, designer_spec_type
 
 TOOLS = ("capabilities", "corpus_search", "corpus_stats", "read_events", "check_spec", "submit_spec")
-POLICY_TOOLS = ("policy_catalog", "train_policy", "policy_status", "activate_policy")
+POLICY_TOOLS = ("policy_catalog",)
 STRUCTURE_TOOLS = ("structure_catalog",)
 EXECUTION_TOOLS = ("prepare_candidate", "run_candidate", "run_status", "compare_runs")
 MAX_RESPONSE_BYTES = 24_000
@@ -30,10 +30,8 @@ PUBLIC_SETUP = (
     "choices; student identity and evaluation settings are not design variables."
 )
 MUTABLE_SETUP = (
-    "You may change policy P through approved policy handles, complete agent-slot populations and bounded "
-    "SFT/LoRA recipes, alongside the approved structure and environment choices. Model identities, original "
-    "training examples and evaluation settings remain private. A completed weight update does not establish "
-    "serving readiness or behavioral improvement."
+    "You may select approved policy handles or complete agent-slot populations alongside "
+    "the approved structure and environment choices. Evaluation settings remain private."
 )
 
 
@@ -184,7 +182,7 @@ class DesignerWorkbench:
         try:
             if name not in self.tools:
                 raise ToolInputError("unavailable_tool", "Use the advertised designer tools.")
-            mutating = name in {"train_policy", "policy_status", "activate_policy", "submit_spec",
+            mutating = name in {"submit_spec",
                                 "prepare_candidate", "run_candidate", "run_status", "compare_runs"}
             if mutating:
                 with self.store.lease("designer-mutation:" + self.settings.session_id):
@@ -285,30 +283,6 @@ class DesignerWorkbench:
     def policy_catalog(self, offset: int = 0, limit: int = 10) -> dict[str, Any]:
         self._assert_context()
         return self._policies().catalog(offset, limit)
-
-    def train_policy(self, recipe_id: str, request_id: str,
-                     parameters: dict[str, Any] | None = None) -> dict[str, Any]:
-        self._assert_context()
-        self._assert_open()
-        result = self._policies().train_policy(recipe_id, {} if parameters is None else parameters, request_id)
-        self._assert_context()
-        return result
-
-    async def policy_status(self, policy_job_id: str,
-                            action: Literal["inspect", "cancel", "start"] = "inspect") -> dict[str, Any]:
-        self._assert_context()
-        if action == "start":
-            self._assert_open()
-        result = await self._policies().policy_status(policy_job_id, action)
-        self._assert_context()
-        return result
-
-    async def activate_policy(self, policy_job_id: str, reconcile: bool = False) -> dict[str, Any]:
-        self._assert_context()
-        self._assert_open()
-        result = await self._policies().activate_policy(policy_job_id, reconcile)
-        self._assert_context()
-        return result
 
     def _corpus(self, corpus_id: str) -> None:
         if corpus_id not in self.settings.corpus_ids:

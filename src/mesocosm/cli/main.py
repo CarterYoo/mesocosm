@@ -31,20 +31,16 @@ from mesocosm.reproduction.cli import research_app
 from mesocosm.research_mcp.cli import designer_app
 
 if TYPE_CHECKING:
-    from mesocosm.core.run import RunResult
-    from mesocosm.learning.controller import RolloutContext
+    pass
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help="Mesocosm research world")
 world_app = typer.Typer(no_args_is_help=True, help="World manifests")
 env_app = typer.Typer(no_args_is_help=True, help="Sandbox environment")
 conditions_app = typer.Typer(no_args_is_help=True, help="Conditions during a run")
 snapshot_app = typer.Typer(no_args_is_help=True, help="Snapshots of a world's declared state")
-activations_app = typer.Typer(no_args_is_help=True, help="Activations recomputed from recorded token ids")
-probe_app = typer.Typer(no_args_is_help=True, help="Linear probes over captured activations")
 flags_app = typer.Typer(no_args_is_help=True, help="Candidate incidents and their review")
 scenario_app = typer.Typer(no_args_is_help=True, help="Deprecated authored fixture scenarios")
 experiment_app = typer.Typer(no_args_is_help=True, help="Repeated comparisons of enforced conditions")
-train_app = typer.Typer(no_args_is_help=True, help="On-policy weight updates from real multi-agent worlds")
 export_app = typer.Typer(no_args_is_help=True, help="Run bundles in formats other tools read")
 judge_app = typer.Typer(no_args_is_help=True, help="The judge's model components")
 audit_app = typer.Typer(no_args_is_help=True, help="Explicit evidence links and detached bundle anchors")
@@ -54,10 +50,7 @@ app.add_typer(conditions_app, name="conditions")
 app.add_typer(flags_app, name="flags")
 app.add_typer(scenario_app, name="scenario")
 app.add_typer(experiment_app, name="experiment")
-app.add_typer(train_app, name="train")
 app.add_typer(snapshot_app, name="snapshot")
-app.add_typer(activations_app, name="activations")
-activations_app.add_typer(probe_app, name="probe")
 app.add_typer(judge_app, name="judge")
 app.add_typer(export_app, name="export")
 app.add_typer(audit_app, name="audit")
@@ -123,16 +116,14 @@ def capabilities(json_: bool = JSON_OPT) -> None:
                        "reward_allocation": ["individual", "team_mean", "mixed"],
                        "monitor_scope": ["per_agent", "joint"]},
         "mid_run_conditions": ["budget"],
-        "learning": {"supported": ["none", "in_context"], "weight_updating_rl": {
-            "status": "supported", "algorithm": "reinforce_lora", "command": "train run",
-            "scope": "shared causal LM, >=3 agents, isolated task services; see docs/training.md"}},
+        "learning": {"supported": ["none", "in_context"], "weight_updating_rl": {"status": "unsupported"}},
         "monitor_timing": ["posthoc", "pre_action"],
         "monitor_intervention": {"scope": ["per_agent", "joint"], "boundary": "top-level OpenCode tool calls",
                                  "on_flag": ["deny", "terminate"]},
         "team_resources": ["model_requests", "completion_tokens", "model_concurrency", "service_requests"],
         "internal_access": "services.access; isolate_agents required; shared mounts unsupported",
         "containment": "required private PID inspection; adapted hosts remain explicitly unverified",
-        "research_workbench": {"entrypoint": "mesocosm research tools --json", "tools": 14,
+        "research_workbench": {"entrypoint": "mesocosm research tools --json",
                                "software_contracts": "supported", "native_acceptance": "unverified",
                                "requirements": "docs/reproduction-requirements.md"},
         "evidence": "docs/capability-matrix.md; automated tests are not live agent behavior evidence",
@@ -401,61 +392,6 @@ def experiment_run(experiment: pathlib.Path,
                                                    or result["not_run"] or result["stopped"]))
 
 
-@train_app.command("run")
-def train_run(training: pathlib.Path,
-              out: pathlib.Path = typer.Option(None, "--out"),
-              runs_root: pathlib.Path = RUNS_ROOT_OPT,
-              workspace_root: pathlib.Path = WORKSPACE_ROOT_OPT,
-              verifier_network: str = VERIFIER_NETWORK_OPT,
-              allow_unenforced_storage: bool = UNENFORCED_STORAGE_OPT,
-              vllm_port: int | None = typer.Option(None, "--vllm-port"),
-              vllm_host: str | None = typer.Option(None, "--vllm-host"),
-              json_: bool = JSON_OPT) -> None:
-    """Run fresh native worlds, train LoRA from measured returns, activate and evaluate the new policy."""
-    from contextlib import redirect_stdout
-    from urllib.parse import urlsplit
-
-    from mesocosm.learning.checkpoints import write_json
-    from mesocosm.learning.config import load_training
-    from mesocosm.learning.controller import run_training
-
-    out_dir = out
-    try:
-        spec = load_training(training)
-        out_dir = out or runs_root / "training" / spec.name
-        endpoint = urlsplit(spec.server_url)
-        if endpoint.scheme != "http" or not endpoint.hostname or endpoint.path not in ("", "/") \
-                or endpoint.query or endpoint.fragment or endpoint.username or endpoint.password:
-            raise ValueError("training's Compose profile requires server_url to be an HTTP root endpoint")
-        host, port = endpoint.hostname, endpoint.port or 80
-        if (vllm_host is not None and vllm_host != host) or (vllm_port is not None and vllm_port != port):
-            raise ValueError("gateway and policy activation must use the same TrainingSpec.server_url endpoint")
-
-        async def run_one(manifest: pathlib.Path, rollout: RolloutContext) -> RunResult:
-            stacks: list = []
-            runner = _stack_runner(out_dir, runs_root, workspace_root, None, port, host, stacks,
-                verifier_network=verifier_network, allow_unenforced_storage=allow_unenforced_storage,
-                task_runtime="native", fresh_workspace=True, rollout=rollout)
-            try:
-                run = await runner(manifest)
-                write_json(manifest.with_suffix(".result.json"), {
-                    "run_id": run.run_id, "status": run.status, "bundle": str(run.bundle_path), "error": run.error})
-                return run
-            finally:
-                if stacks:
-                    await stacks[-1].down()
-
-        with redirect_stdout(sys.stderr):
-            result = asyncio.run(run_training(spec, training.resolve(), out_dir, run_one))
-    except Exception as exc:
-        _emit({"status": "failed_training", "error": str(exc), "out": str(out_dir)}, json_, ok=False)
-        return
-    _emit({"status": result["status"], "out": str(out_dir), "episodes": len(result["episodes"]),
-           "updates": len(result["updates"]),
-           "performance_improvement_demonstrated": result["performance_improvement_demonstrated"]},
-          json_, ok=result["status"] == "ok")
-
-
 @experiment_app.command("report")
 def experiment_report(out_dir: pathlib.Path, json_: bool = JSON_OPT) -> None:
     """Compare every condition, keeping task performance, incentives and detection separate."""
@@ -655,99 +591,6 @@ def fork(snapshot: pathlib.Path,
     _emit({"run_id": result.run_id, "status": result.status, "bundle": str(result.bundle_path),
            "rewards": result.rewards, "restore_ok": restore["ok"], "lineage": lineage, "error": result.error},
           json_, ok=result.status == "ok" and restore["ok"])
-
-
-@activations_app.command("capture")
-def activations_capture(bundle: pathlib.Path,
-                        model: str = typer.Option(..., "--model", help="HF repo of the served weights"),
-                        layers: str = typer.Option(None, "--layers",
-                                                   help="Comma-separated layer indices; default quarters"),
-                        raw: str = typer.Option("flagged", "--raw", help="flagged | all | none"),
-                        positions: str = typer.Option("completion", "--positions", help="completion | all"),
-                        limit: int = typer.Option(None, "--limit"),
-                        request_id: list[str] = typer.Option(None, "--request"),
-                        device: str = typer.Option("cuda", "--device"),
-                        dtype: str = typer.Option("bfloat16", "--dtype"),
-                        served_model: str = typer.Option(None, "--served-model",
-                                                         help="Only requests that named this model id (a world "
-                                                              "with several models)"),
-                        json_: bool = JSON_OPT) -> None:
-    """Recompute activations for a bundle's requests from the recorded token ids (needs the GPU and the weights)."""
-    from mesocosm.observe.activations import capture
-
-    layer_ids = [int(x) for x in layers.split(",")] if layers else None
-    report = capture(bundle, model, layer_ids, raw, positions, limit, request_id or None, device, dtype,
-                     served_model=served_model)
-    if report.get("captured", 0) > 0:
-        report["probes"] = _score_manifest_probes(bundle)
-    _emit(report, json_, ok=report.get("captured", 0) > 0)
-
-
-def _score_manifest_probes(bundle: pathlib.Path) -> dict:
-    """observe.capture.probes of the bundle's manifest, scored over what was just captured (ADR-0031)."""
-    from mesocosm.core.records import RunBundle
-    from mesocosm.observe.probes import score
-
-    stored = RunBundle.open(bundle).manifest()
-    base = pathlib.Path(stored["path"]).parent if stored.get("path") else pathlib.Path.cwd()
-    out = {}
-    for rel in ((stored.get("manifest") or {}).get("observe") or {}).get("capture", {}).get("probes") or []:
-        path = pathlib.Path(rel) if pathlib.Path(rel).is_absolute() else base / rel
-        try:
-            out[path.stem] = score(bundle, path)
-        except (ValueError, OSError) as e:
-            out[path.stem] = {"error": str(e)}
-    return out
-
-
-@probe_app.command("train")
-def probe_train(bundles: list[pathlib.Path] = typer.Argument(..., help="Bundles with captured raw tensors"),
-                layer: int = typer.Option(..., "--layer"),
-                out: pathlib.Path = typer.Option(..., "--out", help="Probe file (.safetensors)"),
-                labels: pathlib.Path = typer.Option(None, "--labels", help="JSON {request_id: 0|1}; default: the "
-                                                                          "judge's flags label the positives"),
-                pool: str = typer.Option("mean", "--pool", help="mean | last position"),
-                l2: float = typer.Option(1e-2, "--l2"),
-                steps: int = typer.Option(500, "--steps"),
-                json_: bool = JSON_OPT) -> None:
-    """Train a logistic-regression probe on the raw tensors captured at one layer (ADR-0031)."""
-    from mesocosm.observe.probes import train
-
-    try:
-        report = train(bundles, layer, out, labels, pool, l2, steps)
-    except ValueError as e:
-        _emit({"error": str(e)}, json_, ok=False)
-        return
-    _emit(report, json_)
-
-
-@probe_app.command("score")
-def probe_score(bundle: pathlib.Path, probe: pathlib.Path = typer.Option(..., "--probe"),
-                name: str = typer.Option(None, "--name", help="Score file name; default: the probe's"),
-                json_: bool = JSON_OPT) -> None:
-    """Score every captured request of a bundle with a probe; refuses a bundle captured differently."""
-    from mesocosm.observe.probes import score
-
-    try:
-        report = score(bundle, probe, name)
-    except ValueError as e:
-        _emit({"error": str(e)}, json_, ok=False)
-        return
-    _emit(report, json_)
-
-
-@activations_app.command("verify")
-def activations_verify(bundle: pathlib.Path, model: str = typer.Option(..., "--model"),
-                       tolerance: float = typer.Option(0.05, "--tolerance", help="Allowed relative L2 difference"),
-                       limit: int = typer.Option(None, "--limit"),
-                       device: str = typer.Option("cuda", "--device"),
-                       dtype: str = typer.Option("bfloat16", "--dtype", help="Second-pass dtype, e.g. float32"),
-                       json_: bool = JSON_OPT) -> None:
-    """Recompute again and compare with what was captured; the tolerance is stated in the result."""
-    from mesocosm.observe.activations import verify
-
-    report = verify(bundle, model, tolerance, limit, device, dtype)
-    _emit(report, json_, ok=report.get("ok", False))
 
 
 @conditions_app.command("set")

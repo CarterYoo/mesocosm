@@ -147,7 +147,7 @@ Mesocosm: research infrastructure for studying behavior that emerges from real a
 
 ### Stack
 - Language and version: Python 3.11–3.13 (vLLM and NNsight install on 3.13 as of the Colab spike), `from __future__ import annotations` in every module.
-- Framework(s): FastAPI + httpx (model gateway), Typer (CLI), pydantic v2, Docker Compose (sandbox topology), vLLM + NNsight (inference and activations), OpenCode (harness, used unmodified), Harbor (tasks and verifiers).
+- Framework(s): FastAPI + httpx (model gateway), Typer (CLI), pydantic v2, Docker Compose (sandbox topology), vLLM (inference), OpenCode (harness, used unmodified), Harbor (tasks and verifiers).
 - Package manager: uv. `uv.lock` is committed; change it only through `uv add` / `uv lock`.
 - Runtime / deployment target: Linux Docker hosts with an inference server; GPU resources may include explicitly authorized Colab runtimes. Agents reach inference and allowed internet only through the configured gateways. Colab isolation/resource adaptations must remain explicit.
 
@@ -184,7 +184,7 @@ Prefer single-file or single-test runs during iteration. Full suites are for the
 - Any outbound route from the sandbox network other than the two gateways: the model gateway and, when `internet.enabled`, the web gateway (ADR-0022). Never `network_mode: host`, a second NIC on an agent container, or internet that bypasses the web gateway's policy and log.
 - Approximating an unsupported condition with prompt text (ADR-0003). It must fail.
 - Committing anything under `runs/`, activations, or run logs.
-- Describing reward logging or context feedback as policy-weight training. `train run` (ADR-0045) requires verified rollout provenance, action/reward boundaries, checkpoint updates and serving activation; report its evidence separately from context feedback and learning effectiveness.
+- Describing reward logging or context feedback as policy-weight training.
 - Marking a capability `supported` without a linked evidence file or test.
 - Reintroducing MARGIN Arena as a dependency.
 - Enabling activation capture by default (ADR-0005).
@@ -213,7 +213,6 @@ When the user corrects your approach, append a one-line rule here before ending 
 - Compose projects are named after the manifest and all use the fixed 172.30.x.0/24 subnets: take the previous project down (`down -v`) before `up` of another manifest. `up --wait` only covers OpenCode because the agent service has a healthcheck.
 - Inside RootlessKit's network namespace the host resolver (127.0.0.11) is unreachable, so docker/buildx clients cannot fetch registry tokens there: run them under `unshare -m` with a resolv.conf naming 10.0.2.3 bound over /etc/resolv.conf, or build from the host namespace first.
 - Keep original research task instructions and independent success criteria intact. Exact command scripts are acceptable only in labeled plumbing fixtures; prescribed communication or misconduct is not evidence of emergent behavior.
-- `activations verify --dtype float32` does not fit a 4B model plus 8k-token logits on an L4; use `float16` for the second pass.
 - Legacy world-facing fixture content must not leak control-plane credentials or identifiers; `tests/test_examples.py` checks its platform-name convention. Preserve original external task content rather than rewriting it to manufacture a fictional workplace.
 - Build for the long term, never the cheapest way (maintainer correction, 2026-10-18): when a feature can be a stand-in or the real thing, build the real thing or stop and say what it costs; the scripted `world.events` and the mock `sites` were cheap stand-ins that had to be removed (ADR-0024).
 - Every mechanism is built for N agents from the start (ADR-0026). Research acceptance requires at least three real agents; one/two-agent fixtures may test isolated plumbing. A two-party protocol is a topology over N, not an exactly-two-agent runtime restriction.
@@ -226,7 +225,7 @@ When the user corrects your approach, append a one-line rule here before ending 
 - Keep development focused on execution, enforced conditions and evidence. Agent visualization UI and its demos/assets were removed; preserve CLI analysis, original trajectories, monitoring and activation research independently.
 - Integrate benchmarks through installed task-source and execution-backend contracts, preserving original inputs and evaluators. Do not add benchmark-name branches to the core or treat registration as research acceptance.
 - Every actor in the world is an agent in the manifest (ADR-0024): no scripted posts, bots or scheduled messages, no mock services. A background colleague is an `agents[]` entry; external information is the real internet through the web gateway. Scheduled *conditions* (exposure timing) are allowed; scheduled *behavior* is not.
-- Treat fixed versus designer-modifiable P as an explicit study configuration; mutable P must use actual model/deployment selection or verified weight training, never persona or prompt substitutions.
+- Treat fixed versus designer-modifiable P as an explicit study configuration; mutable P must use approved model/deployment selection, never persona or prompt substitutions.
 - The egress check's probes through the web gateway and the harness's own update checks (`registry.npmjs.org`) show up in `web.jsonl`; the run manager marks them (`probe`, `origin: harness`) and the judge skips them. Do not read raw `blocked_egress` counts without those marks.
 - Colab: run `mesocosm env compose --out` as `dock` with the output under `/home/dock` (`/content` is not writable by dock); `colab exec` wedges after a while, so drive long runs over SSH (`scratchpad/cssh.py`) and detach with `(setsid ... &)`.
 - Qwen3-4B agents finish a six-step world task in 30–60 s and may skip a `sleep`-and-retry instruction. Place a timed condition (`conditions.exposure`) inside that window; since ADR-0018 the seconds count from the run start (the run manager sets `/admin/clock`), not from the services start.

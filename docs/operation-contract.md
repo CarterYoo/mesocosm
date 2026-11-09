@@ -4,10 +4,9 @@ The public surface is the `mesocosm` CLI and the authenticated worker job API de
 [execution guide](execution.md). CLI implementation lives in `mesocosm.cli.main` and `mesocosm.execution`;
 Python users can call the underlying modules, such as `core.run` and `core.experiment`.
 There is no implemented `core.api` facade or general HTTP/MCP control API. The worker API owns finite
-world/experiment jobs; it is not an arbitrary mid-run control surface. The training controller
-uses its strict native rollout collector; Inspect export remains an evaluation format.
+world/experiment jobs; it is not an arbitrary mid-run control surface.
 The separate [designer stdio MCP](designer-mcp.md) exposes six restricted inverse-study tools,
-with four optional [policy selection/training tools](designer-policy.md). It keeps trusted
+with an optional catalog for approved policy deployments. It keeps trusted
 operator records, world execution and evaluation controls private.
 
 Changing a supported variable is a configuration operation. Introducing a new variable or service
@@ -31,7 +30,6 @@ enforcement mechanism.
 | `run <manifest>` | One run using a prepared topology: isolation checks, budgets, real harness execution and task verification. Native execution is the default. |
 | `experiment run <experiment>` | Fresh worlds and workspace directories per trial, repeated named conditions, full preflight, all outcomes retained. |
 | `experiment report <directory>` | Condition summaries with task scores, incentives, monitor judgments and missing observations separated. |
-| `train run <training>` | Complete native worlds → validated action/reward batches → LoRA optimizer updates → immutable vLLM policy activation → final evaluation. See [training](training.md). |
 | `report <bundle>` | Recorded calls, tokens, task results, flags and run status. |
 | `diagnose <bundle>` | Tool-call generation, executed harness tools, monitor/admission failures and original scores, with missing evidence marked unknown. |
 | `evaluate <bundle>` | Separate task/incentive/behavior/monitor/cost measurements; unknown labels remain unknown. |
@@ -63,10 +61,6 @@ Not every command produces a receipt. Experiments persist a trial plan, rendered
 outcomes. Reward allocation appends `learning.reward` events with source evidence while preserving
 `verifier.reward`. Feedback attachment and completed harness delivery have separate events. Monitor
 records include scope, rubric version/hash and coverage. None of these records asserts a weight update.
-The training controller separately saves full rollout provenance, checkpoint hashes, optimizer receipts,
-activation receipts and final policy consistency checks. `no_update` is explicit when no gradient update
-occurs; a failed or incomplete world never supplies an update.
-
 Pre-action monitoring holds each supported OpenCode tool call for a controller-only decision. Binding,
 assessment and decision receipts retain session/call attribution, rubric hash and evidence. `deny` and
 `terminate` are intervention policies; unknown assessments fail closed. This boundary does not mediate

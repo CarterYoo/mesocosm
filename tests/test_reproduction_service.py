@@ -145,22 +145,6 @@ def dataset_file(tmp_path):
     return path
 
 
-@pytest.mark.asyncio
-async def test_dataset_and_queued_job_idempotency_cancel(bench, tmp_path):
-    source = dataset_file(tmp_path)
-    prepared = bench.prepare_dataset([str(source)], {"split_assignments": {
-        "r0": "train", "r1": "development", "r2": "test"}})
-    args = {"dataset_id": prepared["dataset_id"], "config": {"base_model": str(tmp_path / "not-loaded"),
-            "base_sha256": "0" * 64}, "idempotency_key": "train-once", "start": False}
-    first = bench.submit_training(**args)
-    assert bench.submit_training(**args) == first
-    cancelled = await bench.get_job_status(first["job_id"], "cancel")
-    assert cancelled["status"] == "cancelled"
-    assert not pathlib.Path(cancelled["output_path"]).exists()
-    with pytest.raises(ValueError):
-        bench.submit_training(**(args | {"config": args["config"] | {"learning_rate": 0.1}}))
-
-
 def test_cli_has_all_declared_tools_and_one_json_result(tmp_path):
     runner = CliRunner()
     result = runner.invoke(app, ["research", "tools", "--json"])

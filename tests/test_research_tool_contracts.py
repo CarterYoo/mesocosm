@@ -14,11 +14,10 @@ from mesocosm.reproduction.contracts import describe_tool, validate_arguments
 from mesocosm.reproduction.dataset import DatasetConfig
 from mesocosm.reproduction.errors import ToolInputError, error_payload
 from mesocosm.reproduction.service import ResearchWorkbench
-from mesocosm.reproduction.training import SFTConfig
 
 
 @pytest.mark.parametrize("name", ["define_behavior", "configure_experiment", "prepare_dataset",
-                                 "submit_training", "get_job_status", "describe_tool", "list_factors",
+                                 "get_job_status", "describe_tool", "list_factors",
                                  "read_events", "read_record", "list_records"])
 def test_selected_contract_example_validates_without_any_runtime(name):
     contract = describe_tool(ResearchWorkbench, name)
@@ -30,9 +29,6 @@ def test_selected_contract_example_validates_without_any_runtime(name):
         assert behavior.define_behavior(parsed["spec"])["name"] == "recorded-shell-execution"
     elif name == "prepare_dataset":
         assert DatasetConfig.model_validate(parsed["config"]).seed == 42
-    elif name == "submit_training":
-        assert SFTConfig.model_validate(parsed["config"]).dtype == "bfloat16"
-        assert parsed["start"] is False
     # Detailed contracts stay out of the normal discovery catalog.
     index = ResearchWorkbench.tools()
     assert all("inputSchema" not in entry for entry in index["tools"])
@@ -40,10 +36,7 @@ def test_selected_contract_example_validates_without_any_runtime(name):
 
 def test_nested_configs_are_actual_models_not_opaque_dicts():
     dataset = describe_tool(ResearchWorkbench, "prepare_dataset")["inputSchema"]
-    training = describe_tool(ResearchWorkbench, "submit_training")["inputSchema"]
     assert dataset["$defs"]["DatasetConfig"] == DatasetConfig.model_json_schema()
-    assert training["$defs"]["SFTConfig"] == SFTConfig.model_json_schema()
-    assert training["$defs"]["SFTConfig"]["required"] == ["base_model", "base_sha256"]
     changes = describe_tool(ResearchWorkbench, "configure_experiment")["inputSchema"]["$defs"]["FactorChange"]
     assert changes["required"] == ["factor", "value"]
     assert changes["properties"]["scope"]["enum"] == ["global", "role", "agent"]
@@ -135,16 +128,6 @@ def test_factor_change_schema_catches_scope_and_timing_before_manifest_io(change
     with pytest.raises(ToolInputError):
         validate_arguments(ResearchWorkbench.configure_experiment, {
             "base_world": "/does/not/exist", "behavior_id": "behavior-" + "0" * 64, "changes": [change]})
-
-
-def test_actual_training_cross_field_error_is_safe_and_actionable():
-    with pytest.raises(ToolInputError) as caught:
-        validate_arguments(ResearchWorkbench.submit_training, {
-            "dataset_id": "dataset-" + "0" * 64, "idempotency_key": "x", "config": {
-                "base_model": "/private/model", "base_sha256": "0" * 64, "dtype": "float16"}})
-    payload = error_payload("submit_training", caught.value)
-    assert "loss-scaling" in payload["issues"][0]["constraint"]
-    assert "/private/model" not in json.dumps(payload)
 
 
 def test_unknown_runtime_exception_has_no_invented_diagnostic_or_input_echo():

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Annotated, Any, Literal
 
 from pydantic import Field, StrictInt, model_validator
@@ -72,3 +73,9 @@ class RolloutBatch(TrainingModel):
                 "rewards": rewards, "baseline": baseline, "advantages": advantages,
                 "constant_observed_reward": len(set(rewards)) == 1,
                 "performance_improvement_demonstrated": False}
+
+
+@dataclass(frozen=True)
+class RolloutContext:
+    policy: PolicyIdentity
+    episode_id: str

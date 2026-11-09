@@ -29,7 +29,6 @@ from mesocosm.reproduction import behavior
 from mesocosm.reproduction.collective import CollectiveSpec
 from mesocosm.reproduction.dataset import DatasetConfig
 from mesocosm.reproduction.errors import ToolInputError, validation_error
-from mesocosm.reproduction.training import SFTConfig
 
 if TYPE_CHECKING:
     from mesocosm.reproduction.service import ResearchWorkbench
@@ -180,8 +179,6 @@ def _model(function: Callable[..., Any], *, behavior_schema: type[BaseModel] | N
             annotation = list[FactorChange]
         elif name == "prepare_dataset" and key == "config":
             annotation = DatasetConfig
-        elif name == "submit_training" and key == "config":
-            annotation = SFTConfig
         elif name == "get_job_status" and key == "action":
             annotation = Action
         elif name == "configure_experiment" and key == "split":
@@ -257,9 +254,6 @@ _EXAMPLES: dict[str, dict[str, Any]] = {
         "changes": [{"factor": "agent.budget.requests", "value": 20, "scope": "agent", "target": "agent-1"}]},
     "prepare_dataset": {"sources": ["/absolute/path/to/conversations.jsonl"],
         "config": {"seed": 42, "reasoning_policy": "preserve", "max_context_tokens": 4096}},
-    "submit_training": {"dataset_id": "dataset-" + "0" * 64, "idempotency_key": "study-a-sft-001",
-        "start": False, "config": {"base_model": "/absolute/path/to/local-base-model", "base_sha256": "0" * 64,
-            "dtype": "bfloat16", "device": "cuda", "max_steps": 100, "max_seconds": 300}},
     "get_job_status": {"job_id": "job-" + "0" * 64, "action": "inspect"},
     "describe_tool": {"name": "configure_experiment"},
     "list_factors": {"prefix": "services.chat", "limit": 20},
@@ -293,16 +287,6 @@ _GUIDANCE = {
         "one recorded incident_id/task_id/session_id. Native bundle directories are also accepted.",
         "Connected incident/task/session identities stay in one partition. Labels are supplied annotations, "
         "not automatically inferred behavioral findings. action_ranges uses half-open assistant-turn indices.",
-    ],
-    "submit_training": [
-        "Uses existing local pinned models and optional learning dependencies; allocates no cloud resources. "
-        "start=true can launch a local child worker; start=false only queues.",
-        "Current backend is SFT/LoRA. Float16 is rejected until a loss-scaling backend exists. "
-        "CPU/float32 is the training default; deploy_policy accepts only bfloat16/float16 with no implicit conversion.",
-        "A separate tokenizer requires tokenizer_sha256. Resume requires config.resume=true plus resume_job_id "
-        "of a stopped owned job with the identical dataset, configuration and retained elapsed budget.",
-        "Use an idempotency key once per declared attempt; repeat the same key only with identical arguments. "
-        "Checkpoints/loss are not evaluated multi-agent behavior.",
     ],
     "get_job_status": [
         "Reuse the returned state_version as since_version on later inspect calls for compact unchanged polling. "

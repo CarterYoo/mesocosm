@@ -8,7 +8,7 @@ provide a substitute task, model response or evaluator when a backend is unavail
 ## Operator preparation
 
 Prepare a compatible Linux Docker worker and its model deployments using the
-[execution guide](execution.md) and [policy guide](designer-policy.md). Keep its credentials,
+[execution guide](execution.md) and [policy guide](https://github.com/khs1010/mesocosm/blob/b6652daab8ab868e8f76eca045233a1f93540150/docs/designer-policy.md). Keep its credentials,
 native store and private settings outside the designer sandbox. An approved worker URL uses
 HTTPS, or loopback HTTP for local operator use; the public designer never selects this endpoint.
 

@@ -19,14 +19,6 @@ gateway = [
   "fastapi>=0.115",
   "uvicorn[standard]>=0.30",
 ]
-observe = [
-  # Lower bounds are the versions the Colab spike validated (issue #5); vLLM is installed separately.
-  "torch>=2.13",
-  "transformers>=5.17",
-  "nnsight>=0.8.0",
-  "safetensors>=0.4",
-  "numpy>=1.26",
-]
 dev = [
   "pytest>=8.2",
   "pytest-asyncio>=0.23",
@@ -35,12 +27,6 @@ dev = [
   "numpy>=1.26",
   "safetensors>=0.4",
   "types-pyyaml>=6.0",
-]
-learning = [
-    "peft>=0.21.2",
-    "safetensors>=0.4",
-    "torch>=2.13",
-    "transformers>=5.17",
 ]
 mcp = [
     "mcp>=1.30,<2",

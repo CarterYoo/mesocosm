@@ -2,7 +2,7 @@
 
 This is the target architecture. The status table below distinguishes native primitives,
 the restricted designer profile and proposed work. A schema field or plugin registration
-does not establish execution support. The [mutable-P implementation](designer-policy.md)
+does not establish execution support. The [mutable-P implementation](https://github.com/khs1010/mesocosm/blob/b6652daab8ab868e8f76eca045233a1f93540150/docs/designer-policy.md)
 is one part of this workflow, not a claim that all features below already run.
 
 ## One experiment core, multiple access profiles

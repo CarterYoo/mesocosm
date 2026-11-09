@@ -61,7 +61,7 @@ from mesocosm.integrations.registry import integration_snapshot, validate_integr
 from mesocosm.integrations.tasks import Reward, Task, load_task, resolve_task_paths
 from mesocosm.judge.flags import detect, flag_counts
 from mesocosm.judge.intervention import InterventionError, InterventionGate, InterventionState
-from mesocosm.learning.controller import RolloutContext
+from mesocosm.learning.rollout import RolloutContext
 
 
 class Harness(Protocol):
